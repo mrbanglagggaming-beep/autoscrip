@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla&family=JetBrains+Mono:wght@400;500;600;700&family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Firebase SDK -->
+  <!-- Firebase SDK (লোড হওয়ার পর JavaScript চালাবে) -->
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
@@ -803,7 +803,7 @@
 </div>
 
 <script>
-// ===== FIREBASE CONFIG =====
+// ===== ফায়ারবেস কনফিগারেশন (সবার আগে) =====
 const firebaseConfig = {
   apiKey: "AIzaSyA5_HYl2R1Sa17xBeBhyxO4lGa9lAY5ut4",
   authDomain: "powerscript-pro-web.firebaseapp.com",
@@ -813,12 +813,12 @@ const firebaseConfig = {
   appId: "1:709315727810:web:abeb73172635061343c65b"
 };
 
-// Initialize Firebase
+// ফায়ারবেস ইনিশিয়ালাইজ
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// ===== GLOBAL STATE =====
+// ===== গ্লোবাল ভেরিয়েবল =====
 let currentUser = null;
 let allTools = [];
 let allUsers = [];
@@ -827,57 +827,110 @@ let editingToolId = null;
 let commandBlocks = [];
 let blockCounter = 0;
 
-// ===== DOM HELPERS =====
-const $ = id => document.getElementById(id);
-const showPanel = (panel) => {
-  document.querySelectorAll('.pnl').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.sb-lnk').forEach(l => l.classList.remove('active'));
-  $(`pnl-${panel}`).classList.add('active');
-  document.querySelector(`[onclick="showPanel('${panel}')"]`)?.classList.add('active');
-  
-  const titles = { dashboard: 'ড্যাশবোর্ড', tools: 'টুলস', 'add-tool': 'নতুন টুল', users: 'ইউজার', requests: 'রিকোয়েস্ট', settings: 'সেটিংস' };
-  $('#panelTitle').textContent = titles[panel] || panel;
-};
+// ===== DOM হেল্পার ফাংশন =====
+function $(id) {
+  return document.getElementById(id);
+}
 
-// ===== TOAST =====
-const toast = (msg, type = 'info') => {
+// ===== প্যানেল দেখানোর ফাংশন =====
+function showPanel(panel) {
+  // সব প্যানেল লুকাও
+  document.querySelectorAll('.pnl').forEach(p => p.classList.remove('active'));
+  // সব সাইডবার বাটন থেকে active ক্লাস রিমুভ করো
+  document.querySelectorAll('.sb-lnk').forEach(l => l.classList.remove('active'));
+  
+  // যে প্যানেল দেখাতে হবে সেটা active করো
+  const panelEl = $(`pnl-${panel}`);
+  if (panelEl) panelEl.classList.add('active');
+  
+  // সংশ্লিষ্ট সাইডবার বাটন active করো
+  const sidebarBtn = document.querySelector(`[onclick*="showPanel('${panel}')"]`);
+  if (sidebarBtn) sidebarBtn.classList.add('active');
+  
+  // টাইটেল আপডেট করো
+  const titles = { 
+    dashboard: 'ড্যাশবোর্ড', 
+    tools: 'টুলস', 
+    'add-tool': 'নতুন টুল', 
+    users: 'ইউজার', 
+    requests: 'রিকোয়েস্ট', 
+    settings: 'সেটিংস' 
+  };
+  const titleEl = $('#panelTitle');
+  if (titleEl) titleEl.textContent = titles[panel] || panel;
+}
+
+// ===== টোস্ট নোটিফিকেশন =====
+function toast(msg, type = 'info') {
   const toast = document.createElement('div');
   toast.className = `tk tk-${type === 'success' ? 's' : type === 'error' ? 'e' : type === 'warning' ? 'w' : 'i'}`;
   toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${msg}`;
   toast.onclick = () => toast.remove();
-  $('#toastContainer').appendChild(toast);
-  setTimeout(() => toast.remove(), 4000);
-};
+  const container = $('#toastContainer');
+  if (container) {
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+}
 
-// ===== CONFIRM DIALOG =====
+// ===== কনফার্ম ডায়ালগ =====
 let confirmCallback = null;
-const showConfirm = (title, msg, onConfirm) => {
-  $('#confirmTitle').textContent = title;
-  $('#confirmMsg').textContent = msg;
-  $('#confirmDialog').classList.add('active');
-  confirmCallback = onConfirm;
-};
-const closeConfirm = () => {
-  $('#confirmDialog').classList.remove('active');
-  confirmCallback = null;
-};
-$('#confirmAction').onclick = () => {
-  if (confirmCallback) confirmCallback();
-  closeConfirm();
-};
 
-// ===== AUTH =====
-window.handleLogin = async () => {
-  const email = $('#loginEmail').value;
-  const pass = $('#loginPwd').value;
+function showConfirm(title, msg, onConfirm) {
+  const titleEl = $('#confirmTitle');
+  const msgEl = $('#confirmMsg');
+  const dialog = $('#confirmDialog');
+  
+  if (titleEl) titleEl.textContent = title;
+  if (msgEl) msgEl.textContent = msg;
+  if (dialog) dialog.classList.add('active');
+  
+  confirmCallback = onConfirm;
+}
+
+function closeConfirm() {
+  const dialog = $('#confirmDialog');
+  if (dialog) dialog.classList.remove('active');
+  confirmCallback = null;
+}
+
+// কনফার্ম বাটনে ক্লিক ইভেন্ট সেট করা
+document.addEventListener('DOMContentLoaded', function() {
+  const confirmBtn = $('#confirmAction');
+  if (confirmBtn) {
+    confirmBtn.onclick = function() {
+      if (confirmCallback) confirmCallback();
+      closeConfirm();
+    };
+  }
+});
+
+// ===== লগইন ফাংশন =====
+window.handleLogin = async function() {
+  const email = $('#loginEmail')?.value;
+  const pass = $('#loginPwd')?.value;
   const btn = $('#loginBtn');
-  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> লগইন হচ্ছে...';
+  const errDiv = $('#loginErr');
+  
+  if (!email || !pass) {
+    if (errDiv) {
+      errDiv.textContent = 'ইমেইল ও পাসওয়ার্ড দিন';
+      errDiv.style.display = 'block';
+      setTimeout(() => errDiv.style.display = 'none', 3000);
+    }
+    return;
+  }
+  
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> লগইন হচ্ছে...';
+  }
   
   try {
     const userCred = await auth.signInWithEmailAndPassword(email, pass);
     const uid = userCred.user.uid;
     
-    // Check if admin
+    // চেক করো ইউজার অ্যাডমিন কিনা
     const adminDoc = await db.collection('autoscrip_admins').doc(uid).get();
     if (!adminDoc.exists) {
       await auth.signOut();
@@ -885,46 +938,77 @@ window.handleLogin = async () => {
     }
     
     currentUser = { uid, ...adminDoc.data() };
-    $('#loginScreen').style.display = 'none';
-    $('#app').style.display = 'block';
-    $('#userName').textContent = currentUser.name || 'Admin';
-    $('#userAvatar').textContent = (currentUser.name || 'A')[0];
+    
+    // লগইন স্ক্রিন লুকাও, অ্যাপ দেখাও
+    const loginScreen = $('#loginScreen');
+    const app = $('#app');
+    if (loginScreen) loginScreen.style.display = 'none';
+    if (app) app.style.display = 'block';
+    
+    // ইউজার ইনফো আপডেট করো
+    const userNameEl = $('#userName');
+    const userAvatarEl = $('#userAvatar');
+    if (userNameEl) userNameEl.textContent = currentUser.name || 'Admin';
+    if (userAvatarEl) userAvatarEl.textContent = (currentUser.name || 'A')[0];
     
     toast('✅ স্বাগতম, অ্যাডমিন!', 'success');
+    
+    // সব ডেটা লোড করো
     loadDashboard();
+    loadTools();
+    loadUsers();
+    loadRequests();
+    loadSettings();
     
   } catch (err) {
-    $('#loginErr').textContent = err.message;
-    $('#loginErr').style.display = 'block';
-    setTimeout(() => $('#loginErr').style.display = 'none', 4000);
+    if (errDiv) {
+      errDiv.textContent = err.message;
+      errDiv.style.display = 'block';
+      setTimeout(() => errDiv.style.display = 'none', 4000);
+    }
   } finally {
-    btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> লগইন';
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> লগইন';
+    }
   }
 };
 
-window.logout = () => {
+// ===== লগআউট =====
+window.logout = function() {
   auth.signOut();
-  location.reload();
+  window.location.reload();
 };
 
-// Auto-login check
+// ===== অটো লগইন চেক =====
 auth.onAuthStateChanged(async (user) => {
   if (user) {
     const adminDoc = await db.collection('autoscrip_admins').doc(user.uid).get();
     if (adminDoc.exists) {
       currentUser = { uid: user.uid, ...adminDoc.data() };
-      $('#loginScreen').style.display = 'none';
-      $('#app').style.display = 'block';
-      $('#userName').textContent = currentUser.name || 'Admin';
-      $('#userAvatar').textContent = (currentUser.name || 'A')[0];
+      
+      const loginScreen = $('#loginScreen');
+      const app = $('#app');
+      if (loginScreen) loginScreen.style.display = 'none';
+      if (app) app.style.display = 'block';
+      
+      const userNameEl = $('#userName');
+      const userAvatarEl = $('#userAvatar');
+      if (userNameEl) userNameEl.textContent = currentUser.name || 'Admin';
+      if (userAvatarEl) userAvatarEl.textContent = (currentUser.name || 'A')[0];
+      
       loadDashboard();
+      loadTools();
+      loadUsers();
+      loadRequests();
+      loadSettings();
     } else {
       auth.signOut();
     }
   }
 });
 
-// ===== DASHBOARD =====
+// ===== ড্যাশবোর্ড =====
 async function loadDashboard() {
   try {
     const toolsSnap = await db.collection('autoscrip_tools').get();
@@ -951,12 +1035,15 @@ async function loadDashboard() {
     
     // Recent tools
     const recent = allTools.slice(0, 5);
-    $('#recentTools').innerHTML = recent.map(t => `
-      <div class="d-flex jc-between ai-center" style="padding: 12px; border-bottom: 1px solid var(--border);">
-        <div><b>${t.title}</b><br><small>${t.author || 'AutoScrip'}</small></div>
-        <span class="bdg bdg-p">👁 ${t.views || 0}</span>
-      </div>
-    `).join('');
+    const recentEl = $('#recentTools');
+    if (recentEl) {
+      recentEl.innerHTML = recent.map(t => `
+        <div class="d-flex jc-between ai-center" style="padding: 12px; border-bottom: 1px solid var(--border);">
+          <div><b>${t.title || ''}</b><br><small>${t.author || 'AutoScrip'}</small></div>
+          <span class="bdg bdg-p">👁 ${t.views || 0}</span>
+        </div>
+      `).join('');
+    }
     
   } catch (err) {
     toast('ড্যাশবোর্ড লোড করতে সমস্যা: ' + err.message, 'error');
@@ -964,7 +1051,9 @@ async function loadDashboard() {
 }
 
 function animateNumber(id, target) {
-  const el = $(id); if (!el) return;
+  const el = $(id);
+  if (!el) return;
+  
   let current = 0;
   const step = Math.ceil(target / 30);
   const iv = setInterval(() => {
@@ -974,13 +1063,15 @@ function animateNumber(id, target) {
   }, 30);
 }
 
-// ===== TOOLS MANAGEMENT =====
-window.loadTools = async () => {
+// ===== টুলস ম্যানেজমেন্ট =====
+window.loadTools = async function() {
   try {
     const snap = await db.collection('autoscrip_tools').orderBy('createdAt', 'desc').get();
     allTools = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
     renderTools();
-    $('#toolCount').textContent = allTools.length;
+    
+    const countEl = $('#toolCount');
+    if (countEl) countEl.textContent = allTools.length;
   } catch (err) {
     toast('টুলস লোড করতে সমস্যা', 'error');
   }
@@ -994,10 +1085,13 @@ function renderTools() {
   if (search) filtered = filtered.filter(t => t.title?.toLowerCase().includes(search));
   if (cat) filtered = filtered.filter(t => t.category === cat);
   
-  $('#toolsTable').innerHTML = filtered.map(t => `
+  const tableBody = $('#toolsTable');
+  if (!tableBody) return;
+  
+  tableBody.innerHTML = filtered.map(t => `
     <tr>
       <td><div style="width: 40px; height: 30px; background: ${t.thumbnail ? `url(${t.thumbnail})` : 'var(--card2)'}; background-size: cover; border-radius: 4px;"></div></td>
-      <td><b>${t.title}</b><br><small>${t.author || ''}</small></td>
+      <td><b>${t.title || ''}</b><br><small>${t.author || ''}</small></td>
       <td><span class="bdg bdg-i">${getCategoryLabel(t.category)}</span></td>
       <td>${t.views || 0}</td>
       <td><span class="bdg ${t.published ? 'bdg-g' : 'bdg-w'}">${t.published ? 'প্রকাশিত' : 'খসড়া'}</span></td>
@@ -1011,19 +1105,32 @@ function renderTools() {
 
 window.filterTools = renderTools;
 
-window.resetToolForm = () => {
+window.resetToolForm = function() {
   editingToolId = null;
-  $('#toolFormTitle').textContent = '➕ নতুন টুল';
-  $('#editToolId').value = '';
-  $('#toolTitle').value = '';
-  $('#toolCategory').value = 'system';
-  $('#toolDesc').value = '';
-  $('#toolAuthor').value = 'AutoScrip Team';
-  $('#toolTags').value = '';
-  $('#toolYoutube').value = '';
-  $('#toolThumb').value = '';
-  $('#toolPublished').checked = true;
-  $('#toolFeatured').checked = false;
+  
+  const formTitle = $('#toolFormTitle');
+  const editId = $('#editToolId');
+  const title = $('#toolTitle');
+  const category = $('#toolCategory');
+  const desc = $('#toolDesc');
+  const author = $('#toolAuthor');
+  const tags = $('#toolTags');
+  const youtube = $('#toolYoutube');
+  const thumb = $('#toolThumb');
+  const published = $('#toolPublished');
+  const featured = $('#toolFeatured');
+  
+  if (formTitle) formTitle.textContent = '➕ নতুন টুল';
+  if (editId) editId.value = '';
+  if (title) title.value = '';
+  if (category) category.value = 'system';
+  if (desc) desc.value = '';
+  if (author) author.value = 'AutoScrip Team';
+  if (tags) tags.value = '';
+  if (youtube) youtube.value = '';
+  if (thumb) thumb.value = '';
+  if (published) published.checked = true;
+  if (featured) featured.checked = false;
   
   commandBlocks = [];
   blockCounter = 0;
@@ -1054,64 +1161,86 @@ function renderCommandBlocks() {
   container.innerHTML += `<button class="btn btn-sm btn-gh" onclick="addCommandBlock()"><i class="fas fa-plus"></i> আরেকটি ব্লক</button>`;
 }
 
-window.addCommandBlock = () => {
+window.addCommandBlock = function() {
   commandBlocks.push({ title: '', code: '' });
   renderCommandBlocks();
 };
 
-window.removeCommandBlock = (idx) => {
+window.removeCommandBlock = function(idx) {
   commandBlocks.splice(idx, 1);
   renderCommandBlocks();
 };
 
-window.updateCommandBlock = (idx, field, value) => {
+window.updateCommandBlock = function(idx, field, value) {
   if (commandBlocks[idx]) commandBlocks[idx][field] = value;
 };
 
-window.editTool = async (id) => {
+window.editTool = async function(id) {
   const tool = allTools.find(t => t._id === id);
   if (!tool) return;
   
   editingToolId = id;
-  $('#toolFormTitle').textContent = '✏️ টুল এডিট';
-  $('#editToolId').value = id;
-  $('#toolTitle').value = tool.title || '';
-  $('#toolCategory').value = tool.category || 'system';
-  $('#toolDesc').value = tool.description || '';
-  $('#toolAuthor').value = tool.author || 'AutoScrip Team';
-  $('#toolTags').value = (tool.tags || []).join(', ');
-  $('#toolYoutube').value = tool.youtube || '';
-  $('#toolThumb').value = tool.thumbnail || '';
-  $('#toolPublished').checked = tool.published !== false;
-  $('#toolFeatured').checked = !!tool.featured;
+  
+  const formTitle = $('#toolFormTitle');
+  const editId = $('#editToolId');
+  const title = $('#toolTitle');
+  const category = $('#toolCategory');
+  const desc = $('#toolDesc');
+  const author = $('#toolAuthor');
+  const tags = $('#toolTags');
+  const youtube = $('#toolYoutube');
+  const thumb = $('#toolThumb');
+  const published = $('#toolPublished');
+  const featured = $('#toolFeatured');
+  
+  if (formTitle) formTitle.textContent = '✏️ টুল এডিট';
+  if (editId) editId.value = id;
+  if (title) title.value = tool.title || '';
+  if (category) category.value = tool.category || 'system';
+  if (desc) desc.value = tool.description || '';
+  if (author) author.value = tool.author || 'AutoScrip Team';
+  if (tags) tags.value = (tool.tags || []).join(', ');
+  if (youtube) youtube.value = tool.youtube || '';
+  if (thumb) thumb.value = tool.thumbnail || '';
+  if (published) published.checked = tool.published !== false;
+  if (featured) featured.checked = !!tool.featured;
   
   commandBlocks = tool.commands?.length ? tool.commands.map(c => ({ title: c.title || '', code: c.code || '' })) : [];
   renderCommandBlocks();
   showPanel('add-tool');
 };
 
-window.saveTool = async () => {
-  const title = $('#toolTitle').value.trim();
-  if (!title) { toast('শিরোনাম দিন!', 'warning'); return; }
+window.saveTool = async function() {
+  const title = $('#toolTitle')?.value.trim();
+  if (!title) { 
+    toast('শিরোনাম দিন!', 'warning'); 
+    return; 
+  }
   
   const data = {
     title,
-    category: $('#toolCategory').value,
-    description: $('#toolDesc').value.trim(),
-    author: $('#toolAuthor').value.trim() || 'AutoScrip Team',
-    tags: $('#toolTags').value.split(',').map(s => s.trim()).filter(Boolean),
-    youtube: $('#toolYoutube').value.trim() || null,
-    thumbnail: $('#toolThumb').value.trim() || null,
+    category: $('#toolCategory')?.value || 'system',
+    description: $('#toolDesc')?.value.trim() || '',
+    author: $('#toolAuthor')?.value.trim() || 'AutoScrip Team',
+    tags: ($('#toolTags')?.value || '').split(',').map(s => s.trim()).filter(Boolean),
+    youtube: $('#toolYoutube')?.value.trim() || null,
+    thumbnail: $('#toolThumb')?.value.trim() || null,
     commands: commandBlocks.filter(b => b.code.trim()),
-    published: $('#toolPublished').checked,
-    featured: $('#toolFeatured').checked,
+    published: $('#toolPublished')?.checked || false,
+    featured: $('#toolFeatured')?.checked || false,
     updatedAt: new Date().toISOString()
   };
   
-  if (data.commands.length === 0) { toast('কমপক্ষে একটি কমান্ড ব্লক দিন!', 'warning'); return; }
+  if (data.commands.length === 0) { 
+    toast('কমপক্ষে একটি কমান্ড ব্লক দিন!', 'warning'); 
+    return; 
+  }
   
   const btn = $('#saveToolBtn');
-  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> সেভ হচ্ছে...';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> সেভ হচ্ছে...';
+  }
   
   try {
     if (editingToolId) {
@@ -1119,46 +1248,56 @@ window.saveTool = async () => {
       toast('✅ টুল আপডেট হয়েছে!', 'success');
     } else {
       data.createdAt = new Date().toISOString();
-      data.views = 0; data.downloads = 0; data.likes = [];
+      data.views = 0;
+      data.downloads = 0;
+      data.likes = [];
       await db.collection('autoscrip_tools').add(data);
       toast('✅ নতুন টুল যোগ হয়েছে!', 'success');
     }
     
-    loadTools();
+    await loadTools();
     showPanel('tools');
   } catch (err) {
     toast('সেভ করতে সমস্যা: ' + err.message, 'error');
   } finally {
-    btn.disabled = false; btn.innerHTML = 'সেভ করুন';
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = 'সেভ করুন';
+    }
   }
 };
 
-window.deleteTool = (id) => {
+window.deleteTool = function(id) {
   showConfirm('টুল ডিলিট', 'এটি স্থায়ীভাবে মুছে যাবে!', async () => {
     try {
       await db.collection('autoscrip_tools').doc(id).delete();
       toast('🗑️ টুল ডিলিট!', 'success');
-      loadTools();
+      await loadTools();
     } catch (err) {
       toast('ডিলিট করতে সমস্যা', 'error');
     }
   });
 };
 
-// ===== USERS MANAGEMENT =====
-window.loadUsers = async () => {
+// ===== ইউজার ম্যানেজমেন্ট =====
+window.loadUsers = async function() {
   try {
     const snap = await db.collection('autoscrip_users').orderBy('createdAt', 'desc').get();
     allUsers = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
     renderUsers();
-    $('#userCount').textContent = allUsers.length;
+    
+    const countEl = $('#userCount');
+    if (countEl) countEl.textContent = allUsers.length;
   } catch (err) {
     toast('ইউজার লোড করতে সমস্যা', 'error');
   }
 };
 
 function renderUsers() {
-  $('#usersTable').innerHTML = allUsers.map(u => `
+  const tableBody = $('#usersTable');
+  if (!tableBody) return;
+  
+  tableBody.innerHTML = allUsers.map(u => `
     <tr>
       <td><div class="sb-av" style="width: 32px; height: 32px; font-size: 0.9rem;">${(u.name || u.email || '?')[0]}</div></td>
       <td>${u.email || '—'}</td>
@@ -1168,33 +1307,39 @@ function renderUsers() {
   `).join('');
 }
 
-window.toggleUserBan = async (id, banned) => {
+window.toggleUserBan = async function(id, banned) {
   try {
     await db.collection('autoscrip_users').doc(id).update({ banned });
     toast(`✅ ইউজার ${banned ? 'ব্যান' : 'আনব্যান'} করা হয়েছে`, 'success');
-    loadUsers();
+    await loadUsers();
   } catch (err) {
     toast('আপডেট করতে সমস্যা', 'error');
   }
 };
 
-// ===== REQUESTS MANAGEMENT =====
-window.loadRequests = async () => {
+// ===== রিকোয়েস্ট ম্যানেজমেন্ট =====
+window.loadRequests = async function() {
   try {
     const snap = await db.collection('autoscrip_requests').orderBy('createdAt', 'desc').get();
     allRequests = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
     renderRequests();
     
     const pending = allRequests.filter(r => r.status === 'pending').length;
-    $('#reqBadge').textContent = pending;
-    $('#reqBadge').style.display = pending ? 'inline' : 'none';
+    const badge = $('#reqBadge');
+    if (badge) {
+      badge.textContent = pending;
+      badge.style.display = pending ? 'inline' : 'none';
+    }
   } catch (err) {
     toast('রিকোয়েস্ট লোড করতে সমস্যা', 'error');
   }
 };
 
 function renderRequests() {
-  $('#requestsTable').innerHTML = allRequests.map(r => `
+  const tableBody = $('#requestsTable');
+  if (!tableBody) return;
+  
+  tableBody.innerHTML = allRequests.map(r => `
     <tr>
       <td><span class="bdg bdg-i">${r.type || 'রিকোয়েস্ট'}</span></td>
       <td>${r.title || r.name || '—'}</td>
@@ -1210,48 +1355,51 @@ function renderRequests() {
   `).join('');
 }
 
-window.updateRequest = async (id, status) => {
+window.updateRequest = async function(id, status) {
   try {
     await db.collection('autoscrip_requests').doc(id).update({ status });
     toast(`✅ রিকোয়েস্ট ${status === 'approved' ? 'অ্যাপ্রুভড' : 'রিজেক্টেড'}`, 'success');
-    loadRequests();
-    loadDashboard();
+    await loadRequests();
+    await loadDashboard();
   } catch (err) {
     toast('আপডেট করতে সমস্যা', 'error');
   }
 };
 
-window.deleteRequest = async (id) => {
+window.deleteRequest = async function(id) {
   showConfirm('রিকোয়েস্ট ডিলিট', 'এটি স্থায়ীভাবে মুছে যাবে!', async () => {
     try {
       await db.collection('autoscrip_requests').doc(id).delete();
       toast('🗑️ রিকোয়েস্ট ডিলিট', 'success');
-      loadRequests();
-      loadDashboard();
+      await loadRequests();
+      await loadDashboard();
     } catch (err) {
       toast('ডিলিট করতে সমস্যা', 'error');
     }
   });
 };
 
-// ===== SETTINGS =====
-window.loadSettings = async () => {
+// ===== সেটিংস =====
+window.loadSettings = async function() {
   try {
     const doc = await db.collection('autoscrip_config').doc('settings').get();
     if (doc.exists) {
-      $('#siteName').value = doc.data().siteName || 'AutoScrip';
-      $('#siteDesc').value = doc.data().siteDesc || '';
+      const siteName = $('#siteName');
+      const siteDesc = $('#siteDesc');
+      
+      if (siteName) siteName.value = doc.data().siteName || 'AutoScrip';
+      if (siteDesc) siteDesc.value = doc.data().siteDesc || '';
     }
   } catch (err) {
     toast('সেটিংস লোড করতে সমস্যা', 'error');
   }
 };
 
-window.saveSettings = async () => {
+window.saveSettings = async function() {
   try {
     await db.collection('autoscrip_config').doc('settings').set({
-      siteName: $('#siteName').value,
-      siteDesc: $('#siteDesc').value,
+      siteName: $('#siteName')?.value || 'AutoScrip',
+      siteDesc: $('#siteDesc')?.value || '',
       updatedAt: new Date().toISOString()
     }, { merge: true });
     toast('✅ সেটিংস সেভ হয়েছে!', 'success');
@@ -1260,15 +1408,24 @@ window.saveSettings = async () => {
   }
 };
 
-// ===== HELPER =====
+// ===== হেল্পার ফাংশন =====
 function getCategoryLabel(cat) {
-  const labels = { system: '⚙️ সিস্টেম', network: '🌐 নেটওয়ার্ক', security: '🔒 সিকিউরিটি', backup: '💾 ব্যাকআপ', monitoring: '📊 মনিটরিং', automation: '🤖 অটোমATION' };
+  const labels = { 
+    system: '⚙️ সিস্টেম', 
+    network: '🌐 নেটওয়ার্ক', 
+    security: '🔒 সিকিউরিটি', 
+    backup: '💾 ব্যাকআপ', 
+    monitoring: '📊 মনিটরিং', 
+    automation: '🤖 অটোমেশন' 
+  };
   return labels[cat] || cat;
 }
 
-// ===== INIT =====
-document.addEventListener('DOMContentLoaded', () => {
-  // Initial load
+// ===== ডকুমেন্ট লোড হওয়ার পর রান করবে =====
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('অ্যাডমিন প্যানেল লোড হয়েছে');
+  
+  // কনফার্ম ডায়ালগের বাটন সেট করা আছে
 });
 </script>
 </body>
