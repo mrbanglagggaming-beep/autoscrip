@@ -5097,22 +5097,81 @@ async function toggle2FA() {
     }
 }
 
-// হেল্পার ফাংশন
-function showLoginError(msg) {
-  const errDiv = document.getElementById('loginErr');
-  const errMsg = document.getElementById('loginErrMsg');
-  errMsg.textContent = msg;
-  errDiv.style.display = 'flex';
-  setTimeout(() => errDiv.style.display = 'none', 4000);
-}
+// ===== LOGIN FUNCTION (Firebase Auth) =====
+// ===== লগইন ফাংশন (Firebase Auth সরাসরি) =====
+async function doLogin() {
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPwd').value;
+  const btn      = document.getElementById('loginBtn');
+  const errDiv   = document.getElementById('loginErr');
+  const errMsg   = document.getElementById('loginErrMsg');
 
-// হেল্পার ফাংশন (নিশ্চিত হওয়ার জন্য)
-function showLoginError(msg) {
-  const errDiv = document.getElementById('loginErr');
-  const errMsg = document.getElementById('loginErrMsg');
-  errMsg.textContent = msg;
-  errDiv.style.display = 'flex';
-  setTimeout(() => errDiv.style.display = 'none', 4000);
+  if (!email || !password) { 
+    errMsg.textContent = 'ইমেইল ও পাসওয়ার্ড দিন';
+    errDiv.style.display = 'flex';
+    setTimeout(() => errDiv.style.display = 'none', 4000);
+    return;
+  }
+
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> লগইন হচ্ছে...';
+  btn.disabled  = true;
+  errDiv.style.display = 'none';
+
+  try {
+    // সরাসরি Firebase Auth-এ লগইন
+    const userCred = await fbAuth.signInWithEmailAndPassword(email, password);
+    const user = userCred.user;
+
+    // অ্যাডমিন চেক (Firestore-এর admins কালেকশনে আছে কিনা)
+    let adminData = null;
+    try {
+      const doc = await fbDb.collection('autoscrip_admins').doc(user.uid).get();
+      if (doc.exists) adminData = doc.data();
+    } catch(e) {}
+
+    // মাস্টার অ্যাডমিন UID বা অ্যাডমিন কালেকশনে থাকতে হবে
+    if (user.uid !== "E97OGEv5ZJFbHaoojCnFe25GSeY1" && !adminData) {
+      await fbAuth.signOut();
+      throw new Error('আপনি অ্যাডমিন নন');
+    }
+
+    currentUser = {
+      email:    user.email,
+      name:     adminData?.name || user.displayName || user.email.split('@')[0],
+      role:     adminData?.role || 'super_admin',
+      uid:      user.uid,
+      twoFactorEnabled: adminData?.twoFactorEnabled || false
+    };
+    currentUserRole = currentUser.role;
+
+    // অ্যাপ দেখাও
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    
+    // ইউজার ইনফো আপডেট
+    document.getElementById('sbNm').textContent = currentUser.name;
+    document.getElementById('sbAv').textContent = (currentUser.name || 'A')[0];
+    document.getElementById('sbRole').textContent = 'SUPER ADMIN';
+
+    // সব ডেটা লোড করো
+    loadDashboard();
+    loadTools();
+    loadUsers();
+    loadReqs();
+    loadCom();
+    loadAnalytics();
+    loadSettings();
+    loadTeam();
+
+  } catch(e) {
+    const errorMsg = e.message || 'লগইন ব্যর্থ';
+    errMsg.textContent = errorMsg;
+    errDiv.style.display = 'flex';
+    setTimeout(() => errDiv.style.display = 'none', 4000);
+  } finally {
+    btn.innerHTML = '<i class="fas fa-shield-alt"></i> প্রবেশ করুন';
+    btn.disabled  = false;
+  }
 }
 
 // ===== LOGOUT (Firebase) =====
@@ -7489,7 +7548,29 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
+// ===== HELPER FUNCTIONS =====
 
+/**
+ * লগইন এরর মেসেজ দেখানোর জন্য হেল্পার ফাংশন
+ * @param {string} msg - যে এরর মেসেজ দেখাতে চান
+ */
+function showLoginError(msg) {
+  const errDiv = document.getElementById('loginErr');
+  const errMsg = document.getElementById('loginErrMsg');
+  
+  if (!errDiv || !errMsg) {
+    console.warn('Login error elements not found');
+    return;
+  }
+  
+  errMsg.textContent = msg;
+  errDiv.style.display = 'flex';
+  
+  // ৪ সেকেন্ড পরে অটোমেটিক হাইড
+  setTimeout(() => {
+    errDiv.style.display = 'none';
+  }, 4000);
+}
 </script>
 </body>
 </html>
