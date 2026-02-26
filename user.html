@@ -968,6 +968,15 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .p-2{padding:10px 14px}
 .mt-4{margin-top:24px}
 
+
+/* ── NOTIFICATION SYSTEM ADDITIONS ── */
+.np-footer{padding:12px 16px;border-top:1px solid var(--border)}
+#subscribeNotifBtn:hover{opacity:.85;transform:translateY(-1px)}
+#notifBadge{display:none}
+.np-item{display:flex;align-items:flex-start;padding:11px 18px;border-bottom:1px solid var(--border);font-size:.83rem;color:var(--muted);cursor:pointer;transition:var(--ease)}
+.np-item:hover{background:rgba(255,215,0,.04);color:var(--text)}
+.np-item:last-child{border-bottom:none}
+
 </style>
 </head>
 <body>
@@ -1027,20 +1036,35 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       </div>
       <!-- Notifications -->
       <div class="dropdown" id="notifDrop">
-        <button class="btn-icon" onclick="toggleDD('notifDrop')" title="নোটিফিকেশন">
+        <button class="btn-icon" onclick="toggleDD('notifDrop')" title="নোটিফিকেশন" style="position:relative">
           <i class="fas fa-bell"></i>
           <span class="badge-dot" id="notifDot" style="display:none"></span>
+          <span id="notifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--danger,#ff3d57);color:#fff;font-size:.6rem;width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center;font-weight:700;font-family:monospace"></span>
         </button>
         <div class="np-panel dd-menu" id="notifPanel">
-          <div class="np-head"><h4>🔔 নোটিফিকেশন</h4><button class="btn btn-sm btn-ghost" style="font-size:.75rem" onclick="markAllRead()">সব পড়া</button></div>
-          <div class="np-body">
-            <div class="np-item"><i class="fas fa-star" style="color:var(--primary);margin-right:6px"></i> AutoScrip v7.0 আসছে!</div>
-            <div class="np-item"><i class="fas fa-tools" style="color:var(--primary);margin-right:6px"></i> ৫টি নতুন টুল যোগ হয়েছে</div>
-            <div class="np-item"><i class="fas fa-comments" style="color:var(--primary);margin-right:6px"></i> কমিউনিটিতে নতুন পোস্ট</div>
+          <div class="np-head">
+            <h4>🔔 নোটিফিকেশন</h4>
+            <div style="display:flex;gap:6px;align-items:center">
+              <button class="btn btn-sm btn-ghost" style="font-size:.72rem" onclick="NotifSystem.markAllRead()">সব পড়া</button>
+            </div>
+          </div>
+          <div class="np-body" id="notifPanelBody">
+            <div style="padding:20px;text-align:center;color:var(--muted);font-size:.85rem"><i class="fas fa-spinner fa-spin" style="font-size:1.2rem;display:block;margin-bottom:8px"></i>লোড হচ্ছে...</div>
+          </div>
+          <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px">
+            <button id="subscribeNotifBtn" onclick="NotifSystem.subscribe()"
+              style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,215,0,.3);background:rgba(255,215,0,.1);color:var(--primary,#ffd700);font-size:.8rem;font-weight:600;cursor:pointer;transition:.2s;font-family:var(--font-head,inherit)">
+              <i class="fas fa-bell"></i><span>সাবস্ক্রাইব</span>
+            </button>
+            <button onclick="NotifSystem.loadNotifications(true)"
+              style="padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-size:.8rem;cursor:pointer;transition:.2s">
+              <i class="fas fa-sync-alt"></i>
+            </button>
           </div>
         </div>
       </div>
-      <!-- User Menu -->
+      
+<!-- User Menu -->
       <div class="dropdown" id="userDrop">
         <button class="btn-icon" onclick="toggleDD('userDrop')" title="অ্যাকাউন্ট">
           <i class="fas fa-user" id="navUserIcon"></i>
@@ -1870,6 +1894,9 @@ Get-Date | Format-List"></textarea>
 <script>
 
 
+
+
+
 // ===== TIMER REGISTRY (prevent leaks) =====
 window.__timers = [];
 const safeTimeout = (fn, ms) => { const id = setTimeout(fn, ms); window.__timers.push(id); return id; };
@@ -2250,129 +2277,216 @@ function doDownload(id){
 function doShare(id){
   const tool = getTools().find(t => (t._id||t.id) === id);
   if(!tool) return;
-  const toolName = tool.name || tool.title || 'AutoScrip Tool';
-  const toolUrl  = (location.hostname && location.hostname !== '') 
+
+  const toolName  = tool.name || tool.title || 'AutoScrip Tool';
+  const toolUrl   = (location.hostname && location.hostname !== '')
     ? (location.origin + location.pathname + '#tool-' + id)
     : 'https://autoscrip.vercel.app/#tool-' + id;
-  const shortDesc = (tool.description||'').substring(0,100);
-  const hashTags  = 'AutoScrip,PowerShell,Bangladesh';
+  const shortDesc = (tool.description || '').substring(0, 100);
   const shareText = '🔧 ' + toolName + ' — AutoScrip PowerShell Platform\n' + (shortDesc ? shortDesc + '\n' : '') + toolUrl;
+  const hashTags  = 'AutoScrip,PowerShell,Bangladesh';
 
-  // Native share (mobile)
   if(navigator.share && /Mobi|Android/i.test(navigator.userAgent)){
     navigator.share({ title: toolName, text: shareText, url: toolUrl })
-      .then(()=>toast('✅ শেয়ার করা হয়েছে!','success'))
-      .catch(()=>{});
+      .then(() => toast('✅ শেয়ার করা হয়েছে!', 'success'))
+      .catch(() => {});
     return;
   }
 
-  const existing = document.getElementById('sharePopup');
+  var existing = document.getElementById('sharePopup');
   if(existing) existing.remove();
 
-  // Social links config
-  const socials = [
-    {
-      name:'Facebook', icon:'fab fa-facebook-f', bg:'#1877f2',
-      url:'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(toolUrl)+'&quote='+encodeURIComponent(toolName+' — AutoScrip')
-    },
-    {
-      name:'X / Twitter', icon:'fab fa-x-twitter', bg:'#000000',
-      url:'https://twitter.com/intent/tweet?url='+encodeURIComponent(toolUrl)+'&text='+encodeURIComponent('🔧 '+toolName+' — AutoScrip PowerShell')+'&hashtags='+hashTags
-    },
-    {
-      name:'WhatsApp', icon:'fab fa-whatsapp', bg:'#25d366',
-      url:'https://wa.me/?text='+encodeURIComponent(shareText)
-    },
-    {
-      name:'Telegram', icon:'fab fa-telegram', bg:'#0088cc',
-      url:'https://t.me/share/url?url='+encodeURIComponent(toolUrl)+'&text='+encodeURIComponent('🔧 '+toolName+' — AutoScrip PowerShell')
-    },
-    {
-      name:'LinkedIn', icon:'fab fa-linkedin-in', bg:'#0a66c2',
-      url:'https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(toolUrl)
-    },
-    {
-      name:'Reddit', icon:'fab fa-reddit-alien', bg:'#ff4500',
-      url:'https://www.reddit.com/submit?url='+encodeURIComponent(toolUrl)+'&title='+encodeURIComponent(toolName+' — AutoScrip PowerShell Tool')
-    },
-    {
-      name:'Email', icon:'fas fa-envelope', bg:'#555',
-      url:'mailto:?subject='+encodeURIComponent(toolName+' — AutoScrip')+'&body='+encodeURIComponent(shareText)
-    },
-    {
-      name:'Instagram', icon:'fab fa-instagram', bg:'linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)',
-      url:null // Instagram-এ URL শেয়ার হয় না — copy করতে হয়
-    }
+  var socials = [
+    { name:'Facebook',  icon:'fab fa-facebook-f',   bg:'#1877f2',
+      url:'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(toolUrl) },
+    { name:'X/Twitter', icon:'fab fa-twitter',       bg:'#1da1f2',
+      url:'https://twitter.com/intent/tweet?url='+encodeURIComponent(toolUrl)+'&text='+encodeURIComponent('🔧 '+toolName+' — AutoScrip PowerShell')+'&hashtags='+hashTags },
+    { name:'WhatsApp',  icon:'fab fa-whatsapp',      bg:'#25d366',
+      url:'https://wa.me/?text='+encodeURIComponent(shareText) },
+    { name:'Telegram',  icon:'fab fa-telegram',      bg:'#0088cc',
+      url:'https://t.me/share/url?url='+encodeURIComponent(toolUrl)+'&text='+encodeURIComponent('🔧 '+toolName) },
+    { name:'LinkedIn',  icon:'fab fa-linkedin-in',   bg:'#0a66c2',
+      url:'https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(toolUrl) },
+    { name:'Reddit',    icon:'fab fa-reddit-alien',  bg:'#ff4500',
+      url:'https://www.reddit.com/submit?url='+encodeURIComponent(toolUrl)+'&title='+encodeURIComponent(toolName+' — AutoScrip') },
+    { name:'Email',     icon:'fas fa-envelope',      bg:'#555',
+      url:'mailto:?subject='+encodeURIComponent(toolName+' — AutoScrip')+'&body='+encodeURIComponent(shareText) },
+    { name:'Instagram', icon:'fab fa-instagram',     bg:'linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)',
+      url: null }
   ];
 
-  const popup = document.createElement('div');
-  popup.id = 'sharePopup';
-  popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px)';
+  // Build popup entirely with DOM API — no innerHTML with nested quotes
+  var overlay = document.createElement('div');
+  overlay.id = 'sharePopup';
+  Object.assign(overlay.style, {
+    position:'fixed', inset:'0', background:'rgba(0,0,0,.82)',
+    zIndex:'99999', display:'flex', alignItems:'center',
+    justifyContent:'center', padding:'16px', backdropFilter:'blur(6px)'
+  });
 
-  popup.innerHTML =
-    '<div style="background:var(--card2);border:1px solid rgba(255,215,0,.2);border-radius:20px;padding:28px;width:min(480px,95vw);box-shadow:0 24px 80px rgba(0,0,0,.7);position:relative">' +
-      // Header
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
-        '<div style="display:flex;align-items:center;gap:10px">' +
-          '<div style="width:36px;height:36px;border-radius:10px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:1rem;color:#111"><i class="fas fa-share-alt"></i></div>' +
-          '<div>' +
-            '<div style="font-family:var(--font-display);font-size:1.1rem;color:var(--primary);letter-spacing:1px">শেয়ার করুন</div>' +
-            '<div style="font-size:.72rem;color:var(--muted);font-family:var(--font-code)">SHARE THIS TOOL</div>' +
-          '</div>' +
-        '</div>' +
-        '<button onclick="document.getElementById(\'sharePopup\').remove()" style="width:32px;height:32px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted);font-size:1rem;cursor:pointer;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:.2s" onmouseover="this.style.color=\'#fff\'" onmouseout="this.style.color=\'var(--muted)\'">✕</button>' +
-      '</div>' +
-      // Tool name
-      '<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.12);border-radius:10px;padding:10px 14px;margin-bottom:20px">' +
-        '<div style="font-size:.72rem;color:var(--muted);font-family:var(--font-head);letter-spacing:1px;margin-bottom:4px">TOOL</div>' +
-        '<div style="font-weight:700;color:var(--text);font-family:var(--font-head);font-size:.95rem">⚡ ' + Security.escapeHtml(toolName) + '</div>' +
-      '</div>' +
-      // Social grid (7 platforms)
-      '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px" id="shareSocialGrid">' +
-        socials.map(function(s,i){
-          const isInsta = s.name === 'Instagram';
-          const linkAttr = isInsta ? 'href="javascript:void(0)"' : ('href="'+s.url+'" target="_blank" rel="noopener"');
-          const onclick  = isInsta
-            ? 'onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById(\'shareUrlInput\').value).then(function(){window.open(\'https://www.instagram.com/\',\'_blank\');toast(\'📋 লিংক কপি — Instagram খুলুন\',\'success\');document.getElementById(\'sharePopup\').remove();}).catch(function(){toast(\'ব্রাউজার কপি সাপোর্ট করে না\',\'error\');})"'
-            : 'onclick="document.getElementById(\'sharePopup\').remove()"';
-          return '<a '+linkAttr+' '+onclick+' title="'+s.name+'" style="padding:11px 4px;background:'+s.bg+';color:#fff;border-radius:10px;text-align:center;font-weight:600;font-size:.75rem;text-decoration:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:.2s;min-height:64px" onmouseover="this.style.transform=\'scale(1.06)\';this.style.boxShadow=\'0 6px 20px rgba(0,0,0,.4)\'" onmouseout="this.style.transform=\'scale(1)\';this.style.boxShadow=\'none\'">' +
-            '<i class="'+s.icon+'" style="font-size:1.1rem"></i>' +
-            '<span style="font-size:.68rem;letter-spacing:.3px;white-space:nowrap">'+s.name.split('/')[0].trim()+'</span>' +
-          '</a>';
-        }).join('') +
-      '</div>' +
-      // Divider
-      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">' +
-        '<div style="flex:1;height:1px;background:var(--border)"></div>' +
-        '<span style="font-size:.72rem;color:var(--muted);font-family:var(--font-head)">অথবা লিংক কপি করুন</span>' +
-        '<div style="flex:1;height:1px;background:var(--border)"></div>' +
-      '</div>' +
-      // URL copy row
-      '<div style="display:flex;gap:8px;margin-bottom:12px">' +
-        '<div style="flex:1;position:relative">' +
-          '<i class="fas fa-link" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem"></i>' +
-          '<input id="shareUrlInput" value="' + toolUrl + '" readonly style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px 10px 32px;font-size:.78rem;font-family:var(--font-code);outline:none" onclick="this.select()">' +
-        '</div>' +
-        '<button id="shareCopyBtn" onclick="(function(){var v=document.getElementById(\'shareUrlInput\');if(!v)return;var btn=document.getElementById(\'shareCopyBtn\');if(navigator.clipboard){navigator.clipboard.writeText(v.value).then(function(){toast(\'✅ লিংক কপি হয়েছে!\',\'success\');if(btn){btn.innerHTML=\'<i class=\\\"fas fa-check\\\"></i> কপি!\';btn.style.background=\'var(--success)\';btn.style.color=\'#111\';}setTimeout(function(){document.getElementById(\'sharePopup\')&&document.getElementById(\'sharePopup\').remove();},1200);}).catch(function(){v.select();document.execCommand(\'copy\');toast(\'✅ কপি!\',\'success\');});}else{v.select();document.execCommand(\'copy\');toast(\'✅ কপি!\',\'success\');}})()" style="padding:10px 16px;background:var(--grad);color:#111;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:.85rem;white-space:nowrap;font-family:var(--font-head);display:flex;align-items:center;gap:6px;transition:.2s"><i class="fas fa-copy"></i> কপি</button>' +
-      '</div>' +
-      // Stats row
-      '<div style="display:flex;gap:16px;justify-content:center;padding-top:10px;border-top:1px solid var(--border)">' +
-        '<div style="text-align:center"><div style="font-size:.7rem;color:var(--muted);font-family:var(--font-head)">ভিউ</div><div style="color:var(--primary);font-family:var(--font-display);font-size:1rem">'+(tool.views||0)+'</div></div>' +
-        '<div style="text-align:center"><div style="font-size:.7rem;color:var(--muted);font-family:var(--font-head)">লাইক</div><div style="color:var(--success);font-family:var(--font-display);font-size:1rem">'+(Array.isArray(tool.likes)?tool.likes.length:(tool.likes||0))+'</div></div>' +
-        '<div style="text-align:center"><div style="font-size:.7rem;color:var(--muted);font-family:var(--font-head)">ডাউনলোড</div><div style="color:var(--info);font-family:var(--font-display);font-size:1rem">'+(tool.downloads||0)+'</div></div>' +
-      '</div>' +
-    '</div>';
+  var box = document.createElement('div');
+  Object.assign(box.style, {
+    background:'var(--card2,var(--card))', border:'1px solid rgba(255,215,0,.2)',
+    borderRadius:'20px', padding:'28px', width:'min(480px,95vw)',
+    boxShadow:'0 24px 80px rgba(0,0,0,.7)', position:'relative'
+  });
 
-  popup.addEventListener('click', function(e){ if(e.target===popup) popup.remove(); });
-  document.body.appendChild(popup);
-  // Focus trap for accessibility
-  setTimeout(function(){ popup.querySelector('button')?.focus(); }, 50);
-  Analytics.track('tool','share', toolName);
+  // Header
+  var header = document.createElement('div');
+  Object.assign(header.style, { display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'16px' });
+
+  var titleRow = document.createElement('div');
+  Object.assign(titleRow.style, { display:'flex', alignItems:'center', gap:'10px' });
+
+  var iconBox = document.createElement('div');
+  Object.assign(iconBox.style, { width:'36px', height:'36px', borderRadius:'10px', background:'var(--grad,#ffd700)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1rem', color:'#111' });
+  iconBox.innerHTML = '<i class="fas fa-share-alt"></i>';
+
+  var titleBlock = document.createElement('div');
+  var t1 = document.createElement('div');
+  Object.assign(t1.style, { fontFamily:'var(--font-display,inherit)', fontSize:'1.1rem', color:'var(--primary,#ffd700)', letterSpacing:'1px' });
+  t1.textContent = 'শেয়ার করুন';
+  var t2 = document.createElement('div');
+  Object.assign(t2.style, { fontSize:'.72rem', color:'var(--muted,#888)', fontFamily:'var(--font-code,monospace)' });
+  t2.textContent = 'SHARE THIS TOOL';
+  titleBlock.appendChild(t1); titleBlock.appendChild(t2);
+  titleRow.appendChild(iconBox); titleRow.appendChild(titleBlock);
+
+  var closeBtn = document.createElement('button');
+  Object.assign(closeBtn.style, { width:'32px', height:'32px', background:'rgba(255,255,255,.06)', border:'1px solid var(--border,#333)', color:'var(--muted,#888)', fontSize:'1rem', cursor:'pointer', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center' });
+  closeBtn.textContent = '✕';
+  closeBtn.addEventListener('click', function(){ overlay.remove(); });
+  closeBtn.addEventListener('mouseover', function(){ this.style.color='#fff'; });
+  closeBtn.addEventListener('mouseout',  function(){ this.style.color='var(--muted,#888)'; });
+
+  header.appendChild(titleRow); header.appendChild(closeBtn);
+
+  // Tool name badge
+  var badge = document.createElement('div');
+  Object.assign(badge.style, { background:'rgba(255,215,0,.06)', border:'1px solid rgba(255,215,0,.12)', borderRadius:'10px', padding:'10px 14px', marginBottom:'20px' });
+  var bL = document.createElement('div');
+  Object.assign(bL.style, { fontSize:'.72rem', color:'var(--muted,#888)', fontFamily:'var(--font-head,inherit)', letterSpacing:'1px', marginBottom:'4px' });
+  bL.textContent = 'TOOL';
+  var bN = document.createElement('div');
+  Object.assign(bN.style, { fontWeight:'700', color:'var(--text,#fff)', fontFamily:'var(--font-head,inherit)', fontSize:'.95rem' });
+  bN.textContent = '⚡ ' + toolName;
+  badge.appendChild(bL); badge.appendChild(bN);
+
+  // Social grid
+  var grid = document.createElement('div');
+  Object.assign(grid.style, { display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'8px', marginBottom:'16px' });
+
+  socials.forEach(function(s){
+    var a = document.createElement('a');
+    if(s.url){ a.href = s.url; a.target = '_blank'; a.rel = 'noopener'; }
+    else { a.href = '#'; }
+    Object.assign(a.style, {
+      padding:'11px 4px', background:s.bg, color:'#fff', borderRadius:'10px',
+      textAlign:'center', fontWeight:'600', fontSize:'.75rem', textDecoration:'none',
+      display:'flex', flexDirection:'column', alignItems:'center',
+      justifyContent:'center', gap:'5px', transition:'.2s', minHeight:'64px', cursor:'pointer'
+    });
+    var ic = document.createElement('i'); ic.className = s.icon; ic.style.fontSize = '1.1rem';
+    var sp = document.createElement('span');
+    Object.assign(sp.style, { fontSize:'.68rem', letterSpacing:'.3px', whiteSpace:'nowrap' });
+    sp.textContent = s.name.split('/')[0].trim();
+    a.appendChild(ic); a.appendChild(sp);
+    a.addEventListener('mouseover', function(){ this.style.transform='scale(1.06)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,.4)'; });
+    a.addEventListener('mouseout',  function(){ this.style.transform='scale(1)'; this.style.boxShadow='none'; });
+    if(s.name === 'Instagram'){
+      a.addEventListener('click', function(e){
+        e.preventDefault();
+        var val = urlInput.value;
+        if(navigator.clipboard){
+          navigator.clipboard.writeText(val).then(function(){
+            toast('📋 লিংক কপি — Instagram খুলুন', 'success');
+            window.open('https://www.instagram.com/', '_blank');
+            overlay.remove();
+          }).catch(function(){ toast('কপি ব্যর্থ', 'error'); });
+        }
+      });
+    } else {
+      a.addEventListener('click', function(){ setTimeout(function(){ overlay.remove(); }, 200); });
+    }
+    grid.appendChild(a);
+  });
+
+  // Divider
+  var div = document.createElement('div');
+  Object.assign(div.style, { display:'flex', alignItems:'center', gap:'10px', marginBottom:'14px' });
+  var dl = document.createElement('div'); dl.style.cssText = 'flex:1;height:1px;background:var(--border,#333)';
+  var dt = document.createElement('span');
+  Object.assign(dt.style, { fontSize:'.72rem', color:'var(--muted,#888)', fontFamily:'var(--font-head,inherit)', whiteSpace:'nowrap' });
+  dt.textContent = 'অথবা লিংক কপি করুন';
+  var dr = document.createElement('div'); dr.style.cssText = 'flex:1;height:1px;background:var(--border,#333)';
+  div.appendChild(dl); div.appendChild(dt); div.appendChild(dr);
+
+  // URL copy row
+  var copyRow = document.createElement('div');
+  Object.assign(copyRow.style, { display:'flex', gap:'8px', marginBottom:'12px' });
+
+  var inputWrap = document.createElement('div');
+  Object.assign(inputWrap.style, { flex:'1', position:'relative' });
+  var lIc = document.createElement('i'); lIc.className = 'fas fa-link';
+  Object.assign(lIc.style, { position:'absolute', left:'11px', top:'50%', transform:'translateY(-50%)', color:'var(--muted,#888)', fontSize:'.8rem' });
+  var urlInput = document.createElement('input');
+  urlInput.id = 'shareUrlInput';
+  urlInput.value = toolUrl;
+  urlInput.readOnly = true;
+  Object.assign(urlInput.style, { width:'100%', background:'var(--bg,#111)', border:'1px solid var(--border,#333)', color:'var(--text,#fff)', borderRadius:'8px', padding:'10px 12px 10px 32px', fontSize:'.78rem', fontFamily:'var(--font-code,monospace)', outline:'none', boxSizing:'border-box' });
+  urlInput.addEventListener('click', function(){ this.select(); });
+  inputWrap.appendChild(lIc); inputWrap.appendChild(urlInput);
+
+  var copyBtn = document.createElement('button');
+  Object.assign(copyBtn.style, { padding:'10px 16px', background:'var(--grad,#ffd700)', color:'#111', border:'none', borderRadius:'8px', cursor:'pointer', fontWeight:'700', fontSize:'.85rem', whiteSpace:'nowrap', fontFamily:'var(--font-head,inherit)', display:'flex', alignItems:'center', gap:'6px' });
+  copyBtn.innerHTML = '<i class="fas fa-copy"></i> কপি';
+  copyBtn.addEventListener('click', function(){
+    var val = urlInput.value;
+    function onOK(){
+      toast('✅ লিংক কপি হয়েছে!', 'success');
+      copyBtn.textContent = '✓ কপি!';
+      copyBtn.style.background = 'var(--success,#00c853)';
+      copyBtn.style.color = '#111';
+      setTimeout(function(){ overlay.remove(); }, 1200);
+    }
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(val).then(onOK).catch(function(){ urlInput.select(); document.execCommand('copy'); onOK(); });
+    } else { urlInput.select(); document.execCommand('copy'); onOK(); }
+  });
+  copyRow.appendChild(inputWrap); copyRow.appendChild(copyBtn);
+
+  // Stats row
+  var statsRow = document.createElement('div');
+  Object.assign(statsRow.style, { display:'flex', gap:'16px', justifyContent:'center', paddingTop:'10px', borderTop:'1px solid var(--border,#333)' });
+  var likeCount = Array.isArray(tool.likes) ? tool.likes.length : (tool.likes || 0);
+  [{label:'ভিউ', val:tool.views||0, color:'var(--primary,#ffd700)'},
+   {label:'লাইক', val:likeCount, color:'var(--success,#00c853)'},
+   {label:'ডাউনলোড', val:tool.downloads||0, color:'var(--info,#64b5f6)'}
+  ].forEach(function(st){
+    var col = document.createElement('div'); col.style.textAlign = 'center';
+    var lbl = document.createElement('div');
+    Object.assign(lbl.style, { fontSize:'.7rem', color:'var(--muted,#888)', fontFamily:'var(--font-head,inherit)' });
+    lbl.textContent = st.label;
+    var val = document.createElement('div');
+    Object.assign(val.style, { color:st.color, fontFamily:'var(--font-display,inherit)', fontSize:'1rem' });
+    val.textContent = st.val;
+    col.appendChild(lbl); col.appendChild(val);
+    statsRow.appendChild(col);
+  });
+
+  // Assemble
+  box.appendChild(header); box.appendChild(badge); box.appendChild(grid);
+  box.appendChild(div); box.appendChild(copyRow); box.appendChild(statsRow);
+  overlay.appendChild(box);
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+  setTimeout(function(){ closeBtn.focus(); }, 50);
+  try { Analytics.track('tool', 'share', toolName); } catch(e){}
 }
 
 
 // ===== TOOL WINDOW (Windows-style popup) =====
-const CAT_COLORS = {
+const CAT_COLORS_WIN = {
   system:     {bg:'linear-gradient(135deg,#1565c0,#1a237e)', text:'#64b5f6'},
   network:    {bg:'linear-gradient(135deg,#00838f,#004d40)', text:'#4dd0e1'},
   security:   {bg:'linear-gradient(135deg,#7b1fa2,#4a148c)', text:'#ce93d8'},
@@ -2656,6 +2770,8 @@ function syncFromAdmin(){ _toolsCache=null; // invalidate cache on sync
     });
     if(newCount>0){toast(newCount+'টি নতুন টুল সিঙ্ক!','info');const g=document.getElementById('toolsGrid');if(g&&document.getElementById('toolsPage').classList.contains('active'))applyFilters();}
   }catch(_e) {}
+  // Refresh notifications after sync
+  try { setTimeout(function(){ NotifSystem.loadNotifications(false); }, 800); } catch(e) {}
 }
 // Cache to prevent duplicate Firestore reads when loadHome + loadTools both call fetchToolsFromAPI
 let _toolsCache = null;
@@ -3627,8 +3743,10 @@ function showMyScripts() {
 
 // ── Notifications ─────────────────────────────────────────
 function markAllRead() {
+  // Delegate to NotifSystem
+  if (typeof NotifSystem !== 'undefined') { NotifSystem.markAllRead(); return; }
   document.querySelectorAll('.np-item').forEach(el => el.style.opacity = '0.5');
-  const dot = document.getElementById('notifDot');
+  var dot = document.getElementById('notifDot');
   if (dot) dot.style.display = 'none';
   toast('সব নোটিফিকেশন পড়া হয়েছে', 'info');
 }
@@ -3714,12 +3832,278 @@ window.closeDD = function(id) {
 
 
 
+// ╔══════════════════════════════════════════════════════════════╗
+// ║        AUTOSCRIP NOTIFICATION SYSTEM (Firebase Firestore)    ║
+// ║  Collection: autoscrip_notifications                         ║
+// ║  Collection: autoscrip_subscribers                           ║
+// ║  FCM-free: Firestore polling/realtime for in-app notifs      ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+// ===== NOTIFICATION SYSTEM (USER PANEL) =====
+const NotifSystem = (function() {
+  'use strict';
+
+  var _unsubscribeRealtime = null;
+  var _notifCache = [];
+  var _isSubscribed = false;
+  var _lastChecked = Date.now();
+  var FS_SUBSCRIBERS  = 'autoscrip_subscribers';
+  var FS_NOTIFS       = 'autoscrip_notifications';
+
+  // ── Subscribe / Unsubscribe ──────────────────────────────────
+  async function subscribe() {
+    if (!window._fbDb) { toast('ফায়ারবেস সংযুক্ত নয়', 'error'); return; }
+    var userId = (App && App.user) ? (App.user.uid || App.user.id || App.user.email) : null;
+    if (!userId) { openModal('loginModal'); toast('নোটিফিকেশন পেতে লগইন করুন', 'warning'); return; }
+    try {
+      var doc = await window._fbDb.collection(FS_SUBSCRIBERS).doc(userId).get();
+      if (doc.exists && doc.data().active) {
+        // Already subscribed — show unsubscribe confirm
+        _showUnsubscribeConfirm(userId);
+        return;
+      }
+      await window._fbDb.collection(FS_SUBSCRIBERS).doc(userId).set({
+        userId: userId,
+        email:  (App.user && App.user.email) || userId,
+        name:   (App.user && (App.user.name || App.user.displayName)) || 'User',
+        platform: _getPlatform(),
+        userAgent: navigator.userAgent.substring(0, 200),
+        active: true,
+        subscribedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastActive:   firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+      _isSubscribed = true;
+      _updateSubscribeBtn(true);
+      toast('🔔 নোটিফিকেশন সাবস্ক্রাইব হয়েছে!', 'success');
+      _startRealtimeListener();
+    } catch(e) {
+      console.warn('[NotifSystem] subscribe error:', e.message);
+      toast('সাবস্ক্রাইব করতে সমস্যা হয়েছে', 'error');
+    }
+  }
+
+  async function unsubscribe(userId) {
+    if (!window._fbDb || !userId) return;
+    try {
+      await window._fbDb.collection(FS_SUBSCRIBERS).doc(userId).update({ active: false });
+      _isSubscribed = false;
+      _updateSubscribeBtn(false);
+      if (_unsubscribeRealtime) { _unsubscribeRealtime(); _unsubscribeRealtime = null; }
+      toast('নোটিফিকেশন বন্ধ করা হয়েছে', 'info');
+    } catch(e) { toast('সমস্যা হয়েছে', 'error'); }
+  }
+
+  // ── Realtime listener (Firestore onSnapshot) ─────────────────
+  function _startRealtimeListener() {
+    if (!window._fbDb) return;
+    if (_unsubscribeRealtime) _unsubscribeRealtime();
+    try {
+      _unsubscribeRealtime = window._fbDb
+        .collection(FS_NOTIFS)
+        .where('createdAt', '>', new firebase.firestore.Timestamp(Math.floor(_lastChecked/1000), 0))
+        .orderBy('createdAt', 'desc')
+        .limit(20)
+        .onSnapshot(function(snap) {
+          snap.docChanges().forEach(function(change) {
+            if (change.type === 'added') {
+              var n = { id: change.doc.id, ...change.doc.data() };
+              // Only show if it's for 'all' target or this user
+              var target = n.target || 'all';
+              var myId = (App && App.user) ? (App.user.uid || App.user.id || App.user.email) : null;
+              if (target === 'all' || target === myId) {
+                _notifCache.unshift(n);
+                _notifCache = _notifCache.slice(0, 50);
+                _renderNotifPanel();
+                _showDot();
+                // Show toast for new notification
+                toast((n.icon || '🔔') + ' ' + Security.escapeHtml(n.message || ''), 'info', 5000);
+              }
+            }
+          });
+        }, function(err) {
+          // Fallback to polling if onSnapshot fails (index missing)
+          console.warn('[NotifSystem] onSnapshot error, using polling:', err.message);
+          _startPolling();
+        });
+    } catch(e) { _startPolling(); }
+  }
+
+  // ── Polling fallback ─────────────────────────────────────────
+  var _pollInterval = null;
+  function _startPolling() {
+    if (_pollInterval) return;
+    _pollInterval = setInterval(function() { loadNotifications(false); }, 30000);
+  }
+
+  // ── Load notifications from Firestore ────────────────────────
+  async function loadNotifications(showToastOnNew) {
+    if (!window._fbDb) return;
+    try {
+      var snap = await window._fbDb
+        .collection(FS_NOTIFS)
+        .orderBy('createdAt', 'desc')
+        .limit(30)
+        .get();
+      var all = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
+      // Filter for this user or 'all'
+      var myId = (App && App.user) ? (App.user.uid || App.user.id || App.user.email) : null;
+      all = all.filter(function(n) {
+        var t = n.target || 'all';
+        return t === 'all' || t === myId;
+      });
+      _notifCache = all;
+      _renderNotifPanel();
+      if (all.length > 0) _showDot();
+      _lastChecked = Date.now();
+    } catch(e) {
+      // Fallback without orderBy
+      try {
+        var snap2 = await window._fbDb.collection(FS_NOTIFS).limit(20).get();
+        _notifCache = snap2.docs.map(function(d) { return { id: d.id, ...d.data() }; });
+        _renderNotifPanel();
+        if (_notifCache.length > 0) _showDot();
+      } catch(e2) { console.warn('[NotifSystem] load error:', e2.message); }
+    }
+  }
+
+  // ── Render notification panel ─────────────────────────────────
+  function _renderNotifPanel() {
+    var body = document.getElementById('notifPanelBody');
+    if (!body) return;
+    if (!_notifCache.length) {
+      body.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:.85rem"><i class="fas fa-bell-slash" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:.4"></i>কোনো নোটিফিকেশন নেই</div>';
+      return;
+    }
+    body.innerHTML = _notifCache.slice(0, 20).map(function(n) {
+      var timeStr = '';
+      if (n.createdAt) {
+        try {
+          var d = n.createdAt.toDate ? n.createdAt.toDate() : new Date(n.createdAt);
+          var diff = Math.floor((Date.now() - d.getTime()) / 60000);
+          if (diff < 1) timeStr = 'এইমাত্র';
+          else if (diff < 60) timeStr = diff + ' মিনিট আগে';
+          else if (diff < 1440) timeStr = Math.floor(diff/60) + ' ঘণ্টা আগে';
+          else timeStr = Math.floor(diff/1440) + ' দিন আগে';
+        } catch(e) {}
+      }
+      var link = n.link ? 'onclick="window.open(\'' + Security.escapeHtml(n.link) + '\',\'_blank\')"' : '';
+      var read = n.read ? 'opacity:0.5;' : '';
+      return '<div class="np-item" style="' + read + 'cursor:pointer" ' + link + ' data-notif-id="' + n.id + '">' +
+        '<span style="font-size:1.1rem;margin-right:8px">' + (n.icon || '🔔') + '</span>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="font-size:.83rem;color:var(--text);line-height:1.4">' + Security.escapeHtml(n.message || '') + '</div>' +
+          (timeStr ? '<div style="font-size:.72rem;color:var(--muted);margin-top:3px">' + timeStr + '</div>' : '') +
+        '</div>' +
+        (n.link ? '<i class="fas fa-external-link-alt" style="font-size:.7rem;color:var(--muted);margin-left:6px"></i>' : '') +
+      '</div>';
+    }).join('');
+  }
+
+  // ── Mark all read ─────────────────────────────────────────────
+  function markAllRead() {
+    document.querySelectorAll('.np-item').forEach(function(el) { el.style.opacity = '0.5'; });
+    var dot = document.getElementById('notifDot');
+    if (dot) dot.style.display = 'none';
+    var badge = document.getElementById('notifBadge');
+    if (badge) badge.style.display = 'none';
+    toast('সব নোটিফিকেশন পড়া হয়েছে', 'info');
+    // Mark read in local cache
+    _notifCache.forEach(function(n) { n.read = true; });
+  }
+
+  // ── UI helpers ────────────────────────────────────────────────
+  function _showDot() {
+    var dot = document.getElementById('notifDot');
+    if (dot) dot.style.display = 'block';
+    var badge = document.getElementById('notifBadge');
+    if (badge) {
+      var unread = _notifCache.filter(function(n) { return !n.read; }).length;
+      if (unread > 0) { badge.textContent = unread > 9 ? '9+' : unread; badge.style.display = 'flex'; }
+    }
+  }
+
+  function _updateSubscribeBtn(subscribed) {
+    var btn = document.getElementById('subscribeNotifBtn');
+    if (!btn) return;
+    if (subscribed) {
+      btn.innerHTML = '<i class="fas fa-bell-slash"></i><span>আনসাবস্ক্রাইব</span>';
+      btn.style.background = 'rgba(255,61,87,.15)';
+      btn.style.borderColor = 'rgba(255,61,87,.4)';
+      btn.style.color = 'var(--danger,#ff3d57)';
+    } else {
+      btn.innerHTML = '<i class="fas fa-bell"></i><span>সাবস্ক্রাইব</span>';
+      btn.style.background = 'rgba(255,215,0,.1)';
+      btn.style.borderColor = 'rgba(255,215,0,.3)';
+      btn.style.color = 'var(--primary,#ffd700)';
+    }
+  }
+
+  function _showUnsubscribeConfirm(userId) {
+    if (confirm('নোটিফিকেশন বন্ধ করতে চান?')) { unsubscribe(userId); }
+  }
+
+  function _getPlatform() {
+    var ua = navigator.userAgent;
+    if (ua.includes('Windows')) return 'Windows';
+    if (ua.includes('Mac')) return 'macOS';
+    if (ua.includes('Linux')) return 'Linux';
+    if (ua.includes('Android')) return 'Android';
+    if (ua.includes('iPhone') || ua.includes('iPad')) return 'iOS';
+    return 'Unknown';
+  }
+
+  // ── Check subscription status on load ────────────────────────
+  async function checkStatus() {
+    if (!window._fbDb) return;
+    var userId = (App && App.user) ? (App.user.uid || App.user.id || App.user.email) : null;
+    if (!userId) return;
+    try {
+      var doc = await window._fbDb.collection(FS_SUBSCRIBERS).doc(userId).get();
+      if (doc.exists && doc.data().active) {
+        _isSubscribed = true;
+        _updateSubscribeBtn(true);
+        _startRealtimeListener();
+        // Update lastActive
+        window._fbDb.collection(FS_SUBSCRIBERS).doc(userId).update({
+          lastActive: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(function(){});
+      }
+    } catch(e) { console.warn('[NotifSystem] status check:', e.message); }
+  }
+
+  // ── Init ──────────────────────────────────────────────────────
+  function init() {
+    // Load existing notifications (non-realtime for initial load)
+    setTimeout(function() {
+      loadNotifications(false);
+      checkStatus();
+    }, 1500);
+  }
+
+  return {
+    init: init,
+    subscribe: subscribe,
+    unsubscribe: unsubscribe,
+    markAllRead: markAllRead,
+    loadNotifications: loadNotifications,
+    checkStatus: checkStatus,
+    isSubscribed: function() { return _isSubscribed; }
+  };
+})();
+
+// Expose NotifSystem methods globally for inline onclick handlers
+window._notifSubscribe   = function() { NotifSystem.subscribe(); };
+window._notifUnsubscribe = function() { NotifSystem.unsubscribe(
+  (typeof App !== 'undefined' && App.user) ? (App.user.uid || App.user.id || App.user.email) : null
+); };
+
 // ===== ENTERPRISE INIT =====
 document.addEventListener('DOMContentLoaded', function() {
   try { GDPR.init(); } catch(e) {}
   try { Announcer.init(); } catch(e) {}
   try { TabSync.init(); } catch(e) {}
   try { SessionPing.start(); } catch(e) {}
+  try { NotifSystem.init(); } catch(e) {}
   try { startLoading(); } catch(e) {
     var ls = document.getElementById('loadingScreen');
     if (ls) { ls.classList.add('hidden'); ls.style.display = 'none'; }
@@ -3757,6 +4141,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+
+
 </script>
 </body>
 </html>
