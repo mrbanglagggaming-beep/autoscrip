@@ -4009,6 +4009,7 @@ body.offline-mode { padding-top: 44px !important; }
 
 
 
+
 // ===== GLOBAL ERROR BOUNDARY =====
 window.onerror = function(msg, src, line, col, err) {
   const safeMsg = 'অপ্রত্যাশিত সমস্যা হয়েছে। পেজ রিফ্রেশ করুন।';
@@ -4174,7 +4175,8 @@ const FIREBASE_CONFIG = {
     appId:             "1:709315727810:web:abeb73172635061343c65b"
 };
 
-const ADMIN_UID_MASTER = "E97OGEv5ZJFbHaoojCnFe25GSeY1";
+const ADMIN_UID_MASTER   = "E97OGEv5ZJFbHaoojCnFe25GSeY1";
+const ADMIN_EMAIL_MASTER = "mrbanglagggaming@gmail.com";
 
 // Firebase instances (loaded from CDN scripts in <head>)
 let fbApp, fbAuth, fbDb;
@@ -4193,8 +4195,12 @@ let fbApp, fbAuth, fbDb;
                 fbAuth = firebase.auth();
                 fbDb   = firebase.firestore();
                 // Enable Firestore offline persistence
+                // Persistence (compat SDK v10 style)
                 fbDb.enablePersistence({ synchronizeTabs: true }).catch(e => {
-                    if (e.code !== 'failed-precondition' && e.code !== 'unimplemented') {
+                    // Ignore expected errors
+                    if (e.code === 'failed-precondition') {
+                        console.warn('Firestore: Multiple tabs open, persistence disabled in extra tabs');
+                    } else if (e.code !== 'unimplemented') {
                         console.warn('Firestore persistence:', e.code);
                     }
                 });
@@ -4997,43 +5003,49 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
     fbAuth.onAuthStateChanged(async (user) => {
-        if (user) {
-            // User already signed in — restore session
-            let adminData = null;
-            let firestoreOk = true;
-            try {
-                const doc = await fbDb.collection(FS.admins).doc(user.uid).get();
-                if (doc.exists) adminData = doc.data();
-            } catch(e) {
-                firestoreOk = false;
-                console.warn('onAuthStateChanged Firestore read failed:', e.code);
-            }
+        if (!user) return; // Not logged in — stay on login screen
 
-            // Allow: master UID, has admin doc, or Firestore inaccessible
-            const allowed = user.uid === ADMIN_UID_MASTER || !!adminData || !firestoreOk;
-            if (allowed) {
-                currentUser = {
-                    email:    user.email,
-                    name:     adminData?.name || user.displayName || user.email.split('@')[0],
-                    role:     adminData?.role || 'super_admin',
-                    uid:      user.uid,
-                    twoFactorEnabled: adminData?.twoFactorEnabled || false
-                };
-                currentUserRole = currentUser.role;
+        // Multi-layer admin check (same as doLogin)
+        const isAdminEmail = user.email === ADMIN_EMAIL_MASTER;
+        const isMasterUID  = user.uid   === ADMIN_UID_MASTER;
+        let adminData = null;
+        let hasAdminDoc = false;
 
-                showApp();
-                loadDashboard();
-                loadTools();
-                loadUsers();
-                loadReqs();
-                loadCom();
-                loadAnalytics();
-                loadSettings();
-                loadTeam();
-            }
-            // else: stay on login screen
+        try {
+            const doc = await Promise.race([
+                fbDb.collection(FS.admins).doc(user.uid).get(),
+                new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
+            ]);
+            if (doc.exists) { adminData = doc.data(); hasAdminDoc = true; }
+        } catch(e) {
+            console.warn('[AuthState] Firestore read failed — using email/UID fallback');
         }
-        // else: show login screen (already default state)
+
+        const allowed = isAdminEmail || isMasterUID || hasAdminDoc;
+        if (!allowed) {
+            console.warn('[AuthState] User not admin — signing out');
+            fbAuth.signOut();
+            return;
+        }
+
+        currentUser = {
+            uid:              user.uid,
+            email:            user.email,
+            name:             adminData?.name || user.displayName || user.email.split('@')[0],
+            role:             adminData?.role || 'super_admin',
+            twoFactorEnabled: adminData?.twoFactorEnabled || false
+        };
+        currentUserRole = currentUser.role;
+
+        showApp();
+        loadDashboard();
+        loadTools();
+        loadUsers();
+        loadReqs();
+        loadCom();
+        loadAnalytics();
+        loadSettings();
+        loadTeam();
     });
 
     // Connection status
@@ -5139,63 +5151,68 @@ async function toggle2FA() {
 
 // ===== LOGIN FUNCTION (Firebase Auth) =====
 async function doLogin() {
-    const email    = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPwd').value;
+    const email    = document.getElementById('loginEmail')?.value.trim() || '';
+    const password = document.getElementById('loginPwd')?.value || '';
     const btn      = document.getElementById('loginBtn');
     const errDiv   = document.getElementById('loginErr');
-    const errMsg   = document.getElementById('loginErrMsg');
 
     if (!email || !password) { showLoginError('ইমেইল ও পাসওয়ার্ড দিন'); return; }
-    if (!Security.validateEmail(email)) { showLoginError('সঠিক ইমেইল ঠিকানা দিন'); return; }
 
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> লগইন হচ্ছে...';
-    btn.disabled  = true;
-    errDiv.style.display = 'none';
+    if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> লগইন হচ্ছে...'; btn.disabled = true; }
+    if (errDiv) errDiv.style.display = 'none';
 
     try {
-        // Ensure Firebase is ready
-        if (!fbAuth) {
-            showLoginError('Firebase লোড হয়নি। পেজ রিফ্রেশ করুন।');
-            return;
-        }
-        console.log('[Login] Attempting Firebase Auth...');
+        if (!fbAuth) throw new Error('Firebase Auth লোড হয়নি। পেজ রিফ্রেশ করুন।');
+
+        // Step 1: Firebase Auth sign-in
         const cred = await fbAuth.signInWithEmailAndPassword(email, password);
         const user = cred.user;
+        console.log('[Login] Auth OK. UID:', user.uid, '| Email:', user.email);
 
-        // Check admin status — if Firestore read fails (rules), fallback to UID check
+        // Step 2: Admin check — multiple fallback layers
+        // Layer A: Admin email match (most reliable — no Firestore needed)
+        const isAdminEmail   = user.email === ADMIN_EMAIL_MASTER;
+        // Layer B: UID match (hardcoded)
+        const isMasterUID    = user.uid === ADMIN_UID_MASTER;
+        // Layer C: Firestore autoscrip_admins doc
         let adminData = null;
-        let firestoreAccessible = true;
+        let hasAdminDoc = false;
         try {
-            const doc = await fbDb.collection(FS.admins).doc(user.uid).get();
-            if (doc.exists) adminData = doc.data();
+            const doc = await Promise.race([
+                fbDb.collection(FS.admins).doc(user.uid).get(),
+                new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
+            ]);
+            if (doc.exists) { adminData = doc.data(); hasAdminDoc = true; }
+            console.log('[Login] Firestore admin doc:', hasAdminDoc ? 'FOUND' : 'NOT FOUND');
         } catch(e) {
-            firestoreAccessible = false;
-            console.warn('Firestore admins read failed:', e.code, '— using UID fallback');
+            console.warn('[Login] Firestore read failed:', e.message, '— using email/UID fallback');
         }
 
-        // Allow: master UID, OR has admin doc, OR Firestore was inaccessible (rules not set yet)
-        const isMasterAdmin = user.uid === ADMIN_UID_MASTER;
-        const hasAdminDoc = !!adminData;
-        const firestoreBlocked = !firestoreAccessible;
+        // Allow if ANY of the layers pass
+        const allowed = isAdminEmail || isMasterUID || hasAdminDoc;
+        console.log('[Login] Access check →', { isAdminEmail, isMasterUID, hasAdminDoc, allowed });
 
-        if (!isMasterAdmin && !hasAdminDoc && !firestoreBlocked) {
+        if (!allowed) {
             await fbAuth.signOut();
-            showLoginError('আপনি অ্যাডমিন নন। Firebase Console-এ autoscrip_admins collection-এ আপনার UID দিয়ে doc তৈরি করুন।');
+            showLoginError('অ্যাক্সেস নিষিদ্ধ। শুধু অ্যাডমিনরা লগইন করতে পারবেন।');
             return;
         }
 
+        // Step 3: Set current user
         currentUser = {
-            email:    user.email,
-            name:     adminData?.name || user.displayName || user.email.split('@')[0],
-            role:     adminData?.role || 'super_admin',
-            uid:      user.uid,
+            uid:              user.uid,
+            email:            user.email,
+            name:             adminData?.name || user.displayName || user.email.split('@')[0],
+            role:             adminData?.role || 'super_admin',
             twoFactorEnabled: adminData?.twoFactorEnabled || false
         };
         currentUserRole = currentUser.role;
 
-        // Save minimal token reference
+        // Save session reference
         try { localStorage.setItem('adminToken', 'firebase_' + user.uid); } catch(e) {}
+        try { localStorage.setItem('adminEmail', user.email); } catch(e) {}
 
+        // Step 4: Load dashboard
         showApp();
         loadDashboard();
         loadTools();
@@ -5206,20 +5223,25 @@ async function doLogin() {
         loadSettings();
         loadTeam();
 
+        toast('✅ স্বাগতম, ' + currentUser.name + '!', 'success');
+
     } catch(e) {
+        // Firebase Auth error codes
         const MSGS = {
-            'auth/user-not-found':         'ইমেইল পাওয়া যায়নি।',
-            'auth/wrong-password':         'পাসওয়ার্ড ভুল।',
+            'auth/user-not-found':         'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট নেই।',
+            'auth/wrong-password':         'পাসওয়ার্ড ভুল। আবার চেষ্টা করুন।',
             'auth/invalid-credential':     'ইমেইল বা পাসওয়ার্ড ভুল।',
-            'auth/invalid-email':          'ইমেইল ফরম্যাট ভুল।',
+            'auth/invalid-email':          'ইমেইল ফরম্যাট সঠিক নয়।',
             'auth/too-many-requests':      'অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে চেষ্টা করুন।',
             'auth/network-request-failed': 'ইন্টারনেট সংযোগ নেই।',
-            'auth/user-disabled':          'এই অ্যাকাউন্ট নিষ্ক্রিয় করা হয়েছে।'
+            'auth/user-disabled':          'এই অ্যাকাউন্ট বন্ধ করা হয়েছে।',
+            'auth/operation-not-allowed':  'Email/Password login বন্ধ আছে। Firebase Console চেক করুন।',
         };
-        showLoginError(MSGS[e.code] || e.message);
+        const errMsg = MSGS[e.code] || e.message || 'অজানা সমস্যা। Console চেক করুন।';
+        console.error('[Login] Error:', e.code, e.message);
+        showLoginError(errMsg);
     } finally {
-        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> লগইন করুন';
-        btn.disabled  = false;
+        if (btn) { btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> লগইন করুন'; btn.disabled = false; }
     }
 }
 
@@ -7652,6 +7674,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
 });
+
 
 
 
