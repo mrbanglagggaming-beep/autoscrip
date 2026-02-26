@@ -4008,6 +4008,7 @@ body.offline-mode { padding-top: 44px !important; }
 <script>
 
 
+
 // ===== GLOBAL ERROR BOUNDARY =====
 window.onerror = function(msg, src, line, col, err) {
   const safeMsg = 'অপ্রত্যাশিত সমস্যা হয়েছে। পেজ রিফ্রেশ করুন।';
@@ -4177,13 +4178,38 @@ const ADMIN_UID_MASTER = "E97OGEv5ZJFbHaoojCnFe25GSeY1";
 
 // Firebase instances (loaded from CDN scripts in <head>)
 let fbApp, fbAuth, fbDb;
-try {
-    fbApp  = firebase.initializeApp(FIREBASE_CONFIG);
-    fbAuth = firebase.auth();
-    fbDb   = firebase.firestore();
-} catch(e) {
-    console.warn('Firebase init error:', e.message);
-}
+(function initFirebase() {
+    const maxWait = 5000;
+    const start = Date.now();
+    function tryInit() {
+        if (typeof firebase !== 'undefined') {
+            try {
+                // Prevent duplicate app
+                if (!firebase.apps.length) {
+                    fbApp = firebase.initializeApp(FIREBASE_CONFIG);
+                } else {
+                    fbApp = firebase.app();
+                }
+                fbAuth = firebase.auth();
+                fbDb   = firebase.firestore();
+                // Enable Firestore offline persistence
+                fbDb.enablePersistence({ synchronizeTabs: true }).catch(e => {
+                    if (e.code !== 'failed-precondition' && e.code !== 'unimplemented') {
+                        console.warn('Firestore persistence:', e.code);
+                    }
+                });
+                console.log('✅ Firebase initialized successfully');
+            } catch(e) {
+                console.error('Firebase init error:', e.message);
+            }
+        } else if (Date.now() - start < maxWait) {
+            setTimeout(tryInit, 100);
+        } else {
+            console.error('Firebase SDK not loaded after 5s — check network');
+        }
+    }
+    tryInit();
+})();
 
 // Firestore collections
 const FS = {
@@ -4966,6 +4992,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     startClock();
 
     // Firebase Auth state listener — auto-login if session active
+    if (!fbAuth) {
+        console.error('fbAuth not initialized — Firebase SDK may have failed to load');
+        return;
+    }
     fbAuth.onAuthStateChanged(async (user) => {
         if (user) {
             // User already signed in — restore session
@@ -5123,6 +5153,12 @@ async function doLogin() {
     errDiv.style.display = 'none';
 
     try {
+        // Ensure Firebase is ready
+        if (!fbAuth) {
+            showLoginError('Firebase লোড হয়নি। পেজ রিফ্রেশ করুন।');
+            return;
+        }
+        console.log('[Login] Attempting Firebase Auth...');
         const cred = await fbAuth.signInWithEmailAndPassword(email, password);
         const user = cred.user;
 
@@ -5195,10 +5231,49 @@ async function doLogout() {
     currentUserRole = null;
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('app').style.display         = 'none';
-    showNotification('লগআউট সফল হয়েছে।', 'info');
+    toast('✅ লগআউট সফল হয়েছে।', 'success');
 }
 
 
+
+
+// ===== MISSING CRITICAL FUNCTIONS (RESTORED) =====
+
+function showLoginError(msg) {
+    const errDiv = document.getElementById('loginErr');
+    const errMsg = document.getElementById('loginErrMsg');
+    if (errMsg) errMsg.textContent = msg;
+    if (errDiv) {
+        errDiv.classList.add('show');
+        setTimeout(() => errDiv.classList.remove('show'), 5000);
+    }
+    console.warn('[LoginError]', msg);
+}
+
+function showApp() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    if (currentUser) {
+        const nm = document.getElementById('sbNm');
+        const av = document.getElementById('sbAv');
+        const role = document.getElementById('sbRole');
+        if (nm) nm.textContent = currentUser.name || 'Admin';
+        if (av) av.textContent = (currentUser.name || 'A')[0].toUpperCase();
+        if (role) role.textContent = getRoleLabel(currentUser.role || 'super_admin');
+    }
+}
+
+function getRoleLabel(role) {
+    const roles = {
+        'super_admin':      'SUPER ADMIN',
+        'content_manager':  'কন্টেন্ট ম্যানেজার',
+        'moderator':        'মডারেটর'
+    };
+    return roles[role] || role;
+}
+
+// Alias: some call showNotification, map to toast
+function showNotification(msg, type) { toast(msg, type || 'info'); }
 
 // ===== FORGOT PASSWORD =====
 async function forgotPassword() {
@@ -7577,6 +7652,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
 });
+
 
 
 </script>
