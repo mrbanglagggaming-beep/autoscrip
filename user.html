@@ -1809,11 +1809,11 @@ const API_URL = (location.hostname==='localhost'||location.hostname==='127.0.0.1
 
 // ===== STORAGE =====
 const Store = {
-  get:(k,fb=null)=>{try{const v=localStorage.getItem('as7_'+k);return v?JSON.parse(v):fb;}catch{return fb;}},
-  set:(k,v)=>{try{localStorage.setItem('as7_'+k,JSON.stringify(v));}catch{}},
-  del:k=>{try{localStorage.removeItem('as7_'+k);}catch{}},
-  getAdmin:(k,fb=null)=>{try{const v=localStorage.getItem('autoscrip_'+k);return v?JSON.parse(v):fb;}catch{return fb;}},
-  setAdmin:(k,v)=>{try{localStorage.setItem('autoscrip_'+k,JSON.stringify(v));}catch{}}
+  get:(k,fb=null)=>{try{const v=localStorage.getItem('as7_'+k);return v?JSON.parse(v):fb;}catch(_e) {return fb;}},
+  set:(k,v)=>{try{localStorage.setItem('as7_'+k,JSON.stringify(v));}catch(_e) {}},
+  del:k=>{try{localStorage.removeItem('as7_'+k);}catch(_e) {}},
+  getAdmin:(k,fb=null)=>{try{const v=localStorage.getItem('autoscrip_'+k);return v?JSON.parse(v):fb;}catch(_e) {return fb;}},
+  setAdmin:(k,v)=>{try{localStorage.setItem('autoscrip_'+k,JSON.stringify(v));}catch(_e) {}}
 };
 
 // ===== SECURITY =====
@@ -1824,7 +1824,7 @@ const Security = {
   sanitize(s){return String(s||'').replace(/[<>'"]/g,c=>({'<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])).trim();},
   hashPassword(pwd){return btoa(encodeURIComponent(pwd));},
   generateId(){return 'id_'+Date.now().toString(36)+'_'+Math.random().toString(36).substr(2,9);},
-  generateToken(){try{return btoa(Array.from(crypto.getRandomValues(new Uint8Array(24))).join(','));}catch{return Math.random().toString(36)+Date.now().toString(36);}}
+  generateToken(){try{return btoa(Array.from(crypto.getRandomValues(new Uint8Array(24))).join(','));}catch(_e) {return Math.random().toString(36)+Date.now().toString(36);}}
 };
 
 // ===== SEO MANAGER =====
@@ -1843,7 +1843,7 @@ const SEOManager = {
     document.title=c.title;
     document.querySelector('meta[name="description"]')?.setAttribute('content',c.desc);
     document.querySelector('meta[property="og:title"]')?.setAttribute('content',c.title);
-    try{history.pushState({page},'','#'+page);}catch{}
+    try{history.pushState({page},'','#'+page);}catch(_e) {}
   },
   slugify(t){return t.toString().toLowerCase().replace(/\s+/g,'-').replace(/[^\w-]+/g,'').slice(0,60);},
   generateSitemap(){
@@ -2288,9 +2288,9 @@ function sendToAdmin(type,data){
     API.post('/requests',{type,...data});
     toast((type==='tool'?'টুল':type==='script'?'স্ক্রিপ্ট':type==='video'?'ভিডিও':'পোস্ট')+' সাবমিট হয়েছে!','success');
     return true;
-  }catch{toast('সাবমিট করতে সমস্যা!','error');return false;}
+  }catch(_e) {toast('সাবমিট করতে সমস্যা!','error');return false;}
 }
-function syncFromAdmin(){
+function syncFromAdmin(){ _toolsCache=null; // invalidate cache on sync
   try{
     const adminTools=Store.getAdmin('tools')||[];
     let newCount=0;
@@ -2304,9 +2304,18 @@ function syncFromAdmin(){
       if(!App.tools.find(t=>(t._id||t.id)===id)){App.tools.push({...tool,_id:id,id});newCount++;}
     });
     if(newCount>0){toast(newCount+'টি নতুন টুল সিঙ্ক!','info');const g=document.getElementById('toolsGrid');if(g&&document.getElementById('toolsPage').classList.contains('active'))applyFilters();}
-  }catch{}
+  }catch(_e) {}
 }
+// Cache to prevent duplicate Firestore reads when loadHome + loadTools both call fetchToolsFromAPI
+let _toolsCache = null;
+let _toolsCacheTs = 0;
+const _TOOLS_CACHE_TTL = 30000; // 30 seconds
+
 async function fetchToolsFromAPI(){
+  // Return cached result if fresh
+  if (_toolsCache && (Date.now() - _toolsCacheTs) < _TOOLS_CACHE_TTL) {
+    return _toolsCache;
+  }
   // Try Firebase Firestore first
   if(typeof firebase !== 'undefined' && window._fbDb){
     try{
@@ -2328,6 +2337,7 @@ async function fetchToolsFromAPI(){
             .map(d=>({id:d.id,_id:d.id,...d.data()}))
             .filter(t=>t.status==='approved'||t.published!==false);
           console.log('[Firestore fallback] Loaded',tools.length,'tools');
+          _toolsCache = tools; _toolsCacheTs = Date.now();
           return tools;
         }
       }catch(e2){ console.warn('[Firestore] read failed:',e2.message); }
@@ -2336,8 +2346,8 @@ async function fetchToolsFromAPI(){
   // Fallback: REST API
   try{
     const r=await API.get('/tools');
-    if(r&&r.success&&r.tools?.length)return r.tools.filter(t=>t.status==='approved'||t.published!==false);
-  }catch{}
+    if(r&&r.success&&r.tools?.length){const _t=r.tools.filter(t=>t.status==='approved'||t.published!==false);_toolsCache=_t;_toolsCacheTs=Date.now();return _t;}
+  }catch(_e) {}
   return null;
 }
 
@@ -2699,7 +2709,7 @@ window.savePost=()=>{
 // ===== DOCS PAGE =====
 const DOCS={
   'getting-started':{title:'🚀 দ্রুত শুরু',content:'<h3>AutoScrip এ স্বাগতম!</h3><p>বাংলাদেশের প্রথম PowerShell প্ল্যাটফর্ম।</p><ul style="margin:16px 0 16px 24px"><li>১০০+ PowerShell টুলস ব্রাউজ ও ডাউনলোড</li><li>স্ক্রিপ্ট লিখুন ও AI দিয়ে তৈরি করুন</li><li>বাংলা ভিডিও টিউটোরিয়াল দেখুন</li><li>কমিউনিটিতে প্রশ্ন করুন</li></ul><h4>ডেমো:</h4><pre><code>admin@autoscrip.pro / admin123\nrahim@test.com / user123</code></pre>'},
-  syntax:{title:'💻 PowerShell সিনট্যাক্স',content:'<h3>মূল সিনট্যাক্স</h3><h4>ভেরিয়েবল:</h4><pre><code>$name = "বাংলাদেশ"\n$number = 42\n$services = Get-Service</code></pre><h4>কন্ডিশন:</h4><pre><code>if ($value -gt 10) {\n    Write-Host "বেশি"\n} else {\n    Write-Host "কম"\n}</code></pre><h4>লুপ:</h4><pre><code>foreach ($s in Get-Service) {\n    Write-Host $s.Name\n}</code></pre><h4>এরর হ্যান্ডলিং:</h4><pre><code>try {\n    Get-Item "C:\\path" -ErrorAction Stop\n} catch {\n    Write-Host "Error: $_"\n}</code></pre>'},
+  syntax:{title:'💻 PowerShell সিনট্যাক্স',content:'<h3>মূল সিনট্যাক্স</h3><h4>ভেরিয়েবল:</h4><pre><code>$name = "বাংলাদেশ"\n$number = 42\n$services = Get-Service</code></pre><h4>কন্ডিশন:</h4><pre><code>if ($value -gt 10) {\n    Write-Host "বেশি"\n} else {\n    Write-Host "কম"\n}</code></pre><h4>লুপ:</h4><pre><code>foreach ($s in Get-Service) {\n    Write-Host $s.Name\n}</code></pre><h4>এরর হ্যান্ডলিং:</h4><pre><code>try {\n    Get-Item "C:\\path" -ErrorAction Stop\n} catch (_e) {\n    Write-Host "Error: $_"\n}</code></pre>'},
   'tools-guide':{title:'🔧 টুলস গাইড',content:'<h3>টুলস ব্যবহার</h3><h4>খোঁজা:</h4><p>সার্চ বারে কীওয়ার্ড লিখুন, ক্যাটাগরি ফিল্টার করুন।</p><h4>রান:</h4><p>"রান" বাটনে ক্লিক — টুল এডিটরে লোড হয়।</p><h4>কপি:</h4><p>"কপি" বাটন — ক্লিপবোর্ডে।</p><h4>ডাউনলোড:</h4><p>".ps1" — প্রফেশনাল হেডার সহ।</p><h4>শেয়ার:</h4><p>Facebook, Twitter, WhatsApp।</p><h4>টুল রিকোয়েস্ট:</h4><p>নিজের টুল সাবমিট করুন — অ্যাডমিন অ্যাপ্রুভ করবে।</p>'},
   security:{title:'🔒 সিকিউরিটি গাইড',content:'<h3>সিকিউরিটি ফিচার</h3><h4>ব্লকড কমান্ড:</h4><pre><code>rm -rf, format C:, shutdown\nnet user /add, reg delete\nbcdedit, diskpart\nDisable-WindowsFirewall</code></pre><h4>টিপস:</h4><ul style="margin:0 0 0 24px"><li>পাসওয়ার্ড হার্ডকোড করবেন না</li><li>Execution Policy যাচাই করুন</li><li>নিয়মিত অডিট চালান</li></ul>'},
   cmdlets:{title:'⚡ Cmdlet রেফারেন্স',content:'<h3>পপুলার Cmdlets</h3><h4>সিস্টেম:</h4><ul style="margin:0 0 10px 24px"><li><code>Get-ComputerInfo</code></li><li><code>Get-Process</code></li><li><code>Get-Service</code></li><li><code>Get-EventLog</code></li></ul><h4>ফাইল:</h4><ul style="margin:0 0 10px 24px"><li><code>Get-Item, Copy-Item, Remove-Item</code></li><li><code>Get-ChildItem</code></li></ul><h4>নেটওয়ার্ক:</h4><ul style="margin:0 0 10px 24px"><li><code>Test-Connection</code></li><li><code>Get-NetAdapter</code></li><li><code>Resolve-DnsName</code></li></ul>'},
@@ -2783,7 +2793,7 @@ window.importData=()=>{
         if(data.settings){App.settings={...App.settings,...data.settings};Store.set('settings',App.settings);}
         if(data.bookmarks){App.bookmarks=data.bookmarks;Store.set('bookmarks',data.bookmarks);}
         toast('ইম্পোর্ট হয়েছে!','success');loadSettings();
-      }catch{toast('ফাইল পড়তে সমস্যা!','error');}
+      }catch(_e) {toast('ফাইল পড়তে সমস্যা!','error');}
     };reader.readAsText(file);
   };input.click();
 };
@@ -2935,10 +2945,8 @@ document.addEventListener('keydown', (e) => {
         else firebase.app();
         window._fbDb   = firebase.firestore();
         window._fbAuth = firebase.auth();
-        // Offline persistence
-        window._fbDb.enablePersistence({synchronizeTabs:true}).catch(e=>{
-          if(e.code!=='failed-precondition'&&e.code!=='unimplemented') console.warn('Firestore persistence:',e.code);
-        });
+        // NOTE: enablePersistence() is deprecated in Firestore 10+.
+        // The compat SDK handles caching automatically — no explicit call needed.
         console.log('✅ Firebase user panel initialized');
       }catch(e){ console.warn('Firebase init:',e.message); }
     } else { setTimeout(tryInit,200); }
@@ -3318,7 +3326,7 @@ async function checkAPI() {
       badge.innerHTML = '❌ অফলাইন';
       App.apiOnline = false;
     }
-  } catch {
+  } catch (_e) {
     badge.className = 'badge badge-warning';
     badge.innerHTML = '⚠️ সীমিত';
   }
