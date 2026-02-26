@@ -856,6 +856,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .qa-label{font-family:var(--font-head);font-weight:700;font-size:.9rem;margin-bottom:4px;color:var(--text)}
 .qa-card:hover .qa-icon{transform:scale(1.1) rotate(-3deg)}
 
+/* ===== SHARE POPUP ===== */
+@keyframes shareIn{from{opacity:0;transform:scale(.92) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+#sharePopup > div{animation:shareIn .25s cubic-bezier(.34,1.56,.64,1)}
+#sharePopup a,#sharePopup button{cursor:pointer}
+
 /* ===== P-2 utility ===== */
 .p-2{padding:10px 14px}
 .mt-4{margin-top:24px}
@@ -1905,13 +1910,18 @@ const API = {
   },
   get(ep){return this.req(ep,'GET',null,true);},
   post(ep,data){return this.req(ep,'POST',data,true).catch(()=>({success:false}));},
-  // Fire-and-forget tracking: uses no-cors to suppress CORS console errors
+  // Fire-and-forget tracking: fully silent — no console errors on 404/CORS
   track(ep){
     if(IS_LOCAL||!navigator.onLine) return;
     try{
-      fetch(API_URL+ep,{method:'POST',mode:'no-cors',
-        headers:{'Content-Type':'application/json'},body:'{}'
-      }).catch(()=>{});
+      const ctrl = new AbortController();
+      setTimeout(()=>ctrl.abort(), 3000);
+      fetch(API_URL+ep,{
+        method:'POST',
+        mode:'no-cors',
+        keepalive:true,
+        signal:ctrl.signal
+      }).then(()=>{}).catch(()=>{});
     }catch(_e){}
   }
 };
@@ -2070,18 +2080,25 @@ function doDownload(id){
   URL.revokeObjectURL(a.href);
   toast('📥 ডাউনলোড হয়েছে!','success');
   Analytics.toolDownload(tool.name||tool.title||'');
-  API.track('/tools/'+id+'/download');
+  if(window._fbDb){
+    try{window._fbDb.collection('autoscrip_tools').doc(id).update({downloads:(typeof firebase!=='undefined'?firebase.firestore.FieldValue.increment(1):(tool.downloads||0)+1)}).catch(()=>{});}catch(_e){}
+  } else { API.track('/tools/'+id+'/download'); }
 }
 
 function doShare(id){
   const tool = getTools().find(t => (t._id||t.id) === id);
   if(!tool) return;
   const toolName = tool.name || tool.title || 'AutoScrip Tool';
-  const toolUrl  = location.origin + location.pathname + '#tool-' + id;
-  const text     = toolName + ' — AutoScrip PowerShell Platform';
+  const toolUrl  = (location.hostname && location.hostname !== '') 
+    ? (location.origin + location.pathname + '#tool-' + id)
+    : 'https://autoscrip.vercel.app/#tool-' + id;
+  const shortDesc = (tool.description||'').substring(0,100);
+  const hashTags  = 'AutoScrip,PowerShell,Bangladesh';
+  const shareText = '🔧 ' + toolName + ' — AutoScrip PowerShell Platform\n' + (shortDesc ? shortDesc + '\n' : '') + toolUrl;
 
-  if(navigator.share){
-    navigator.share({ title: toolName, text: text, url: toolUrl })
+  // Native share (mobile)
+  if(navigator.share && /Mobi|Android/i.test(navigator.userAgent)){
+    navigator.share({ title: toolName, text: shareText, url: toolUrl })
       .then(()=>toast('✅ শেয়ার করা হয়েছে!','success'))
       .catch(()=>{});
     return;
@@ -2090,29 +2107,105 @@ function doShare(id){
   const existing = document.getElementById('sharePopup');
   if(existing) existing.remove();
 
+  // Social links config
+  const socials = [
+    {
+      name:'Facebook', icon:'fab fa-facebook-f', bg:'#1877f2',
+      url:'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(toolUrl)+'&quote='+encodeURIComponent(toolName+' — AutoScrip')
+    },
+    {
+      name:'X / Twitter', icon:'fab fa-x-twitter', bg:'#000000',
+      url:'https://twitter.com/intent/tweet?url='+encodeURIComponent(toolUrl)+'&text='+encodeURIComponent('🔧 '+toolName+' — AutoScrip PowerShell')+'&hashtags='+hashTags
+    },
+    {
+      name:'WhatsApp', icon:'fab fa-whatsapp', bg:'#25d366',
+      url:'https://wa.me/?text='+encodeURIComponent(shareText)
+    },
+    {
+      name:'Telegram', icon:'fab fa-telegram', bg:'#0088cc',
+      url:'https://t.me/share/url?url='+encodeURIComponent(toolUrl)+'&text='+encodeURIComponent('🔧 '+toolName+' — AutoScrip PowerShell')
+    },
+    {
+      name:'LinkedIn', icon:'fab fa-linkedin-in', bg:'#0a66c2',
+      url:'https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(toolUrl)
+    },
+    {
+      name:'Reddit', icon:'fab fa-reddit-alien', bg:'#ff4500',
+      url:'https://www.reddit.com/submit?url='+encodeURIComponent(toolUrl)+'&title='+encodeURIComponent(toolName+' — AutoScrip PowerShell Tool')
+    },
+    {
+      name:'Email', icon:'fas fa-envelope', bg:'#555',
+      url:'mailto:?subject='+encodeURIComponent(toolName+' — AutoScrip')+'&body='+encodeURIComponent(shareText)
+    },
+    {
+      name:'Instagram', icon:'fab fa-instagram', bg:'linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)',
+      url:null // Instagram-এ URL শেয়ার হয় না — copy করতে হয়
+    }
+  ];
+
   const popup = document.createElement('div');
   popup.id = 'sharePopup';
-  popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center';
+  popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px)';
+
   popup.innerHTML =
-    '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;width:min(420px,90vw);box-shadow:0 20px 60px rgba(0,0,0,.5)">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">' +
-        '<div style="font-size:1.1rem;font-weight:700;color:var(--text)">📤 শেয়ার করুন</div>' +
-        '<button onclick="document.getElementById(\'sharePopup\').remove()" style="background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;padding:4px">✕</button>' +
+    '<div style="background:var(--card2);border:1px solid rgba(255,215,0,.2);border-radius:20px;padding:28px;width:min(480px,95vw);box-shadow:0 24px 80px rgba(0,0,0,.7);position:relative">' +
+      // Header
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+        '<div style="display:flex;align-items:center;gap:10px">' +
+          '<div style="width:36px;height:36px;border-radius:10px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:1rem;color:#111"><i class="fas fa-share-alt"></i></div>' +
+          '<div>' +
+            '<div style="font-family:var(--font-display);font-size:1.1rem;color:var(--primary);letter-spacing:1px">শেয়ার করুন</div>' +
+            '<div style="font-size:.72rem;color:var(--muted);font-family:var(--font-code)">SHARE THIS TOOL</div>' +
+          '</div>' +
+        '</div>' +
+        '<button onclick="document.getElementById(\'sharePopup\').remove()" style="width:32px;height:32px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted);font-size:1rem;cursor:pointer;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:.2s" onmouseover="this.style.color=\'#fff\'" onmouseout="this.style.color=\'var(--muted)\'">✕</button>' +
       '</div>' +
-      '<div style="font-weight:600;color:var(--primary);margin-bottom:16px;font-size:.92rem">' + Security.escapeHtml(toolName) + '</div>' +
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">' +
-        '<a href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(toolUrl) + '" target="_blank" rel="noopener" onclick="document.getElementById(\'sharePopup\').remove()" style="padding:12px;background:#1877f2;color:#fff;border-radius:10px;text-align:center;font-weight:600;font-size:.88rem;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px"><i class="fab fa-facebook-f"></i> Facebook</a>' +
-        '<a href="https://twitter.com/intent/tweet?url=' + encodeURIComponent(toolUrl) + '&text=' + encodeURIComponent(text) + '" target="_blank" rel="noopener" onclick="document.getElementById(\'sharePopup\').remove()" style="padding:12px;background:#1da1f2;color:#fff;border-radius:10px;text-align:center;font-weight:600;font-size:.88rem;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px"><i class="fab fa-twitter"></i> Twitter</a>' +
-        '<a href="https://t.me/share/url?url=' + encodeURIComponent(toolUrl) + '&text=' + encodeURIComponent(text) + '" target="_blank" rel="noopener" onclick="document.getElementById(\'sharePopup\').remove()" style="padding:12px;background:#0088cc;color:#fff;border-radius:10px;text-align:center;font-weight:600;font-size:.88rem;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px"><i class="fab fa-telegram"></i> Telegram</a>' +
-        '<a href="https://wa.me/?text=' + encodeURIComponent(text + ' ' + toolUrl) + '" target="_blank" rel="noopener" onclick="document.getElementById(\'sharePopup\').remove()" style="padding:12px;background:#25d366;color:#fff;border-radius:10px;text-align:center;font-weight:600;font-size:.88rem;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px"><i class="fab fa-whatsapp"></i> WhatsApp</a>' +
+      // Tool name
+      '<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.12);border-radius:10px;padding:10px 14px;margin-bottom:20px">' +
+        '<div style="font-size:.72rem;color:var(--muted);font-family:var(--font-head);letter-spacing:1px;margin-bottom:4px">TOOL</div>' +
+        '<div style="font-weight:700;color:var(--text);font-family:var(--font-head);font-size:.95rem">⚡ ' + Security.escapeHtml(toolName) + '</div>' +
       '</div>' +
-      '<div style="display:flex;gap:8px">' +
-        '<input id="shareUrlInput" value="' + toolUrl + '" readonly style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-size:.82rem;font-family:var(--font-code)">' +
-        '<button onclick="var v=document.getElementById(\'shareUrlInput\');v&&navigator.clipboard.writeText(v.value).then(()=>toast(\'✅ লিংক কপি!\',\'success\'));document.getElementById(\'sharePopup\').remove()" style="padding:10px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;white-space:nowrap">কপি</button>' +
+      // Social grid (7 platforms)
+      '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px" id="shareSocialGrid">' +
+        socials.map(function(s,i){
+          const isInsta = s.name === 'Instagram';
+          const linkAttr = isInsta ? 'href="javascript:void(0)"' : ('href="'+s.url+'" target="_blank" rel="noopener"');
+          const onclick  = isInsta
+            ? 'onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById(\'shareUrlInput\').value).then(function(){window.open(\'https://www.instagram.com/\',\'_blank\');toast(\'📋 লিংক কপি — Instagram খুলুন\',\'success\');document.getElementById(\'sharePopup\').remove();}).catch(function(){toast(\'ব্রাউজার কপি সাপোর্ট করে না\',\'error\');})"'
+            : 'onclick="document.getElementById(\'sharePopup\').remove()"';
+          return '<a '+linkAttr+' '+onclick+' title="'+s.name+'" style="padding:11px 4px;background:'+s.bg+';color:#fff;border-radius:10px;text-align:center;font-weight:600;font-size:.75rem;text-decoration:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:.2s;min-height:64px" onmouseover="this.style.transform=\'scale(1.06)\';this.style.boxShadow=\'0 6px 20px rgba(0,0,0,.4)\'" onmouseout="this.style.transform=\'scale(1)\';this.style.boxShadow=\'none\'">' +
+            '<i class="'+s.icon+'" style="font-size:1.1rem"></i>' +
+            '<span style="font-size:.68rem;letter-spacing:.3px;white-space:nowrap">'+s.name.split('/')[0].trim()+'</span>' +
+          '</a>';
+        }).join('') +
+      '</div>' +
+      // Divider
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">' +
+        '<div style="flex:1;height:1px;background:var(--border)"></div>' +
+        '<span style="font-size:.72rem;color:var(--muted);font-family:var(--font-head)">অথবা লিংক কপি করুন</span>' +
+        '<div style="flex:1;height:1px;background:var(--border)"></div>' +
+      '</div>' +
+      // URL copy row
+      '<div style="display:flex;gap:8px;margin-bottom:12px">' +
+        '<div style="flex:1;position:relative">' +
+          '<i class="fas fa-link" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem"></i>' +
+          '<input id="shareUrlInput" value="' + toolUrl + '" readonly style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px 10px 32px;font-size:.78rem;font-family:var(--font-code);outline:none" onclick="this.select()">' +
+        '</div>' +
+        '<button id="shareCopyBtn" onclick="(function(){var v=document.getElementById(\'shareUrlInput\');if(!v)return;var btn=document.getElementById(\'shareCopyBtn\');if(navigator.clipboard){navigator.clipboard.writeText(v.value).then(function(){toast(\'✅ লিংক কপি হয়েছে!\',\'success\');if(btn){btn.innerHTML=\'<i class=\\\"fas fa-check\\\"></i> কপি!\';btn.style.background=\'var(--success)\';btn.style.color=\'#111\';}setTimeout(function(){document.getElementById(\'sharePopup\')&&document.getElementById(\'sharePopup\').remove();},1200);}).catch(function(){v.select();document.execCommand(\'copy\');toast(\'✅ কপি!\',\'success\');});}else{v.select();document.execCommand(\'copy\');toast(\'✅ কপি!\',\'success\');}})()" style="padding:10px 16px;background:var(--grad);color:#111;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:.85rem;white-space:nowrap;font-family:var(--font-head);display:flex;align-items:center;gap:6px;transition:.2s"><i class="fas fa-copy"></i> কপি</button>' +
+      '</div>' +
+      // Stats row
+      '<div style="display:flex;gap:16px;justify-content:center;padding-top:10px;border-top:1px solid var(--border)">' +
+        '<div style="text-align:center"><div style="font-size:.7rem;color:var(--muted);font-family:var(--font-head)">ভিউ</div><div style="color:var(--primary);font-family:var(--font-display);font-size:1rem">'+(tool.views||0)+'</div></div>' +
+        '<div style="text-align:center"><div style="font-size:.7rem;color:var(--muted);font-family:var(--font-head)">লাইক</div><div style="color:var(--success);font-family:var(--font-display);font-size:1rem">'+(Array.isArray(tool.likes)?tool.likes.length:(tool.likes||0))+'</div></div>' +
+        '<div style="text-align:center"><div style="font-size:.7rem;color:var(--muted);font-family:var(--font-head)">ডাউনলোড</div><div style="color:var(--info);font-family:var(--font-display);font-size:1rem">'+(tool.downloads||0)+'</div></div>' +
       '</div>' +
     '</div>';
+
   popup.addEventListener('click', function(e){ if(e.target===popup) popup.remove(); });
   document.body.appendChild(popup);
+  // Focus trap for accessibility
+  setTimeout(function(){ popup.querySelector('button')?.focus(); }, 50);
+  Analytics.track('tool','share', toolName);
 }
 
 
@@ -2159,10 +2252,20 @@ window.openToolDetail=id=>{
   const _df=document.getElementById('detailFooter'); if(_df) _df.innerHTML=
     '<button class="btn btn-ghost" onclick="closeModal(\'toolDetailModal\')">বন্ধ করুন</button>'+
     '<button class="btn btn-outline btn-sm" onclick="doCopyTool(\''+id+'\');closeModal(\'toolDetailModal\')"><i class="fas fa-copy"></i> কপি</button>'+
+    '<button class="btn btn-ghost btn-sm" onclick="doShare(\''+id+'\')"><i class="fas fa-share-alt"></i> শেয়ার</button>'+
     '<button class="btn btn-success btn-sm" onclick="doDownload(\''+id+'\')"><i class="fas fa-download"></i> .ps1</button>'+
     '<button class="btn btn-primary btn-sm" onclick="doRunTool(\''+id+'\');closeModal(\'toolDetailModal\')"><i class="fas fa-play"></i> স্ক্রিপ্টে খুলুন</button>';
   openModal('toolDetailModal');
-  API.track('/tools/'+id+'/view');
+  // Track view silently — no console error on 404
+  if(window._fbDb){
+    try{
+      window._fbDb.collection('autoscrip_tools').doc(id).update({
+        views: (typeof firebase !== 'undefined' ? firebase.firestore.FieldValue.increment(1) : (tool.views||0)+1)
+      }).catch(()=>{});
+    }catch(_e){}
+  } else {
+    API.track('/tools/'+id+'/view');
+  }
 };
 
 // ===== PAGE NAVIGATION =====
@@ -2340,7 +2443,7 @@ async function fetchToolsFromAPI(){
         .get();
       if(!snap.empty){
         const tools = snap.docs.map(d=>({id:d.id,_id:d.id,...d.data()}));
-        console.log('[Firestore] Loaded',tools.length,'tools');
+        
         return tools;
       }
     }catch(e){
@@ -2351,7 +2454,7 @@ async function fetchToolsFromAPI(){
           const tools = snap2.docs
             .map(d=>({id:d.id,_id:d.id,...d.data()}))
             .filter(t=>t.status==='approved'||t.published!==false);
-          console.log('[Firestore fallback] Loaded',tools.length,'tools');
+          
           _toolsCache = tools; _toolsCacheTs = Date.now();
           return tools;
         }
@@ -2964,7 +3067,7 @@ document.addEventListener('keydown', (e) => {
         window._fbAuth = firebase.auth();
         // NOTE: enablePersistence() is deprecated in Firestore 10+.
         // The compat SDK handles caching automatically — no explicit call needed.
-        console.log('✅ Firebase user panel initialized');
+        // Firebase initialized silently
       }catch(e){ console.warn('Firebase init:',e.message); }
     } else { setTimeout(tryInit,200); }
   }
