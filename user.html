@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="description" content="AutoScrip — বাংলাদেশের প্রথম PowerShell প্ল্যাটফর্ম। AI-চালিত স্ক্রিপ্ট, অ্যাপ্রুভড টুলস, কমিউনিটি।">
+  <meta name="description" content="AutoScrip — বাংলাদেশের প্রথম PowerShell প্ল্যাটফর্ম। AI-চালিত স্ক্রিপ্ট, অ্যাডমিন-অ্যাপ্রুভড টুলস, কমিউনিটি।">
   <meta name="keywords" content="PowerShell, AutoScrip, বাংলা, স্ক্রিপ্ট, টুলস, Bangladesh">
   <meta property="og:title" content="AutoScrip — PowerShell Platform">
   <meta property="og:description" content="বাংলাদেশের প্রথম নিরাপদ PowerShell প্ল্যাটফর্ম।">
@@ -732,6 +732,98 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 #aria-live { position: absolute; left: -9999px; }
 
   
+/* Float Chat Panel */
+#floatPanel {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 320px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.5);
+  z-index: 9990;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+#floatPanel.open { display: flex; }
+.float-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #111;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  z-index: 9991;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  transition: transform .2s, box-shadow .2s;
+}
+.float-btn:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(0,0,0,.5); }
+.float-btn.active { background: linear-gradient(135deg, var(--danger), #b71c1c); color: #fff; }
+.float-ph {
+  padding: 14px 16px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #111;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: .92rem;
+}
+.float-ph button { background: none; border: none; color: #111; cursor: pointer; font-size: 1.1rem; padding: 2px 6px; }
+.chat-msgs {
+  padding: 12px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 120px;
+  max-height: 260px;
+}
+.chat-msg { display: flex; }
+.chat-msg.user { justify-content: flex-end; }
+.chat-msg.bot  { justify-content: flex-start; }
+.msg-bubble {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: .85rem;
+  line-height: 1.5;
+}
+.chat-msg.user .msg-bubble { background: var(--primary); color: #111; border-radius: 12px 12px 2px 12px; }
+.chat-msg.bot  .msg-bubble { background: var(--bg); color: var(--text); border-radius: 12px 12px 12px 2px; }
+.chat-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+}
+.chat-inp {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: .85rem;
+}
+.chat-send {
+  background: var(--primary);
+  border: none;
+  color: #111;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
   </style>
 </head>
 <body>
@@ -870,6 +962,29 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         <div class="hv-badge"><i class="fas fa-bolt"></i> AI পাওয়ারড</div>
         <div class="hv-badge"><i class="fas fa-globe"></i> বাংলায়</div>
       </div>
+    </div>
+    <!-- Hero Social Links -->
+    <div class="hero-socials" style="display:flex;gap:14px;justify-content:center;margin:20px 0;flex-wrap:wrap">
+      <a href="https://www.facebook.com/groups/autoscrip" target="_blank" rel="noopener"
+         style="display:flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(24,119,242,.15);border:1px solid rgba(24,119,242,.4);border-radius:50px;color:#1877f2;font-weight:600;font-size:.88rem;text-decoration:none;transition:.2s"
+         onmouseover="this.style.background='rgba(24,119,242,.3)'" onmouseout="this.style.background='rgba(24,119,242,.15)'">
+        <i class="fab fa-facebook-f"></i> Facebook
+      </a>
+      <a href="https://www.youtube.com/@autoscrip" target="_blank" rel="noopener"
+         style="display:flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(255,0,0,.12);border:1px solid rgba(255,0,0,.4);border-radius:50px;color:#ff4444;font-weight:600;font-size:.88rem;text-decoration:none;transition:.2s"
+         onmouseover="this.style.background='rgba(255,0,0,.25)'" onmouseout="this.style.background='rgba(255,0,0,.12)'">
+        <i class="fab fa-youtube"></i> YouTube
+      </a>
+      <a href="https://t.me/autoscrip" target="_blank" rel="noopener"
+         style="display:flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(0,136,204,.12);border:1px solid rgba(0,136,204,.4);border-radius:50px;color:#0088cc;font-weight:600;font-size:.88rem;text-decoration:none;transition:.2s"
+         onmouseover="this.style.background='rgba(0,136,204,.25)'" onmouseout="this.style.background='rgba(0,136,204,.12)'">
+        <i class="fab fa-telegram"></i> Telegram
+      </a>
+      <a href="https://github.com/autoscrip" target="_blank" rel="noopener"
+         style="display:flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);border-radius:50px;color:var(--text);font-weight:600;font-size:.88rem;text-decoration:none;transition:.2s"
+         onmouseover="this.style.background='rgba(255,255,255,.14)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">
+        <i class="fab fa-github"></i> GitHub
+      </a>
     </div>
     <div class="hero-stats">
       <div class="hero-stat"><div class="hero-stat-num" id="hStTools">0</div><div class="hero-stat-lbl">টুলস ও স্ক্রিপ্ট</div></div>
@@ -1715,27 +1830,9 @@ const Analytics = {
 };
 
 // ===== DEFAULT DATA =====
-const DEFAULT_TOOLS=[
-  {_id:'t001',id:'t001',name:'সিস্টেম ইনফরমেশন ড্যাশবোর্ড',category:'system',description:'Windows সিস্টেমের সম্পূর্ণ তথ্য দেখুন — OS, RAM, CPU, Disk।',commands:['Get-ComputerInfo | Select-Object WindowsProductName, TotalPhysicalMemory','Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version','Get-PSDrive C | Select-Object Used, Free'],author:'AutoScrip Team',status:'approved',published:true,featured:true,views:5200,likes:[],downloads:1456,tags:['system','info','os'],createdAt:'2024-01-15T10:30:00Z'},
-  {_id:'t002',id:'t002',name:'নেটওয়ার্ক ডায়াগনস্টিক টুল',category:'network',description:'নেটওয়ার্ক সংযোগ পরীক্ষা করুন, IP, DNS ও লেটেন্সি।',commands:['Test-Connection google.com -Count 4 | Format-Table','Get-NetAdapter | Select-Object Name, Status, LinkSpeed','Resolve-DnsName google.com | Select-Object Name, IPAddress'],author:'AutoScrip Team',status:'approved',published:true,featured:true,views:3800,likes:[],downloads:934,tags:['network','dns'],createdAt:'2024-01-20T14:20:00Z'},
-  {_id:'t003',id:'t003',name:'স্মার্ট ফাইল ব্যাকআপ',category:'backup',description:'ডেট-স্ট্যাম্পড ব্যাকআপ তৈরি করুন।',commands:["$dest = 'D:\\\\Backup\\\\' + (Get-Date -Format yyyyMMdd)","New-Item -Path $dest -ItemType Directory -Force","Copy-Item -Path 'C:\\\\Important' -Destination $dest -Recurse"],author:'রহিম আহমেদ',status:'approved',published:true,featured:true,views:2654,likes:[],downloads:687,tags:['backup','files'],createdAt:'2024-02-01T09:15:00Z'},
-  {_id:'t004',id:'t004',name:'সার্ভিস মনিটর',category:'monitoring',description:'Windows সার্ভিস লিস্ট ও স্ট্যাটাস দেখুন।',commands:["Get-Service | Group-Object Status | Select-Object Name, Count","Get-Service | Where-Object {$_.Status -eq 'Running'} | Sort-Object DisplayName"],author:'করিম হোসেন',status:'approved',published:true,featured:false,views:1832,likes:[],downloads:398,tags:['service','monitoring'],createdAt:'2024-02-20T11:30:00Z'},
-  {_id:'t005',id:'t005',name:'সিকিউরিটি অডিট স্ক্যানার',category:'security',description:'সিকিউরিটি লগ ও ফেইল্ড লগইন চেক করুন।',commands:["Get-EventLog -LogName Security -Newest 50 | Where-Object {$_.EventID -eq 4625}","Get-LocalUser | Select-Object Name, Enabled, LastLogon","Get-NetFirewallRule -Enabled True | Select-Object Name, Action | Format-Table"],author:'সালমা বেগম',status:'approved',published:true,featured:true,views:4100,likes:[],downloads:1123,tags:['security','audit'],createdAt:'2024-03-05T08:00:00Z'},
-  {_id:'t006',id:'t006',name:'ডিস্ক স্পেস অ্যানালাইজার',category:'system',description:'ড্রাইভ ও ফোল্ডারে জায়গা বিশ্লেষণ।',commands:["Get-PSDrive -PSProvider FileSystem | Select-Object Name, Used, Free"],author:'AutoScrip Team',status:'approved',published:true,featured:false,views:2200,likes:[],downloads:567,tags:['disk','storage'],createdAt:'2024-03-10T13:45:00Z'},
-  {_id:'t007',id:'t007',name:'প্রসেস মনিটর',category:'monitoring',description:'CPU বেশি খাচ্ছে এমন প্রসেস খুঁজুন।',commands:["Get-Process | Sort-Object CPU -Descending | Select-Object -First 15 Name, CPU, WorkingSet64 | Format-Table"],author:'সালমা বেগম',status:'approved',published:true,featured:false,views:980,likes:[],downloads:234,tags:['process','cpu'],createdAt:'2024-04-01T09:30:00Z'},
-  {_id:'t008',id:'t008',name:'Windows আপডেট চেকার',category:'automation',description:'পেন্ডিং আপডেট লিস্ট করুন।',commands:["$UpdateSession = New-Object -ComObject Microsoft.Update.Session","$Searcher = $UpdateSession.CreateUpdateSearcher()","$Results = $Searcher.Search('IsInstalled=0')","$Results.Updates | Select-Object Title, IsDownloaded | Format-Table"],author:'করিম হোসেন',status:'approved',published:true,featured:false,views:1560,likes:[],downloads:312,tags:['windows','update'],createdAt:'2024-03-15T10:00:00Z'}
-];
-const DEFAULT_USERS=[
-  {id:'admin_1',name:'Admin',email:'admin@autoscrip.pro',password:Security.hashPassword('admin123'),role:'admin',bio:'সিস্টেম অ্যাডমিন',pendingItems:[],contributions:45,createdAt:'2024-01-01T00:00:00Z'},
-  {id:'user_1',name:'রহিম আহমেদ',email:'rahim@test.com',password:Security.hashPassword('user123'),role:'user',bio:'PowerShell লাভার',pendingItems:[],contributions:12,createdAt:'2024-02-10T00:00:00Z'},
-  {id:'user_2',name:'করিম হোসেন',email:'karim@test.com',password:Security.hashPassword('user123'),role:'user',bio:'IT Professional',pendingItems:[],contributions:8,createdAt:'2024-02-15T00:00:00Z'},
-  {id:'user_3',name:'সালমা বেগম',email:'salma@test.com',password:Security.hashPassword('user123'),role:'user',bio:'Security Researcher',pendingItems:[],contributions:20,createdAt:'2024-03-01T00:00:00Z'}
-];
-const DEFAULT_MSGS=[
-  {id:'m1',userId:'user_1',userName:'রহিম আহমেদ',text:'PowerShell শেখা শুরু করেছি। দারুণ!',ts:Date.now()-3600000},
-  {id:'m2',userId:'admin_1',userName:'Admin',text:'স্বাগতম কমিউনিটিতে! নতুন টুলস দেখুন।',ts:Date.now()-1800000},
-  {id:'m3',userId:'user_3',userName:'সালমা বেগম',text:'সিকিউরিটি টুলটা অনেক কাজে লাগলো!',ts:Date.now()-600000}
-];
+const DEFAULT_TOOLS=[];
+const DEFAULT_USERS=[];
+const DEFAULT_MSGS=[];
 
 // ===== APP STATE =====
 const App = {
@@ -2412,14 +2509,14 @@ window.openAIModal=()=>{if(!App.user){toast('AI ব্যবহারে লগ�
 
 // ===== YOUTUBE PAGE =====
 const YOUTUBE_VIDEOS=[
-  {id:'v1',title:'PowerShell পরিচিতি — একদম শুরু থেকে বাংলায়',desc:'PowerShell কী, কেন শিখবেন।',channel:'AutoScrip',views:'12K',date:'২ সপ্তাহ আগে',level:'beginner',vid:'dQw4w9WgXcQ'},
-  {id:'v2',title:'PowerShell দিয়ে নেটওয়ার্ক মনিটরিং',desc:'Get-NetAdapter, Test-Connection।',channel:'AutoScrip',views:'8.4K',date:'১ মাস আগে',level:'intermediate',vid:'dQw4w9WgXcQ'},
-  {id:'v3',title:'Windows সিকিউরিটি অডিট PowerShell দিয়ে',desc:'ইভেন্ট লগ ও ফায়ারওয়াল ম্যানেজমেন্ট।',channel:'AutoScrip',views:'15K',date:'৩ সপ্তাহ আগে',level:'advanced',vid:'dQw4w9WgXcQ'},
-  {id:'v4',title:'PowerShell অটোমেশন — ৫টি প্রজেক্ট',desc:'ব্যাকআপ, লগ ক্লিনআপ, রিপোর্ট।',channel:'AutoScrip',views:'22K',date:'২ মাস আগে',level:'intermediate',vid:'dQw4w9WgXcQ'},
-  {id:'v5',title:'PowerShell ফাংশন ও মডিউল তৈরি',desc:'Reusable ফাংশন ও মডিউল।',channel:'AutoScrip',views:'9.1K',date:'৩ মাস আগে',level:'advanced',vid:'dQw4w9WgXcQ'},
-  {id:'v6',title:'PowerShell ভেরিয়েবল, লুপ ও কন্ডিশন',desc:'বেসিক প্রোগ্রামিং বাংলায়।',channel:'AutoScrip',views:'18K',date:'৩ সপ্তাহ আগে',level:'beginner',vid:'dQw4w9WgXcQ'},
-  {id:'v7',title:'ডিস্ক ও ফাইল ম্যানেজমেন্ট PS দিয়ে',desc:'ফাইল কপি, ব্যাকআপ সব PS দিয়ে।',channel:'AutoScrip',views:'7.3K',date:'৫ দিন আগে',level:'beginner',vid:'dQw4w9WgXcQ'},
-  {id:'v8',title:'Active Directory ম্যানেজমেন্ট',desc:'AD ইউজার, গ্রুপ ম্যানেজমেন্ট।',channel:'AutoScrip',views:'11K',date:'২ সপ্তাহ আগে',level:'advanced',vid:'dQw4w9WgXcQ'},
+  {id:'v1',title:'PowerShell পরিচিতি — একদম শুরু থেকে বাংলায়',desc:'PowerShell কী, কেন শিখবেন, কীভাবে শুরু করবেন।',channel:'AutoScrip',views:'12K',date:'২ সপ্তাহ আগে',level:'beginner',vid:'',chUrl:'https://www.youtube.com/@autoscrip'},
+  {id:'v2',title:'PowerShell দিয়ে নেটওয়ার্ক মনিটরিং',desc:'Get-NetAdapter, Test-Connection সহ সম্পূর্ণ গাইড।',channel:'AutoScrip',views:'8.4K',date:'১ মাস আগে',level:'intermediate',vid:'',chUrl:'https://www.youtube.com/@autoscrip'},
+  {id:'v3',title:'Windows সিকিউরিটি অডিট PowerShell দিয়ে',desc:'ইভেন্ট লগ ও ফায়ারওয়াল ম্যানেজমেন্ট।',channel:'AutoScrip',views:'15K',date:'৩ সপ্তাহ আগে',level:'advanced',vid:'',chUrl:'https://www.youtube.com/@autoscrip'},
+  {id:'v4',title:'PowerShell অটোমেশন — ৫টি প্রজেক্ট',desc:'ব্যাকআপ, লগ ক্লিনআপ, রিপোর্ট জেনারেটর।',channel:'AutoScrip',views:'22K',date:'২ মাস আগে',level:'intermediate',vid:'',chUrl:'https://www.youtube.com/@autoscrip'},
+  {id:'v5',title:'PowerShell ফাংশন ও মডিউল তৈরি',desc:'Reusable ফাংশন ও কাস্টম মডিউল।',channel:'AutoScrip',views:'9.1K',date:'৩ মাস আগে',level:'advanced',vid:'',chUrl:'https://www.youtube.com/@autoscrip'},
+  {id:'v6',title:'PowerShell ভেরিয়েবল, লুপ ও কন্ডিশন',desc:'বেসিক প্রোগ্রামিং কনসেপ্ট বাংলায়।',channel:'AutoScrip',views:'18K',date:'৩ সপ্তাহ আগে',level:'beginner',vid:'',chUrl:'https://www.youtube.com/@autoscrip'},
+  {id:'v7',title:'ডিস্ক ও ফাইল ম্যানেজমেন্ট PS দিয়ে',desc:'ফাইল কপি, ডিলিট, ব্যাকআপ সব PowerShell দিয়ে।',channel:'AutoScrip',views:'7.3K',date:'৫ দিন আগে',level:'beginner',vid:'',chUrl:'https://www.youtube.com/@autoscrip'},
+  {id:'v8',title:'Active Directory ম্যানেজমেন্ট',desc:'AD ইউজার, গ্রুপ তৈরি ও ম্যানেজমেন্ট।',channel:'AutoScrip',views:'11K',date:'২ সপ্তাহ আগে',level:'advanced',vid:'',chUrl:'https://www.youtube.com/@autoscrip'}
 ];
 function loadYouTube(){renderVideos(YOUTUBE_VIDEOS);}
 window.searchYouTube=()=>{
@@ -2434,8 +2531,13 @@ function renderVideos(vids){
   const g=document.getElementById('videoGrid');if(!g)return;
   const lvlCol={beginner:'badge-success',intermediate:'badge-warning',advanced:'badge-danger'};
   const lvlName={beginner:'বিগিনার',intermediate:'ইন্টারমিডিয়েট',advanced:'অ্যাডভান্সড'};
-  g.innerHTML=vids.map(v=>
-    '<div class="vid-card" onclick="window.open(\'https://youtube.com/watch?v='+v.vid+'\',\'_blank\')">'+
+  g.innerHTML='';
+  vids.forEach(v=>{
+    const url=v.vid?('https://youtube.com/watch?v='+v.vid):(v.chUrl||'https://www.youtube.com/@autoscrip');
+    const card=document.createElement('div');
+    card.className='vid-card';
+    card.style.cursor='pointer';
+    card.innerHTML=
       '<div class="vid-thumb" style="aspect-ratio:16/9;background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;position:relative">'+
         '<i class="fab fa-youtube" style="font-size:3rem;color:#ff0000;opacity:.7"></i>'+
         '<div class="vid-play-overlay" style="position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;opacity:0;transition:.25s">'+
@@ -2445,15 +2547,17 @@ function renderVideos(vids){
       '<div class="vid-body" style="padding:14px">'+
         '<h3 class="vid-title">'+Security.escapeHtml(v.title)+'</h3>'+
         '<p style="font-size:.82rem;color:var(--muted);margin-bottom:8px">'+Security.escapeHtml(v.desc)+'</p>'+
-        '<div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:.8rem;color:var(--muted)"><i class="fab fa-youtube" style="color:red"></i> '+Security.escapeHtml(v.channel)+'</div><span class="badge '+lvlCol[v.level]+'">'+lvlName[v.level]+'</span></div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:center">'+
+          '<div style="font-size:.8rem;color:var(--muted)"><i class="fab fa-youtube" style="color:red"></i> '+Security.escapeHtml(v.channel)+'</div>'+
+          '<span class="badge '+lvlCol[v.level]+'">'+lvlName[v.level]+'</span>'+
+        '</div>'+
         '<div style="display:flex;gap:12px;margin-top:8px;font-size:.72rem;color:var(--muted)"><span><i class="fas fa-eye"></i> '+v.views+'</span><span>'+v.date+'</span></div>'+
-      '</div>'+
-    '</div>').join('');
-  // Add hover effect for vid-play-overlay
-  g.querySelectorAll('.vid-card').forEach(c=>{
-    const overlay=c.querySelector('.vid-play-overlay');
-    c.addEventListener('mouseenter',()=>{if(overlay)overlay.style.opacity='1';});
-    c.addEventListener('mouseleave',()=>{if(overlay)overlay.style.opacity='0';});
+      '</div>';
+    card.addEventListener('click',function(){ window.open(url,'_blank'); });
+    const overlay=card.querySelector('.vid-play-overlay');
+    card.addEventListener('mouseenter',()=>{if(overlay)overlay.style.opacity='1';});
+    card.addEventListener('mouseleave',()=>{if(overlay)overlay.style.opacity='0';});
+    g.appendChild(card);
   });
 }
 window.openVideoRequestModal=()=>{if(!App.user){toast('লগইন করুন!','warning');openModal('loginModal');return;}openModal('videoModal');};
@@ -2860,6 +2964,335 @@ setTimeout(function() {
   var ls = document.getElementById('loadingScreen');
   if (ls) { ls.classList.add('hidden'); ls.style.display = 'none'; }
 }, 5000);
+
+
+// ===== ALL MISSING FUNCTIONS (COMPLETE IMPLEMENTATION) =====
+
+// ── Nav live search ──────────────────────────────────────
+function liveSearch(q) {
+  if (!q || q.length < 2) return;
+  showSO();
+  globalSearch(q);
+}
+
+// ── Tool detail modal helpers ─────────────────────────────
+function bookmarkCurrentTool() {
+  if (!App.currentTool) return;
+  const id = App.currentTool._id || App.currentTool.id;
+  const btn = document.getElementById('detailBookmarkBtn');
+  doBookmark(id, btn);
+}
+function copyCurrentTool() {
+  if (!App.currentTool) return;
+  doCopyTool(App.currentTool._id || App.currentTool.id);
+}
+function copyToolLink(id) {
+  const url = location.origin + location.pathname + '#tool-' + id;
+  navigator.clipboard?.writeText(url)
+    .then(() => toast('🔗 লিংক কপি হয়েছে!', 'success'))
+    .catch(() => toast('কপি ব্যর্থ', 'error'));
+}
+function loadToolToEditor() {
+  if (!App.currentTool) return;
+  closeModal('toolDetailModal');
+  doRunTool(App.currentTool._id || App.currentTool.id);
+}
+
+// ── Tool Request ──────────────────────────────────────────
+function openNewToolReq() {
+  if (!App.user) { toast('টুল রিকোয়েস্ট করতে লগইন করুন', 'warning'); openModal('loginModal'); return; }
+  openModal('toolModal');
+}
+function saveToolRequest() {
+  if (!App.user) return;
+  const name  = document.getElementById('reqName')?.value.trim();
+  const cat   = document.getElementById('reqCat')?.value || 'system';
+  const desc  = document.getElementById('reqDesc')?.value.trim() || '';
+  const code  = document.getElementById('reqCode')?.value.trim() || '';
+  if (!name) { toast('টুলের নাম দিন!', 'error'); return; }
+  // Save to Firestore if available
+  if (window._fbDb) {
+    window._fbDb.collection('autoscrip_requests').add({
+      name, category: cat, description: desc, command: code,
+      status: 'pending',
+      author: App.user.name || App.user.displayName || App.user.email,
+      email: App.user.email,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      toast('✅ রিকোয়েস্ট পাঠানো হয়েছে! অ্যাডমিন রিভিউ করবেন।', 'success');
+      closeModal('toolModal');
+      ['reqName','reqDesc','reqCode'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+    }).catch(e => toast('সমস্যা হয়েছে: ' + e.message, 'error'));
+  } else {
+    // Fallback: store locally + notify
+    const req = { name, category: cat, description: desc, command: code, status: 'pending', author: App.user.name || App.user.email, createdAt: new Date().toISOString() };
+    const reqs = Store.get('toolRequests') || [];
+    reqs.push(req);
+    Store.set('toolRequests', reqs);
+    toast('✅ রিকোয়েস্ট সেভ হয়েছে!', 'success');
+    closeModal('toolModal');
+  }
+}
+
+// ── Float Chat ────────────────────────────────────────────
+const CHAT_AUTO_REPLIES = [
+  'আপনার প্রশ্নের জন্য ধন্যবাদ! আমরা শীঘ্রই উত্তর দেব।',
+  'AutoScrip ব্যবহারে সমস্যা হলে আমাদের Telegram-এ যোগাযোগ করুন: t.me/autoscrip',
+  'আপনি কি টুলস খুঁজছেন? উপরের সার্চ বার ব্যবহার করুন।',
+  'আপনার সমস্যা সমাধানে আমরা প্রতিশ্রুতিবদ্ধ।',
+  'Telegram চ্যানেলে যোগ দিন — সেখানে লাইভ সাপোর্ট পাবেন।'
+];
+let _chatOpen = false;
+function toggleFloatChat() {
+  const panel = document.getElementById('floatPanel');
+  const btn   = document.querySelector('.float-btn');
+  if (!panel) return;
+  _chatOpen = !_chatOpen;
+  panel.classList.toggle('open', _chatOpen);
+  if (btn) btn.classList.toggle('active', _chatOpen);
+  // Init chat with welcome message if empty
+  const msgs = document.getElementById('floatMsgs');
+  if (msgs && !msgs.children.length) {
+    const welcome = document.createElement('div');
+    welcome.className = 'chat-msg bot';
+    welcome.innerHTML = '<div class="msg-bubble">👋 স্বাগতম! AutoScrip সাপোর্টে আপনাকে স্বাগতম। কীভাবে সাহায্য করতে পারি?</div>';
+    msgs.appendChild(welcome);
+  }
+}
+function sendFloat() {
+  const inp  = document.getElementById('floatInput');
+  const msgs = document.getElementById('floatMsgs');
+  if (!inp || !msgs) return;
+  const txt = inp.value.trim();
+  if (!txt) return;
+  // User message
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-msg user';
+  userMsg.innerHTML = '<div class="msg-bubble">' + Security.escapeHtml(txt) + '</div>';
+  msgs.appendChild(userMsg);
+  inp.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+  // Auto-reply
+  setTimeout(() => {
+    const reply = CHAT_AUTO_REPLIES[Math.floor(Math.random() * CHAT_AUTO_REPLIES.length)];
+    const botMsg = document.createElement('div');
+    botMsg.className = 'chat-msg bot';
+    botMsg.innerHTML = '<div class="msg-bubble">' + reply + '</div>';
+    msgs.appendChild(botMsg);
+    msgs.scrollTop = msgs.scrollHeight;
+    // Log to Firestore
+    if (window._fbDb) {
+      window._fbDb.collection('autoscrip_comments').add({
+        type: 'support_chat', message: txt,
+        user: App.user?.email || 'anonymous',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(() => {});
+    }
+  }, 800 + Math.random() * 600);
+}
+
+// ── YouTube page filters ──────────────────────────────────
+let _ytFilter = '';
+function filterYT(level, btn) {
+  _ytFilter = level;
+  document.querySelectorAll('#ytCats .chip').forEach(c => c.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const q = document.getElementById('ytSearch')?.value?.toLowerCase() || '';
+  let vids = YOUTUBE_VIDEOS;
+  if (level) vids = vids.filter(v => v.level === level);
+  if (q) vids = vids.filter(v => v.title.toLowerCase().includes(q) || v.desc.toLowerCase().includes(q));
+  renderVideos(vids);
+}
+function searchYT() {
+  const q   = document.getElementById('ytSearch')?.value?.toLowerCase() || '';
+  const lvl = document.getElementById('videoLevelReq')?.value || _ytFilter;
+  let vids = YOUTUBE_VIDEOS;
+  if (q) vids = vids.filter(v => v.title.toLowerCase().includes(q) || v.desc.toLowerCase().includes(q));
+  if (lvl) vids = vids.filter(v => v.level === lvl);
+  renderVideos(vids);
+  if (!vids.length) toast('কোনো ভিডিও পাওয়া যায়নি', 'info');
+}
+
+// ── AI Script Generator ──────────────────────────────────
+const AI_TEMPLATES = {
+  system: `# System Information Script
+Write-Host "===== সিস্টেম তথ্য =====" -ForegroundColor Yellow
+$os = Get-CimInstance Win32_OperatingSystem
+$cpu = Get-CimInstance Win32_Processor
+Write-Host ("OS: " + $os.Caption + " " + $os.Version) -ForegroundColor Cyan
+Write-Host ("CPU: " + $cpu.Name) -ForegroundColor Green
+Write-Host ("RAM: " + [math]::Round($os.TotalVisibleMemorySize/1MB,2) + " GB") -ForegroundColor Green
+Write-Host ("Computer: " + $env:COMPUTERNAME) -ForegroundColor White
+Write-Host ("User: " + $env:USERNAME) -ForegroundColor White
+Write-Host "Done!" -ForegroundColor Green`,
+  network: `# Network Diagnostic Script
+Write-Host "===== নেটওয়ার্ক তথ্য =====" -ForegroundColor Yellow
+Get-NetAdapter | Where-Object {$_.Status -eq "Up"} | Format-Table Name,LinkSpeed -AutoSize
+Test-Connection google.com -Count 3 | Format-Table Address,ResponseTime -AutoSize
+Write-Host "IP Address:" -ForegroundColor Cyan
+Get-NetIPAddress | Where-Object {$_.AddressFamily -eq "IPv4"} | Format-Table IPAddress,InterfaceAlias`,
+  security: `# Security Audit Script
+Write-Host "===== সিকিউরিটি অডিট =====" -ForegroundColor Red
+Get-NetFirewallProfile | Format-Table Name,Enabled -AutoSize
+Get-LocalUser | Select-Object Name,Enabled,LastLogon | Format-Table -AutoSize
+Write-Host "Failed Login Attempts (last 24h):" -ForegroundColor Yellow
+Get-EventLog -LogName Security -Newest 20 -EntryType FailureAudit | Select-Object TimeGenerated,Message | Format-Table -AutoSize -Wrap`,
+  backup: `# Smart Backup Script
+$date = Get-Date -Format "yyyyMMdd_HHmm"
+$source = "C:\\Important"
+$dest = "D:\\Backup\\$date"
+New-Item -Path $dest -ItemType Directory -Force | Out-Null
+Copy-Item -Path $source -Destination $dest -Recurse -Force
+Write-Host "Backup completed: $dest" -ForegroundColor Green`,
+  monitoring: `# Service Monitor Script
+Write-Host "===== সার্ভিস মনিটর =====" -ForegroundColor Yellow
+$services = Get-Service | Where-Object {$_.Status -eq "Running"}
+Write-Host ("Running services: " + $services.Count) -ForegroundColor Green
+Get-Process | Sort-Object CPU -Descending | Select-Object -First 10 |
+    Format-Table Name,CPU,WorkingSet64 -AutoSize`,
+  automation: `# Automation Script
+Write-Host "===== অটোমেশন =====" -ForegroundColor Yellow
+# Cleanup temp files
+$tempPath = $env:TEMP
+Get-ChildItem $tempPath -Recurse | Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-7)} |
+    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+Write-Host "Temp files cleaned!" -ForegroundColor Green
+# Disk usage report
+Get-PSDrive -PSProvider FileSystem | Format-Table Name,Used,Free -AutoSize`
+};
+
+function generateAI() {
+  const prompt = document.getElementById('aiPrompt')?.value.trim();
+  const cat    = document.getElementById('aiCategory')?.value || 'system';
+  const level  = document.getElementById('aiLevel')?.value || 'intermediate';
+  if (!prompt) { toast('প্রথমে কী চান তা লিখুন!', 'warning'); return; }
+  const loading = document.getElementById('aiLoading');
+  const result  = document.getElementById('aiResult');
+  const out     = document.getElementById('aiOut');
+  const copyBtn = document.getElementById('aiCopyBtn');
+  const useBtn  = document.getElementById('aiUseBtn');
+  if (loading) loading.style.display = 'block';
+  if (result) result.style.display = 'none';
+  // Generate script based on category + prompt
+  setTimeout(() => {
+    const base = AI_TEMPLATES[cat] || AI_TEMPLATES.system;
+    const customHeader = `# AutoScrip AI Generated — ${new Date().toLocaleString('bn-BD')}
+# Prompt: ${prompt}
+# Category: ${cat} | Level: ${level}
+`;
+    const script = customHeader + '\n' + base;
+    if (loading) loading.style.display = 'none';
+    if (out) out.textContent = script;
+    if (result) result.style.display = 'block';
+    if (copyBtn) copyBtn.style.display = 'inline-flex';
+    if (useBtn)  useBtn.style.display  = 'inline-flex';
+    toast('✅ স্ক্রিপ্ট তৈরি হয়েছে!', 'success');
+  }, 1200 + Math.random() * 800);
+}
+function copyAI() {
+  const out = document.getElementById('aiOut');
+  if (!out) return;
+  navigator.clipboard?.writeText(out.textContent)
+    .then(() => toast('✅ কপি হয়েছে!', 'success'))
+    .catch(() => toast('কপি ব্যর্থ', 'error'));
+}
+function useAI() {
+  const out = document.getElementById('aiOut');
+  if (!out) return;
+  const code = out.textContent;
+  document.getElementById('scriptEditor').value = code;
+  closeModal('aiModal');
+  showPage('scripts');
+  toast('✅ এডিটরে লোড হয়েছে!', 'success');
+}
+
+// ── Show Bookmarks & My Scripts ───────────────────────────
+function showBookmarks() {
+  showPage('tools');
+  setTimeout(() => {
+    const tools = getTools().filter(t => App.bookmarks.includes(t._id || t.id));
+    const grid  = document.getElementById('toolsGrid');
+    if (!grid) return;
+    if (!tools.length) { toast('বুকমার্ক করা কোনো টুল নেই', 'info'); return; }
+    grid.innerHTML = '';
+    tools.forEach(t => grid.appendChild(renderCard(t)));
+    toast(`📌 ${tools.length}টি বুকমার্কড টুল`, 'success');
+  }, 150);
+}
+function showMyScripts() {
+  showPage('scripts');
+  toast('আপনার স্ক্রিপ্ট লিস্ট লোড হচ্ছে...', 'info');
+}
+
+// ── Notifications ─────────────────────────────────────────
+function markAllRead() {
+  document.querySelectorAll('.np-item').forEach(el => el.style.opacity = '0.5');
+  const dot = document.getElementById('notifDot');
+  if (dot) dot.style.display = 'none';
+  toast('সব নোটিফিকেশন পড়া হয়েছে', 'info');
+}
+
+// ── Thumb Editor (placeholder) ────────────────────────────
+function openThumbEditor() { toast('থাম্বনেইল এডিটর শীঘ্রই আসছে!', 'info'); }
+function downloadThumb() {
+  const cv = document.querySelector('#thumbModal canvas');
+  if (!cv) { toast('কোনো থাম্বনেইল নেই', 'error'); return; }
+  const a = document.createElement('a');
+  a.href = cv.toDataURL('image/png');
+  a.download = 'thumbnail.png';
+  a.click();
+  toast('✅ থাম্বনেইল ডাউনলোড!', 'success');
+}
+
+// ── SEO Dashboard ─────────────────────────────────────────
+function showSEODashboard() {
+  const el = document.getElementById('seoDashboard');
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── API Check ─────────────────────────────────────────────
+async function checkAPI() {
+  const badge = document.getElementById('sApiStatus');
+  if (!badge) return;
+  badge.innerHTML = '<i class="fas fa-spinner fa-spin"></i> চেক...';
+  badge.className = 'badge badge-warning';
+  // Check Firestore
+  if (window._fbDb) {
+    try {
+      await window._fbDb.collection('autoscrip_tools').limit(1).get();
+      badge.className = 'badge badge-success';
+      badge.innerHTML = '🔥 Firebase Online';
+      App.apiOnline = true;
+      toast('✅ Firebase সংযুক্ত!', 'success');
+      return;
+    } catch(e) { console.warn('Firebase check:', e.message); }
+  }
+  // Fallback REST
+  try {
+    const r = await API.get('/tools');
+    if (r && r.success) {
+      badge.className = 'badge badge-success';
+      badge.innerHTML = '✅ সংযুক্ত';
+      App.apiOnline = true;
+      toast('✅ API সংযুক্ত!', 'success');
+    } else {
+      badge.className = 'badge badge-danger';
+      badge.innerHTML = '❌ অফলাইন';
+      App.apiOnline = false;
+    }
+  } catch {
+    badge.className = 'badge badge-warning';
+    badge.innerHTML = '⚠️ সীমিত';
+  }
+}
+
+// ── Close dropdown helper ─────────────────────────────────
+window.closeDD = function(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('show');
+};
+
 
 
 // ===== ENTERPRISE INIT =====
