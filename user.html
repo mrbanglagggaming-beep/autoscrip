@@ -380,7 +380,7 @@ select.form-control{cursor:pointer}
 .float-btn:hover{transform:scale(1.1);box-shadow:var(--shadow-gold-lg)}
 .float-badge-dot{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;border-radius:50%;width:20px;height:20px;font-size:.72rem;font-family:var(--font-code);display:flex;align-items:center;justify-content:center;border:2px solid var(--bg)}
 .float-panel{position:fixed;bottom:96px;right:28px;width:320px;background:var(--card2);border:1px solid rgba(255,215,0,.15);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);display:none;flex-direction:column;z-index:500;overflow:hidden}
-.float-panel.show{display:flex;animation:menuIn .25s ease}
+.float-panel.show,.float-panel.open{display:flex;animation:menuIn .25s ease}
 .float-ph{padding:14px 18px;background:var(--grad);display:flex;align-items:center;justify-content:space-between}
 .float-ph span{font-family:var(--font-head);font-weight:700;color:#111;font-size:.95rem}
 .float-ph button{background:transparent;border:none;color:#111;font-size:1rem;cursor:pointer;opacity:.7}
@@ -576,6 +576,40 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 @keyframes ld-pulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.1);opacity:.3}}
 
 
+
+/* ===== NOTIFICATION INNER ELEMENTS ===== */
+.notif-icon{font-size:1.1rem;flex-shrink:0}
+.notif-msg{flex:1;font-family:var(--font-head);font-weight:600;font-size:.88rem;line-height:1.4}
+.notif-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;padding:2px 4px;transition:var(--ease)}
+.notif-close:hover{color:var(--text)}
+
+/* ===== ENHANCED CARD HOVER ===== */
+.yt-card:hover{border-color:rgba(255,215,0,.3)!important;transform:translateY(-5px)!important;box-shadow:0 16px 40px rgba(0,0,0,.5),0 0 20px rgba(255,215,0,.08)!important}
+
+/* ===== QUICK ACTION ICON HOVER ===== */
+.qa-icon{width:52px;height:52px;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin:0 auto 12px;transition:var(--ease)}
+.qa-card:hover .qa-icon{transform:scale(1.1) rotate(-3deg)}
+
+/* ===== SETTINGS GRID ===== */
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+
+/* ===== FOOTER ===== */
+.footer{background:var(--bg2);border-top:1px solid rgba(255,215,0,.08);padding:0}
+.footer-inner{max-width:1440px;margin:0 auto;padding:56px 24px 24px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.footer-brand{font-family:var(--font-display);font-size:2rem;color:var(--primary);letter-spacing:3px;line-height:1;margin-bottom:4px}
+.footer-ver-t{font-family:var(--font-code);font-size:.65rem;color:var(--secondary);letter-spacing:3px;margin-bottom:14px}
+.footer-desc{color:var(--muted);font-size:.85rem;line-height:1.8;margin-bottom:20px}
+.footer-social{display:flex;gap:10px}
+.social-btn{width:38px;height:38px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.9rem;text-decoration:none;transition:var(--ease)}
+.social-btn:hover{background:rgba(255,215,0,.1);color:var(--primary);border-color:rgba(255,215,0,.3);transform:translateY(-2px)}
+.footer-head{font-family:var(--font-head);font-weight:700;color:var(--primary);font-size:.85rem;letter-spacing:1px;margin-bottom:14px;text-transform:uppercase}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:8px}
+.footer-links a{color:var(--muted);font-size:.85rem;cursor:pointer;transition:var(--ease);text-decoration:none}
+.footer-links a:hover{color:var(--primary)}
+.footer-bottom{border-top:1px solid var(--border);padding-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:.8rem;color:var(--muted)}
+@media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;gap:28px}}
+@media(max-width:600px){.footer-grid{grid-template-columns:1fr}}
 
 /* ===== ENTERPRISE ADDITIONS ===== */
 
@@ -1411,7 +1445,7 @@ Get-Date | Format-List"></textarea>
           <li><a onclick="openModal('aboutModal');return false" style="cursor:pointer">আমাদের সম্পর্কে</a></li>
           <li><a onclick="openModal('privacyModal');return false" style="cursor:pointer">গোপনীয়তা নীতি</a></li>
           <li><a onclick="openModal('termsModal');return false" style="cursor:pointer">ব্যবহারের শর্ত</a></li>
-          <li><a href="mailto:support@autoscrip.com">যোগাযোগ</a></li>
+          <li><a href="/cdn-cgi/l/email-protection#dba8aeababb4a9af9bbaaeafb4a8b8a9b2abf5b8b4b6">যোগাযোগ</a></li>
         </ul>
       </div>
     </div>
@@ -1419,7 +1453,7 @@ Get-Date | Format-List"></textarea>
       <span>© 2026 AutoScrip — সকল অধিকার সংরক্ষিত</span>
       <div class="d-flex gap-2 ai-c">
         <span class="sec-badge"><i class="fas fa-shield-alt"></i> ১০০% নিরাপদ</span>
-        <span style="font-family:var(--font-code);font-size:.75rem;color:var(--muted)">v7.0.0</span>
+        <span style="font-family:var(--font-code);font-size:.75rem;color:var(--muted)">v7.1.0</span>
       </div>
     </div>
   </div>
@@ -1611,6 +1645,7 @@ Get-Date | Format-List"></textarea>
       <button class="btn btn-primary" onclick="saveToolRequest()"><i class="fas fa-paper-plane"></i> সাবমিট করুন</button>
     </div>
   </div>
+</div>
 
 <!-- About Modal -->
 <div class="modal-overlay" id="aboutModal" onclick="if(event.target===this)closeModal('aboutModal')">
@@ -1663,7 +1698,7 @@ Get-Date | Format-List"></textarea>
   </div>
 </div>
 </div>
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 
 
 // ===== TIMER REGISTRY (prevent leaks) =====
@@ -2787,7 +2822,7 @@ const GDPR = {
       আমাদের <a href="#" style="color:var(--primary)">গোপনীয়তা নীতি</a> দেখুন।</p>
       <div class="cookie-btns">
         <button class="btn btn-ghost btn-sm" onclick="GDPR.reject()">প্রত্যাখ্যান</button>
-        <button class="btn btn-pr btn-sm" onclick="GDPR.accept()">সম্মত</button>
+        <button class="btn btn-primary btn-sm" onclick="GDPR.accept()">সম্মত</button>
       </div>
     `;
     document.body.appendChild(banner);
@@ -3298,12 +3333,4 @@ window.closeDD = function(id) {
 // ===== ENTERPRISE INIT =====
 document.addEventListener('DOMContentLoaded', function() {
   try { GDPR.init(); } catch(e) {}
-  try { Announcer.init(); } catch(e) {}
-  try { TabSync.init(); } catch(e) {}
-  try { if (typeof startLoading === 'function') startLoading(); } catch(e) {}
-});
-
-
-</script>
-</body>
-</html>
+  try { Announcer.init(); } catch(e
