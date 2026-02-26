@@ -3,152 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <meta name="description" content="AutoScrip — বাংলাদেশের সেরা PowerShell স্ক্রিপ্ট প্ল্যাটফর্ম">
-  <meta name="theme-color" content="#ffd700">
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; img-src * data: blob:; connect-src *; worker-src blob:">
-  <meta property="og:title" content="AutoScrip — বাংলা PowerShell প্ল্যাটফর্ম">
-  <meta property="og:description" content="বাংলাদেশের সেরা PowerShell স্ক্রিপ্ট প্ল্যাটফর্ম">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="AutoScrip — বাংলাদেশের প্রথম PowerShell প্ল্যাটফর্ম। AI-চালিত স্ক্রিপ্ট, অ্যাপ্রুভড টুলস, কমিউনিটি।">
+  <meta name="keywords" content="PowerShell, AutoScrip, বাংলা, স্ক্রিপ্ট, টুলস, Bangladesh">
+  <meta property="og:title" content="AutoScrip — PowerShell Platform">
+  <meta property="og:description" content="বাংলাদেশের প্রথম নিরাপদ PowerShell প্ল্যাটফর্ম।">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://autoscrip.com">
-  <meta property="og:image" content="https://autoscrip.com/og-image.jpg">
-  <meta name="twitter:card" content="summary_large_image">
-  <title>AutoScrip — বাংলা PowerShell প্ল্যাটফর্ম</title>
-  <link rel="canonical" href="https://autoscrip.com">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-  <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22AutoScrip%22%2C%22short_name%22%3A%22AutoScrip%22%2C%22theme_color%22%3A%22%23ffd700%22%2C%22background_color%22%3A%22%230a0a0f%22%2C%22display%22%3A%22standalone%22%7D">
+  <meta property="og:url" content="https://autoscrip.vercel.app">
+  <meta name="theme-color" content="#fbbf24">
+  <title>AutoScrip — PowerShell Platform</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Bangla&display=swap"></noscript>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Bangla&family=JetBrains+Mono:wght@400;500;600;700&family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-  <script>
-  // ===== FIREBASE INIT (user.html) =====
-  const firebaseConfig = {
-    apiKey: "AIzaSyA5_HYl2R1Sa17xBeBhyxO4lGa9lAY5ut4",
-    authDomain: "powerscript-pro-web.firebaseapp.com",
-    projectId: "powerscript-pro-web",
-    storageBucket: "powerscript-pro-web.firebasestorage.app",
-    messagingSenderId: "709315727810",
-    appId: "1:709315727810:web:abeb73172635061343c65b"
-  };
-  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const auth = firebase.auth();
-
-  // ===== FIREBASE USER STORE =====
-  const FBUser = {
-    // Firebase থেকে approved tools লোড করো
-    async getPublishedTools() {
-      try {
-        const snap = await db.collection('autoscrip_tools')
-          .where('published', '==', true)
-          .orderBy('createdAt', 'desc')
-          .get();
-        return snap.docs.map(d => ({ _id: d.id, id: d.id, ...d.data(), status: 'approved' }));
-      } catch(e) {
-        // orderBy ছাড়া চেষ্টা করো (index না থাকলে)
-        try {
-          const snap2 = await db.collection('autoscrip_tools').get();
-          return snap2.docs.map(d => ({ _id: d.id, id: d.id, ...d.data(), status: 'approved' }))
-            .filter(t => t.published !== false)
-            .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
-        } catch(e2) { return null; }
-      }
-    },
-    // ইউজার রেজিস্ট্রেশন Firebase-এ সেভ করো
-    async registerUser(userData) {
-      try {
-        const ref = await db.collection('autoscrip_users').add({
-          ...userData,
-          createdAt: new Date().toISOString(),
-          banned: false
-        });
-        return { success: true, id: ref.id };
-      } catch(e) { return { success: false, error: e.message }; }
-    },
-    // Request পাঠাও Firebase-এ
-    async submitRequest(reqData) {
-      try {
-        await db.collection('autoscrip_requests').add({
-          ...reqData,
-          status: 'pending',
-          createdAt: new Date().toISOString()
-        });
-        return { success: true };
-      } catch(e) { return { success: false, error: e.message }; }
-    },
-    // Community posts Firebase থেকে লোড করো
-    async getCommunityPosts() {
-      try {
-        const snap = await db.collection('autoscrip_comments')
-          .where('published', '==', true)
-          .get();
-        return snap.docs.map(d => ({ id: d.id, ...d.data() }))
-          .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
-      } catch(e) {
-        try {
-          const snap2 = await db.collection('autoscrip_comments').get();
-          return snap2.docs.map(d => ({ id: d.id, ...d.data() }))
-            .filter(p => p.published !== false)
-            .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
-        } catch(e2) { return []; }
-      }
-    },
-    // Tool view/like count update
-    async incrementField(toolId, field) {
-      try {
-        await db.collection('autoscrip_tools').doc(toolId).update({
-          [field]: firebase.firestore.FieldValue.increment(1)
-        });
-      } catch(e) {}
-    },
-    // Settings লোড করো
-    async getSettings() {
-      try {
-        const doc = await db.collection('autoscrip_config').doc('settings').get();
-        return doc.exists ? doc.data() : {};
-      } catch(e) { return {}; }
-    }
-  };
-  </script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "AutoScrip",
-  "url": "https://autoscrip.com",
-  "description": "বাংলাদেশের প্রথম PowerShell টুলস ও লার্নিং প্ল্যাটফর্ম",
-  "inLanguage": "bn",
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://autoscrip.com/tools?q={search_term_string}",
-    "query-input": "required name=search_term_string"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "AutoScrip",
-    "url": "https://autoscrip.com",
-    "logo": {"@type": "ImageObject", "url": "https://autoscrip.com/logo.png"}
-  }
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "AutoScrip PowerShell Platform",
-  "applicationCategory": "DeveloperApplication",
-  "operatingSystem": "Windows",
-  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "BDT"},
-  "description": "PowerShell script management and learning platform in Bangla"
-}
-</script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <style>
+
 
 /* ============================================================
    AUTOSCRIP USER SITE — v3 COLOR + v6 STRUCTURE + ADMIN API
@@ -179,8 +53,8 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--primary);border-radius:99px}
 
 /* LOADING */
-#loadingScreen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s,transform .6s}
-#loadingScreen.hidden{opacity:0;pointer-events:none;transform:scale(1.05)}
+#loadingScreen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s,transform .6s,visibility .6s}
+#loadingScreen.hidden{opacity:0;pointer-events:none;transform:scale(1.05);visibility:hidden}
 .ld-logo{font-family:var(--font-display);font-size:3.5rem;letter-spacing:6px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:8px;animation:ldPulse 2s ease-in-out infinite}
 .ld-ver{font-family:var(--font-code);font-size:.9rem;color:var(--secondary);letter-spacing:3px;margin-bottom:28px}
 @keyframes ldPulse{0%,100%{filter:drop-shadow(0 0 20px rgba(255,215,0,.3))}50%{filter:drop-shadow(0 0 40px rgba(255,215,0,.7))}}
@@ -705,6 +579,28 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 /* ===== ENTERPRISE ADDITIONS ===== */
 
+/* ── OFFLINE MODE BANNER ── */
+#offlineBanner {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(245,158,11,.95);
+  color: #000;
+  padding: 10px 20px;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: .85rem;
+  z-index: 9999;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  backdrop-filter: blur(8px);
+}
+#offlineBanner.show { display: flex; align-items: center; gap: 8px; animation: slideUpFade .3s ease; }
+@keyframes slideUpFade { from { opacity:0; transform: translateX(-50%) translateY(10px); } }
+
+
 /* Skip Navigation (Accessibility) */
 .skip-nav {
   position: absolute;
@@ -835,9 +731,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 }
 #aria-live { position: absolute; left: -9999px; }
 
+  
   </style>
 </head>
 <body>
+<div id="offlineBanner"><i class="fas fa-wifi-slash"></i> অফলাইন — লোকাল ডেটা দেখাচ্ছে</div>
 <a href="#mainContent" class="skip-nav">প্রধান বিষয়বস্তুতে যান</a>
 <div id="aria-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <!-- LOADING -->
@@ -1368,10 +1266,10 @@ Get-Date | Format-List"></textarea>
         <div class="footer-ver-t">POWERSHELL PLATFORM</div>
         <p class="footer-desc">বাংলাদেশের প্রথম নিরাপদ PowerShell প্ল্যাটফর্ম। AI-চালিত স্ক্রিপ্ট জেনারেটর, অ্যাডমিন-অ্যাপ্রুভড টুলস এবং সক্রিয় কমিউনিটি।</p>
         <div class="footer-social">
-          <a class="social-btn" href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-          <a class="social-btn" href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
-          <a class="social-btn" href="#" title="GitHub"><i class="fab fa-github"></i></a>
-          <a class="social-btn" href="#" title="Telegram"><i class="fab fa-telegram"></i></a>
+          <a class="social-btn" href="https://www.facebook.com/groups/autoscrip" target="_blank" rel="noopener" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a class="social-btn" href="https://www.youtube.com/@autoscrip" target="_blank" rel="noopener" title="YouTube"><i class="fab fa-youtube"></i></a>
+          <a class="social-btn" href="https://github.com/autoscrip" target="_blank" rel="noopener" title="GitHub"><i class="fab fa-github"></i></a>
+          <a class="social-btn" href="https://t.me/autoscrip" target="_blank" rel="noopener" title="Telegram"><i class="fab fa-telegram"></i></a>
         </div>
       </div>
       <div>
@@ -1395,10 +1293,10 @@ Get-Date | Format-List"></textarea>
       <div>
         <div class="footer-head">তথ্য</div>
         <ul class="footer-links">
-          <li><a href="#">আমাদের সম্পর্কে</a></li>
-          <li><a href="#">গোপনীয়তা নীতি</a></li>
-          <li><a href="#">ব্যবহারের শর্ত</a></li>
-          <li><a href="#">যোগাযোগ</a></li>
+          <li><a onclick="openModal('aboutModal');return false" style="cursor:pointer">আমাদের সম্পর্কে</a></li>
+          <li><a onclick="openModal('privacyModal');return false" style="cursor:pointer">গোপনীয়তা নীতি</a></li>
+          <li><a onclick="openModal('termsModal');return false" style="cursor:pointer">ব্যবহারের শর্ত</a></li>
+          <li><a href="mailto:support@autoscrip.com">যোগাযোগ</a></li>
         </ul>
       </div>
     </div>
@@ -1598,8 +1496,60 @@ Get-Date | Format-List"></textarea>
       <button class="btn btn-primary" onclick="saveToolRequest()"><i class="fas fa-paper-plane"></i> সাবমিট করুন</button>
     </div>
   </div>
+
+<!-- About Modal -->
+<div class="modal-overlay" id="aboutModal" onclick="if(event.target===this)closeModal('aboutModal')">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-header"><h3>আমাদের সম্পর্কে</h3><button class="modal-close" onclick="closeModal('aboutModal')"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:2.5rem;margin-bottom:8px">⚡</div>
+        <div style="font-size:1.4rem;font-weight:800;color:var(--primary);letter-spacing:2px">AUTOSCRIP</div>
+        <div style="font-size:.78rem;color:var(--muted);letter-spacing:4px;margin-top:4px">POWERSHELL PLATFORM</div>
+      </div>
+      <p style="color:var(--muted);line-height:1.8;margin-bottom:14px">AutoScrip হলো বাংলাদেশের প্রথম নিরাপদ PowerShell প্ল্যাটফর্ম। আমরা AI-চালিত স্ক্রিপ্ট জেনারেটর, অ্যাডমিন-অ্যাপ্রুভড টুলস এবং একটি সক্রিয় কমিউনিটি নিয়ে কাজ করি।</p>
+      <p style="color:var(--muted);line-height:1.8">আমাদের লক্ষ্য হলো বাংলাদেশি IT পেশাদার এবং শিক্ষার্থীদের জন্য PowerShell শেখা ও ব্যবহার করা সহজ করে তোলা।</p>
+      <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
+        <a href="https://www.facebook.com/groups/autoscrip" target="_blank" class="btn btn-sm" style="background:#1877f2;color:#fff;border:none;flex:1"><i class="fab fa-facebook-f"></i> Facebook</a>
+        <a href="https://www.youtube.com/@autoscrip" target="_blank" class="btn btn-sm" style="background:#ff0000;color:#fff;border:none;flex:1"><i class="fab fa-youtube"></i> YouTube</a>
+        <a href="https://t.me/autoscrip" target="_blank" class="btn btn-sm" style="background:#0088cc;color:#fff;border:none;flex:1"><i class="fab fa-telegram"></i> Telegram</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Privacy Modal -->
+<div class="modal-overlay" id="privacyModal" onclick="if(event.target===this)closeModal('privacyModal')">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header"><h3>গোপনীয়তা নীতি</h3><button class="modal-close" onclick="closeModal('privacyModal')"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto">
+      <h4 style="color:var(--primary);margin-bottom:10px">তথ্য সংগ্রহ</h4>
+      <p style="color:var(--muted);line-height:1.8;margin-bottom:14px">আমরা শুধুমাত্র আপনার নাম, ইমেইল এবং ব্যবহারের তথ্য সংগ্রহ করি। এই তথ্য তৃতীয় পক্ষের সাথে শেয়ার করা হয় না।</p>
+      <h4 style="color:var(--primary);margin-bottom:10px">কুকিজ</h4>
+      <p style="color:var(--muted);line-height:1.8;margin-bottom:14px">আমরা সেশন এবং পছন্দ সংরক্ষণের জন্য localStorage ব্যবহার করি।</p>
+      <h4 style="color:var(--primary);margin-bottom:10px">নিরাপত্তা</h4>
+      <p style="color:var(--muted);line-height:1.8">আপনার পাসওয়ার্ড হ্যাশ করে সংরক্ষণ করা হয়। আমরা কখনো আপনার পাসওয়ার্ড সরাসরি সংরক্ষণ করি না।</p>
+    </div>
+  </div>
+</div>
+
+<!-- Terms Modal -->
+<div class="modal-overlay" id="termsModal" onclick="if(event.target===this)closeModal('termsModal')">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header"><h3>ব্যবহারের শর্ত</h3><button class="modal-close" onclick="closeModal('termsModal')"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto">
+      <h4 style="color:var(--primary);margin-bottom:10px">ব্যবহারের নিয়ম</h4>
+      <p style="color:var(--muted);line-height:1.8;margin-bottom:14px">AutoScrip শুধুমাত্র বৈধ ও নৈতিক উদ্দেশ্যে ব্যবহার করা যাবে। কোনো ক্ষতিকর স্ক্রিপ্ট তৈরি বা শেয়ার করা নিষিদ্ধ।</p>
+      <h4 style="color:var(--primary);margin-bottom:10px">কন্টেন্ট</h4>
+      <p style="color:var(--muted);line-height:1.8;margin-bottom:14px">সব টুল অ্যাডমিন কর্তৃক পর্যালোচনা করা হয়। অনুমোদিত টুলগুলো নিরাপদ এবং পরীক্ষিত।</p>
+      <h4 style="color:var(--primary);margin-bottom:10px">দায়বদ্ধতা</h4>
+      <p style="color:var(--muted);line-height:1.8">আপনার সিস্টেমে স্ক্রিপ্ট চালানোর আগে কোড পর্যালোচনা করুন। AutoScrip কোনো ক্ষতির জন্য দায়ী নয়।</p>
+    </div>
+  </div>
+</div>
 </div>
 <script>
+
 
 // ===== TIMER REGISTRY (prevent leaks) =====
 window.__timers = [];
@@ -1609,12 +1559,18 @@ const clearAllTimers = () => { window.__timers.forEach(clearTimeout); window.__t
 
 // ===== GLOBAL ERROR BOUNDARY =====
 window.onerror = function(msg, src, line, col, err) {
-  try { toast('অপ্রত্যাশিত সমস্যা হয়েছে। পেজ রিফ্রেশ করুন।', 'error'); } catch(e) {}
-  return true;
+  // Suppress Firebase/network noise, only show critical errors
+  const noise = ['firebase','firestore','ResizeObserver','Script error','Non-Error','network'];
+  if(noise.some(n=>String(msg||'').toLowerCase().includes(n)||String(src||'').includes(n))) return true;
+  console.error('[onerror]', msg, 'at', src, line);
+  return true; // Suppress all — no disruptive toasts
 };
 window.addEventListener('unhandledrejection', (e) => {
   e.preventDefault();
-  try { toast('নেটওয়ার্ক সমস্যা। পুনরায় চেষ্টা করুন।', 'warning'); } catch(e2) {}
+  // Suppress Firebase internal rejections silently
+  const reason = String(e.reason?.message || e.reason || '');
+  if(reason.includes('firebase')||reason.includes('firestore')||reason.includes('Failed to fetch')) return;
+  console.warn('[unhandledrejection]', reason);
 });
 
 
@@ -1650,6 +1606,51 @@ const escHtml = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;'
 
 
 // ===== CONFIG =====
+
+
+// ── CIRCUIT BREAKER (User) ────────────────────────────────────────
+const CircuitBreaker = {
+  _f: 0, _open: false, _t: null, _max: 5, _reset: 60000,
+  isOpen() { return this._open; },
+  success() { this._f = 0; this._open = false; clearTimeout(this._t); },
+  fail() {
+    this._f++;
+    if (this._f >= this._max && !this._open) {
+      this._open = true;
+      this._t = setTimeout(() => { this._open = false; this._f = 0; }, this._reset);
+    }
+  }
+};
+
+// ── SESSION PING (keep localStorage fresh) ───────────────────────
+const SessionPing = {
+  _t: null,
+  start() {
+    this._t = setInterval(function() {
+      try { localStorage.setItem('autoscrip_ping', Date.now()); } catch(e) {}
+    }, 5 * 60 * 1000); // every 5 min
+  },
+  stop() { clearTimeout(this._t); }
+};
+
+// ── OFFLINE / FILE:// DETECTION ──────────────────────────────────
+(function(){
+  function _showOffline() {
+    var b = document.getElementById('offlineBanner');
+    if (b) b.classList.add('show');
+    setTimeout(function(){ if(b) b.classList.remove('show'); }, 5000);
+  }
+  var proto = location.protocol;
+  if (proto === 'file:' || proto === 'about:') {
+    document.addEventListener('DOMContentLoaded', _showOffline);
+  }
+  window.addEventListener('offline', _showOffline);
+  window.addEventListener('online', function(){
+    var b = document.getElementById('offlineBanner');
+    if (b) b.classList.remove('show');
+  });
+})();
+
 const API_URL = (location.hostname==='localhost'||location.hostname==='127.0.0.1')
   ? 'http://localhost:3000/api'
   : 'https://autoscrip-server.vercel.app/api';
@@ -1753,19 +1754,22 @@ const App = {
 const IS_LOCAL = location.protocol === 'file:';
 const API = {
   async req(ep,method='GET',body=null,auth=false){
-    if(IS_LOCAL) return{success:false}; // Skip API on local file - use default data
+    // CORS/offline guard — prevents 'origin: null' CORS errors on file://
+    const _proto=location.protocol;
+    const _offline=(_proto==='file:'||_proto==='about:'||_proto==='blob:'||IS_LOCAL||!navigator.onLine);
+    if(_offline) return{success:false,offline:true};
     const opts={method,headers:{'Content-Type':'application/json'},mode:'cors'};
     const tok=Store.get('userToken')||localStorage.getItem('adminToken');
     if(auth&&tok) opts.headers['Authorization']='Bearer '+tok;
     if(body) opts.body=JSON.stringify(body);
     try{
       const ctrl=new AbortController();
-      const tid=setTimeout(()=>ctrl.abort(),5000);
+      const tid=setTimeout(()=>ctrl.abort(),8000);
       const res=await fetch(API_URL+ep,{...opts,signal:ctrl.signal});
       clearTimeout(tid);
-      if(!res.ok) return{success:false};
+      if(!res.ok) return{success:false,status:res.status};
       return await res.json();
-    }catch{return{success:false};}
+    }catch(e){return{success:false,offline:true};}
   },
   get(ep){return this.req(ep,'GET',null,true);},
   post(ep,data){return this.req(ep,'POST',data,true).catch(()=>({success:false}));}
@@ -1828,7 +1832,9 @@ function renderCard(tool){
   const likesArr=Array.isArray(tool.likes)?tool.likes:[];
   const liked=!!(uid&&likesArr.includes(uid));
   const likeCount=likesArr.length||(typeof tool.likes==='number'?tool.likes:0);
-  const daysAgo=Math.max(1,Math.floor((Date.now()-new Date(tool.createdAt||Date.now()).getTime())/86400000));
+  const _createdMs = tool.createdAt ? new Date(tool.createdAt).getTime() : Date.now();
+  const _validDate = !isNaN(_createdMs) && _createdMs > 0;
+  const daysAgo = _validDate ? Math.max(1, Math.floor((Date.now() - _createdMs) / 86400000)) : 1;
   const viewsFmt=(tool.views||0)>1000?((tool.views/1000).toFixed(1)+'K'):(tool.views||0);
   const cvId='cv_'+id+'_'+Math.random().toString(36).slice(2,5);
   const el=document.createElement('div');
@@ -1856,7 +1862,7 @@ function renderCard(tool){
       '<button class="yt-action-btn" data-act="run" data-id="'+id+'"><i class="fas fa-play"></i> রান</button>'+
       '<button class="yt-action-btn'+(bk?' bookmarked':'')+'" data-act="bk" data-id="'+id+'"><i class="fas fa-bookmark"></i></button>'+
       '<button class="yt-action-btn" data-act="dl" data-id="'+id+'"><i class="fas fa-download"></i> .ps1</button>'+
-      '<button class="yt-action-btn" data-act="share" data-id="'+id+'" title="শেয়ার"><i class="fas fa-share-alt"></i></button>'+
+      '<button class="yt-action-btn" data-act="share" data-id="'+id+'"><i class="fas fa-share-alt"></i></button>'+
     '</div>';
   el.querySelector('.yt-thumb').addEventListener('click',()=>openToolDetail(id));
   el.querySelector('.yt-title').addEventListener('click',()=>openToolDetail(id));
@@ -1869,7 +1875,7 @@ function renderCard(tool){
       else if(act==='run')doRunTool(bid);
       else if(act==='bk')doBookmark(bid,btn);
       else if(act==='dl')doDownload(bid);
-      else if(act==='share'){const t=getTools().find(x=>(x._id||x.id)===bid);shareTool(bid,t?.(t.name||t.title||'AutoScrip Tool'));}
+      else if(act==='share')doShare(bid);
     });
   });
   setTimeout(()=>{const cv=document.getElementById(cvId);if(cv)drawThumb(cv,tool);},60);
@@ -1899,8 +1905,6 @@ function doCopyTool(id){
 function doRunTool(id){
   const tool=getTools().find(t=>(t._id||t.id)===id);if(!tool)return;
   tool.views=(tool.views||0)+1;
-  // Firebase-এ view count বাড়াও
-  if(id && !id.startsWith('local_') && !id.startsWith('dt_')) { try { FBUser.incrementField(id,'views'); } catch(e){} }
   document.getElementById('scriptName').value=tool.name||tool.title||'';
   document.getElementById('scriptEditor').value='# '+(tool.name||tool.title||'')+'\n# '+(tool.description||'')+'\n# লেখক: '+(tool.author||'AutoScrip')+'\n\n'+getToolCode(tool);
   if(tool.category)document.getElementById('scriptCategory').value=tool.category;
@@ -1925,72 +1929,51 @@ function doDownload(id){
   URL.revokeObjectURL(a.href);
   toast('📥 ডাউনলোড হয়েছে!','success');
   Analytics.toolDownload(tool.name||tool.title||'');
-  // Firebase-এ download count বাড়াও
-  if(id && !id.startsWith('local_') && !id.startsWith('dt_')) { try { FBUser.incrementField(id,'downloads'); } catch(e){} }
+  API.post('/tools/'+id+'/download',{});
 }
 
-// ===== COPY TOOL LINK =====
-window.copyToolLink = function(id) {
-  const url = location.href.split('#')[0] + '#tool-' + id;
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(url).then(() => toast('✅ লিংক কপি হয়েছে!','success')).catch(() => fallbackCopy(url));
-  } else {
-    fallbackCopy(url);
+function doShare(id){
+  const tool = getTools().find(t => (t._id||t.id) === id);
+  if(!tool) return;
+  const toolName = tool.name || tool.title || 'AutoScrip Tool';
+  const toolUrl  = location.origin + location.pathname + '#tool-' + id;
+  const text     = toolName + ' — AutoScrip PowerShell Platform';
+
+  if(navigator.share){
+    navigator.share({ title: toolName, text: text, url: toolUrl })
+      .then(()=>toast('✅ শেয়ার করা হয়েছে!','success'))
+      .catch(()=>{});
+    return;
   }
-};
-function fallbackCopy(text) {
-  try {
-    const ta = document.createElement('textarea');
-    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.focus(); ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    toast('✅ লিংক কপি হয়েছে!','success');
-  } catch(e) { toast('কপি ব্যর্থ হয়েছে','error'); }
-}
 
-// ===== SHARE TOOL (Standalone popup) =====
-window.shareTool = function(id, title) {
-  const url = location.href.split('#')[0] + '#tool-' + id;
-  const safeUrl = encodeURIComponent(url);
-  const safeTitle = encodeURIComponent(title + ' - AutoScrip');
   const existing = document.getElementById('sharePopup');
-  if (existing) existing.remove();
+  if(existing) existing.remove();
+
   const popup = document.createElement('div');
   popup.id = 'sharePopup';
-  popup.setAttribute('role','dialog'); popup.setAttribute('aria-modal','true');
-  popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)';
-  popup.innerHTML = `<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:420px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,.5)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <span style="font-weight:700;color:var(--primary);font-size:1.05rem"><i class="fas fa-share-alt"></i> শেয়ার করুন</span>
-      <button onclick="document.getElementById('sharePopup').remove()" aria-label="বন্ধ করুন" style="background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer"><i class="fas fa-times"></i></button>
-    </div>
-    <p style="color:var(--muted);font-size:.84rem;margin-bottom:14px;word-break:break-word">${title}</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
-      <a href="https://www.facebook.com/sharer/sharer.php?u=${safeUrl}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:9px;padding:10px 13px;background:#1877f2;color:#fff;border-radius:9px;text-decoration:none;font-weight:600;font-size:.84rem"><i class="fab fa-facebook-f" style="width:15px;text-align:center"></i> Facebook</a>
-      <a href="https://twitter.com/intent/tweet?url=${safeUrl}&text=${safeTitle}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:9px;padding:10px 13px;background:#1da1f2;color:#fff;border-radius:9px;text-decoration:none;font-weight:600;font-size:.84rem"><i class="fab fa-twitter" style="width:15px;text-align:center"></i> Twitter</a>
-      <a href="https://wa.me/?text=${encodeURIComponent(title+'\n'+url)}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:9px;padding:10px 13px;background:#25d366;color:#fff;border-radius:9px;text-decoration:none;font-weight:600;font-size:.84rem"><i class="fab fa-whatsapp" style="width:15px;text-align:center"></i> WhatsApp</a>
-      <a href="https://www.linkedin.com/sharing/share-offsite/?url=${safeUrl}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:9px;padding:10px 13px;background:#0a66c2;color:#fff;border-radius:9px;text-decoration:none;font-weight:600;font-size:.84rem"><i class="fab fa-linkedin-in" style="width:15px;text-align:center"></i> LinkedIn</a>
-      <a href="https://t.me/share/url?url=${safeUrl}&text=${safeTitle}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:9px;padding:10px 13px;background:#2ca5e0;color:#fff;border-radius:9px;text-decoration:none;font-weight:600;font-size:.84rem"><i class="fab fa-telegram-plane" style="width:15px;text-align:center"></i> Telegram</a>
-      <a href="mailto:?subject=${safeTitle}&body=${safeUrl}" style="display:flex;align-items:center;gap:9px;padding:10px 13px;background:#555;color:#fff;border-radius:9px;text-decoration:none;font-weight:600;font-size:.84rem"><i class="fas fa-envelope" style="width:15px;text-align:center"></i> Email</a>
-    </div>
-    <button onclick="copyToolLink('${id}');document.getElementById('sharePopup').remove();" style="display:flex;align-items:center;justify-content:center;gap:9px;padding:10px 13px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:9px;cursor:pointer;font-weight:600;width:100%;margin-top:9px;font-size:.84rem"><i class="fas fa-link"></i> লিংক কপি করুন</button>
-  </div>`;
-  popup.addEventListener('click', e => { if(e.target === popup) popup.remove(); });
+  popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center';
+  popup.innerHTML =
+    '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;width:min(420px,90vw);box-shadow:0 20px 60px rgba(0,0,0,.5)">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">' +
+        '<div style="font-size:1.1rem;font-weight:700;color:var(--text)">📤 শেয়ার করুন</div>' +
+        '<button onclick="document.getElementById(\'sharePopup\').remove()" style="background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;padding:4px">✕</button>' +
+      '</div>' +
+      '<div style="font-weight:600;color:var(--primary);margin-bottom:16px;font-size:.92rem">' + Security.escapeHtml(toolName) + '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">' +
+        '<a href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(toolUrl) + '" target="_blank" rel="noopener" onclick="document.getElementById(\'sharePopup\').remove()" style="padding:12px;background:#1877f2;color:#fff;border-radius:10px;text-align:center;font-weight:600;font-size:.88rem;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px"><i class="fab fa-facebook-f"></i> Facebook</a>' +
+        '<a href="https://twitter.com/intent/tweet?url=' + encodeURIComponent(toolUrl) + '&text=' + encodeURIComponent(text) + '" target="_blank" rel="noopener" onclick="document.getElementById(\'sharePopup\').remove()" style="padding:12px;background:#1da1f2;color:#fff;border-radius:10px;text-align:center;font-weight:600;font-size:.88rem;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px"><i class="fab fa-twitter"></i> Twitter</a>' +
+        '<a href="https://t.me/share/url?url=' + encodeURIComponent(toolUrl) + '&text=' + encodeURIComponent(text) + '" target="_blank" rel="noopener" onclick="document.getElementById(\'sharePopup\').remove()" style="padding:12px;background:#0088cc;color:#fff;border-radius:10px;text-align:center;font-weight:600;font-size:.88rem;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px"><i class="fab fa-telegram"></i> Telegram</a>' +
+        '<a href="https://wa.me/?text=' + encodeURIComponent(text + ' ' + toolUrl) + '" target="_blank" rel="noopener" onclick="document.getElementById(\'sharePopup\').remove()" style="padding:12px;background:#25d366;color:#fff;border-radius:10px;text-align:center;font-weight:600;font-size:.88rem;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px"><i class="fab fa-whatsapp"></i> WhatsApp</a>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px">' +
+        '<input id="shareUrlInput" value="' + toolUrl + '" readonly style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-size:.82rem;font-family:var(--font-code)">' +
+        '<button onclick="var v=document.getElementById(\'shareUrlInput\');v&&navigator.clipboard.writeText(v.value).then(()=>toast(\'✅ লিংক কপি!\',\'success\'));document.getElementById(\'sharePopup\').remove()" style="padding:10px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;white-space:nowrap">কপি</button>' +
+      '</div>' +
+    '</div>';
+  popup.addEventListener('click', function(e){ if(e.target===popup) popup.remove(); });
   document.body.appendChild(popup);
+}
 
-  popup.querySelector('button')?.focus();
-};
-
-// ===== SHARE COMMUNITY POST =====
-window.shareCommunityPost = function(id, title) {
-  shareTool('post-' + id, title || 'AutoScrip Community Post');
-};
-
-// ===== START LOADING (stub for compatibility) =====
-window.startLoading = function() {
-  // Loading screen is handled by window.onload — this is a no-op stub
-};
 
 // ===== TOOL DETAIL MODAL =====
 window.openToolDetail=id=>{
@@ -2025,14 +2008,11 @@ window.openToolDetail=id=>{
     '<div><div style="font-size:.85rem;font-weight:700;color:var(--primary);margin-bottom:8px">POWERSHELL কমান্ড</div>'+
     '<div class="terminal" style="margin:0"><div class="t-head"><div class="t-dot r"></div><div class="t-dot y"></div><div class="t-dot g"></div></div>'+
     '<div class="t-body" style="max-height:200px">'+code.split('\n').map(l=>'<div class="t-line"><span class="t-prompt">PS&gt;</span><span class="'+(l.trim().startsWith('#')?'t-info':'t-out')+'">'+Security.escapeHtml(l)+'</span></div>').join('')+'</div></div></div>'+
-    '<div style="margin-top:16px"><div style="font-size:.82rem;color:var(--muted);margin-bottom:8px"><i class=\"fas fa-share-alt\"></i> শেয়ার করুন</div>'+
-    '<div style="display:flex;gap:7px;flex-wrap:wrap">'+
-      '<a href="https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href.split('#')[0]+'#tool-'+(tool._id||tool.id))+'" target="_blank" rel="noopener" class="btn btn-sm" style="background:#1877f2;color:#fff;border:none"><i class="fab fa-facebook-f"></i> Facebook</a>'+
-      '<a href="https://twitter.com/intent/tweet?url='+encodeURIComponent(location.href.split('#')[0]+'#tool-'+(tool._id||tool.id))+'&text='+encodeURIComponent(tool.name||tool.title||'')+'" target="_blank" rel="noopener" class="btn btn-sm" style="background:#1da1f2;color:#fff;border:none"><i class="fab fa-twitter"></i> Twitter</a>'+
-      '<a href="https://wa.me/?text='+encodeURIComponent((tool.name||tool.title||'')+'\n'+location.href.split('#')[0]+'#tool-'+(tool._id||tool.id))+'" target="_blank" rel="noopener" class="btn btn-sm" style="background:#25d366;color:#fff;border:none"><i class="fab fa-whatsapp"></i> WhatsApp</a>'+
-      '<a href="https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(location.href.split('#')[0]+'#tool-'+(tool._id||tool.id))+'" target="_blank" rel="noopener" class="btn btn-sm" style="background:#0a66c2;color:#fff;border:none"><i class="fab fa-linkedin-in"></i> LinkedIn</a>'+
-      '<a href="https://t.me/share/url?url='+encodeURIComponent(location.href.split('#')[0]+'#tool-'+(tool._id||tool.id))+'&text='+encodeURIComponent(tool.name||tool.title||'')+'" target="_blank" rel="noopener" class="btn btn-sm" style="background:#2ca5e0;color:#fff;border:none"><i class="fab fa-telegram-plane"></i> Telegram</a>'+
-      '<a href="mailto:?subject='+encodeURIComponent(tool.name||tool.title||'')+'&body='+encodeURIComponent(location.href.split('#')[0]+'#tool-'+(tool._id||tool.id))+'" class="btn btn-sm" style="background:#555;color:#fff;border:none"><i class="fas fa-envelope"></i> Email</a>'+
+    '<div style="margin-top:16px"><div style="font-size:.82rem;color:var(--muted);margin-bottom:8px">শেয়ার করুন</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+      '<a href="https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href.split('#')[0]+'#tool-'+(tool._id||tool.id))+'  " target="_blank" class="btn btn-sm" style="background:#1877f2;color:#fff;border:none"><i class="fab fa-facebook-f"></i> Facebook</a>'+
+      '<a href="https://twitter.com/intent/tweet?url='+encodeURIComponent(location.href.split('#')[0]+'#tool-'+(tool._id||tool.id))+'&text='+encodeURIComponent(tool.name||tool.title||'')+'" target="_blank" class="btn btn-sm" style="background:#1da1f2;color:#fff;border:none"><i class="fab fa-twitter"></i> Twitter</a>'+
+      '<a href="https://wa.me/?text='+encodeURIComponent((tool.name||tool.title||'')+'\n'+location.href.split('#')[0]+'#tool-'+(tool._id||tool.id))+'" target="_blank" class="btn btn-sm" style="background:#25d366;color:#fff;border:none"><i class="fab fa-whatsapp"></i> WhatsApp</a>'+
       '<button class="btn btn-sm" style="background:var(--card2);color:var(--text);border:1px solid var(--border)" onclick="copyToolLink(\'' + (tool._id||tool.id) + '\')"><i class="fas fa-link"></i> লিংক কপি</button>'+
     '</div></div>';
   document.getElementById('detailFooter').innerHTML=
@@ -2078,23 +2058,6 @@ function handleGlobalSearch(e){
   showPage('tools');
   setTimeout(()=>{const el=document.getElementById('toolsSearch');if(el){el.value=q;applyFilters();}},150);
 }
-// ===== HASH-BASED NAVIGATION =====
-// Handle browser back/forward for single-page navigation
-window.addEventListener('popstate', function() {
-  var hash = location.hash.replace('#','');
-  var validPages = ['home','tools','scripts','youtube','community','docs','settings'];
-  if (hash && validPages.indexOf(hash) !== -1 && typeof showPage === 'function') {
-    // call showPage but skip pushState (already navigated)
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.querySelectorAll('.nav-link').forEach(l=>l.classList.toggle('active',l.getAttribute('data-page')===hash));
-    var pg = document.getElementById(hash+'Page');
-    if (pg) pg.classList.add('active');
-    var loaders={home:loadHome,tools:loadTools,scripts:loadScripts,youtube:loadYouTube,community:loadCommunity,docs:loadDocs,settings:loadSettings};
-    if (loaders[hash]) loaders[hash]();
-    window.scrollTo({top:0,behavior:'smooth'});
-  }
-});
-
 document.addEventListener('keydown',e=>{
   if(e.key==='/'&&e.target.tagName!=='INPUT'&&e.target.tagName!=='TEXTAREA'){e.preventDefault();showSO();}
   if(e.key==='Escape'){document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show'));hideSO();}
@@ -2143,10 +2106,8 @@ window.handleRegister=()=>{
   const user={id:Security.generateId(),name,displayName:name,email,password:Security.hashPassword(pass),pass:Security.hashPassword(pass),role:'user',bio:'',pendingItems:[],contributions:0,createdAt:new Date().toISOString()};
   regUsers.push(user);Store.set('users',regUsers);
   App.user=user;Store.set('currentUser',user);Store.setAdmin('currentUser',user);
-  // Firebase-এ user save করো (admin দেখতে পাবে)
-  FBUser.registerUser({name, displayName:name, email, role:'user', contributions:0, createdAt:user.createdAt});
   closeModal('registerModal');updateUserUI();
-  toast('🎉 স্বাগতম '+Security.escapeHtml(name)+'! ☁️ Firebase-এ রেজিস্ট্রেশন সম্পন্ন','success');
+  toast('🎉 স্বাগতম '+Security.escapeHtml(name)+'!','success');
   Analytics.track('auth','register',name);
 };
 window.handleLogout=()=>{App.user=null;Store.del('currentUser');Store.setAdmin('currentUser',null);updateUserUI();toast('লগআউট হয়েছে!','info');showPage('home');};
@@ -2190,55 +2151,58 @@ function sendToAdmin(type,data){
       App.user.pendingItems.push({type,id:item.id,name:data.name||data.topic||'Unnamed',submittedAt:item.submittedAt,status:'pending'});
       Store.set('currentUser',App.user);Store.setAdmin('currentUser',App.user);
     }
-    // Firebase-এ request save করো (যেকোনো কম্পিউটার থেকে admin দেখতে পাবে)
-    FBUser.submitRequest({type,...data, userId: App.user?.id||'anonymous', userEmail: App.user?.email||'', userName: App.user?.name||'Anonymous'});
-    toast((type==='tool'?'টুল':type==='script'?'স্ক্রিপ্ট':type==='video'?'ভিডিও':'পোস্ট')+' সাবমিট হয়েছে! ☁️ Admin দেখতে পাবে','success');
+    API.post('/requests',{type,...data});
+    toast((type==='tool'?'টুল':type==='script'?'স্ক্রিপ্ট':type==='video'?'ভিডিও':'পোস্ট')+' সাবমিট হয়েছে!','success');
     return true;
   }catch{toast('সাবমিট করতে সমস্যা!','error');return false;}
 }
 function syncFromAdmin(){
   try{
-    // Firebase থেকে সরাসরি sync করো (যেকোনো কম্পিউটার থেকে কাজ করবে)
-    FBUser.getPublishedTools().then(fbTools => {
-      if (fbTools && fbTools.length > 0) {
-        let newCount = 0;
-        fbTools.forEach(tool => {
-          const id = tool._id || tool.id;
-          if (!App.tools.find(t => (t._id||t.id) === id)) { App.tools.push({...tool,_id:id,id}); newCount++; }
-          else {
-            // existing tool update করো
-            const idx = App.tools.findIndex(t => (t._id||t.id) === id);
-            if (idx >= 0) App.tools[idx] = {...App.tools[idx], ...tool};
-          }
-        });
-        if (newCount > 0) { toast(newCount+'টি নতুন টুল Firebase থেকে লোড!','info'); }
-        const g = document.getElementById('toolsGrid');
-        if (g && document.getElementById('toolsPage')?.classList.contains('active')) applyFilters();
-      } else {
-        // localStorage fallback
-        const adminTools=Store.getAdmin('tools')||[];
-        let newCount=0;
-        adminTools.filter(t=>t.status==='approved'||t.published).forEach(tool=>{
-          const id=tool._id||tool.id;
-          if(!App.tools.find(t=>(t._id||t.id)===id)){App.tools.push({...tool,_id:id,id});newCount++;}
-        });
-        if(newCount>0){toast(newCount+'টি নতুন টুল সিঙ্ক!','info');}
-      }
-    }).catch(() => {
-      // Pure localStorage fallback
-      const adminTools=Store.getAdmin('tools')||[];
-      adminTools.filter(t=>t.status==='approved'||t.published).forEach(tool=>{
-        const id=tool._id||tool.id;
-        if(!App.tools.find(t=>(t._id||t.id)===id)){App.tools.push({...tool,_id:id,id});}
-      });
+    const adminTools=Store.getAdmin('tools')||[];
+    let newCount=0;
+    adminTools.filter(t=>t.status==='approved'||t.published).forEach(tool=>{
+      const id=tool._id||tool.id;
+      if(!App.tools.find(t=>(t._id||t.id)===id)){App.tools.push({...tool,_id:id,id});newCount++;}
     });
-  }catch(e){}
+    const userData=Store.getAdmin('user_data')||{};
+    (userData.approved_tools||[]).forEach(tool=>{
+      const id=tool._id||tool.id;
+      if(!App.tools.find(t=>(t._id||t.id)===id)){App.tools.push({...tool,_id:id,id});newCount++;}
+    });
+    if(newCount>0){toast(newCount+'টি নতুন টুল সিঙ্ক!','info');const g=document.getElementById('toolsGrid');if(g&&document.getElementById('toolsPage').classList.contains('active'))applyFilters();}
+  }catch{}
 }
 async function fetchToolsFromAPI(){
+  // Try Firebase Firestore first
+  if(typeof firebase !== 'undefined' && window._fbDb){
+    try{
+      const snap = await window._fbDb.collection('autoscrip_tools')
+        .where('status','==','approved')
+        .orderBy('createdAt','desc')
+        .get();
+      if(!snap.empty){
+        const tools = snap.docs.map(d=>({id:d.id,_id:d.id,...d.data()}));
+        console.log('[Firestore] Loaded',tools.length,'tools');
+        return tools;
+      }
+    }catch(e){
+      // Try without orderBy (rules may not allow index)
+      try{
+        const snap2 = await window._fbDb.collection('autoscrip_tools').get();
+        if(!snap2.empty){
+          const tools = snap2.docs
+            .map(d=>({id:d.id,_id:d.id,...d.data()}))
+            .filter(t=>t.status==='approved'||t.published!==false);
+          console.log('[Firestore fallback] Loaded',tools.length,'tools');
+          return tools;
+        }
+      }catch(e2){ console.warn('[Firestore] read failed:',e2.message); }
+    }
+  }
+  // Fallback: REST API
   try{
-    // Firebase থেকে published tools লোড করো
-    const fbTools = await FBUser.getPublishedTools();
-    if (fbTools && fbTools.length > 0) return fbTools;
+    const r=await API.get('/tools');
+    if(r&&r.success&&r.tools?.length)return r.tools.filter(t=>t.status==='approved'||t.published!==false);
   }catch{}
   return null;
 }
@@ -2553,8 +2517,7 @@ function renderCommunityPosts(){
       (p.pinned?'<div style="font-size:.7rem;color:var(--warning);margin-bottom:4px"><i class="fas fa-thumbtack"></i> পিন করা</div>':'')+
       '<div style="font-weight:600;color:var(--text);margin-bottom:4px">'+Security.escapeHtml(p.title)+'</div>'+
       '<div style="font-size:.8rem;color:var(--muted);margin-bottom:8px">'+Security.escapeHtml((p.body||'').substring(0,100))+'</div>'+
-      '<div style="display:flex;gap:12px;font-size:.72rem;color:var(--muted);align-items:center"><span><i class="fas fa-user"></i> '+Security.escapeHtml(p.author||'')+'</span><span><i class="fas fa-heart"></i> '+p.likes+'</span><span><i class="fas fa-comments"></i> '+p.comments+'</span>'+
-      '<button onclick="shareCommunityPost(\''+p.id+'\',\''+Security.escapeHtml(p.title).replace(/'/g,'')+'\'" style="margin-left:auto;background:none;border:none;color:var(--primary);cursor:pointer;font-size:.75rem;padding:2px 6px"><i class="fas fa-share-alt"></i> শেয়ার</button></div>'+
+      '<div style="display:flex;gap:12px;font-size:.72rem;color:var(--muted)"><span><i class="fas fa-user"></i> '+Security.escapeHtml(p.author||'')+'</span><span><i class="fas fa-heart"></i> '+p.likes+'</span><span><i class="fas fa-comments"></i> '+p.comments+'</span></div>'+
     '</div>').join('');
 }
 function renderLeaderboard(){
@@ -2691,7 +2654,7 @@ window.generateSitemapPreview=()=>{
 
 
 
- debounce(function() {
+const debouncedSearch = debounce(function() {
   const q = document.getElementById('globalSearch');
   if (q) handleGlobalSearch(q.value ?? '');
 }, 300);
@@ -2814,6 +2777,91 @@ document.addEventListener('keydown', (e) => {
 })();
 
 
+// ===== FIREBASE INIT (User Panel) =====
+(function initFirebaseUser(){
+  const FB_CONFIG = {
+    apiKey:            "AIzaSyA5_HYl2R1Sa17xBeBhyxO4lGa9lAY5ut4",
+    authDomain:        "powerscript-pro-web.firebaseapp.com",
+    projectId:         "powerscript-pro-web",
+    storageBucket:     "powerscript-pro-web.firebasestorage.app",
+    messagingSenderId: "709315727810",
+    appId:             "1:709315727810:web:abeb73172635061343c65b"
+  };
+  function tryInit(){
+    if(typeof firebase !== 'undefined'){
+      try{
+        if(!firebase.apps.length) firebase.initializeApp(FB_CONFIG);
+        else firebase.app();
+        window._fbDb   = firebase.firestore();
+        window._fbAuth = firebase.auth();
+        // Offline persistence
+        window._fbDb.enablePersistence({synchronizeTabs:true}).catch(e=>{
+          if(e.code!=='failed-precondition'&&e.code!=='unimplemented') console.warn('Firestore persistence:',e.code);
+        });
+        console.log('✅ Firebase user panel initialized');
+      }catch(e){ console.warn('Firebase init:',e.message); }
+    } else { setTimeout(tryInit,200); }
+  }
+  tryInit();
+})();
+
+// ===== APP INITIALIZATION =====
+function startLoading() {
+  var steps = [
+    {pct:0,  msg:'INITIALIZING...'},
+    {pct:20, msg:'LOADING MODULES...'},
+    {pct:40, msg:'CONNECTING API...'},
+    {pct:60, msg:'FETCHING TOOLS...'},
+    {pct:80, msg:'RENDERING UI...'},
+    {pct:100,msg:'READY \u2713'}
+  ];
+  var fill = document.getElementById('ldFill');
+  var txt  = document.getElementById('ldTxt');
+  steps.forEach(function(s, i) {
+    setTimeout(function() {
+      if (fill) fill.style.width = s.pct + '%';
+      if (txt)  txt.textContent  = s.msg;
+      if (s.pct === 100) {
+        setTimeout(function() {
+          var ls = document.getElementById('loadingScreen');
+          if (ls) { ls.classList.add('hidden'); setTimeout(function(){ if(ls) ls.style.display='none'; }, 700); }
+        }, 400);
+      }
+    }, i * 280);
+  });
+  // Force-close after 2.5s (offline / slow devices)
+  setTimeout(function() {
+    var ls = document.getElementById('loadingScreen');
+    if (ls) { ls.classList.add('hidden'); ls.style.display = 'none'; }
+  }, 2500);
+  // Show home page
+  setTimeout(function() {
+    try {
+      showPage('home');
+      if (typeof SEOManager !== 'undefined') SEOManager.updateMeta('home');
+      if (typeof Analytics !== 'undefined') Analytics.pageView('home');
+      var hash = location.hash.replace('#', '');
+      var validPages = ['home','tools','scripts','youtube','community','docs','settings'];
+      if (hash && validPages.includes(hash)) showPage(hash);
+    } catch(e) {
+      try { showPage('home'); } catch(e2) {}
+      var ls2 = document.getElementById('loadingScreen');
+      if (ls2) { ls2.classList.add('hidden'); ls2.style.display = 'none'; }
+    }
+    try { if (typeof updateUserUI === 'function' && App && App.user) updateUserUI(); } catch(e) {}
+  }, 300);
+  // Background sync
+  setTimeout(function() {
+    try { if (typeof syncFromAdmin === 'function') syncFromAdmin(); } catch(e) {}
+  }, 600);
+}
+// Absolute failsafe: force-hide loading after 5s
+setTimeout(function() {
+  var ls = document.getElementById('loadingScreen');
+  if (ls) { ls.classList.add('hidden'); ls.style.display = 'none'; }
+}, 5000);
+
+
 // ===== ENTERPRISE INIT =====
 document.addEventListener('DOMContentLoaded', function() {
   try { GDPR.init(); } catch(e) {}
@@ -2822,35 +2870,7 @@ document.addEventListener('DOMContentLoaded', function() {
   try { if (typeof startLoading === 'function') startLoading(); } catch(e) {}
 });
 
-</script>
-<script>
-// ফোর্স করে লোডিং স্ক্রিন সরান এবং হোম পেজ দেখান
-window.onload = function() {
-    // ৫০০ms পর লোডিং স্ক্রিন সরান (প্রোডাকশন রেডি)
-    setTimeout(function() {
-        var loadingScreen = document.getElementById('loadingScreen');
-        if (loadingScreen) {
-            loadingScreen.classList.add('hidden');
-        }
-        // হোম পেজ অ্যাক্টিভেট করুন
-        var homePage = document.getElementById('homePage');
-        if (homePage && !document.querySelector('.page.active')) {
-            homePage.classList.add('active');
-        }
-        // ডিফল্ট টুলস লোড করুন
-        if (typeof App !== 'undefined' && App.tools.length === 0) {
-            App.tools = [...DEFAULT_TOOLS];
-        }
-        // URL hash-এ পেজ থাকলে সেই পেজে যাও
-        var hash = location.hash.replace('#','');
-        var validPages = ['home','tools','scripts','youtube','community','docs','settings'];
-        if (hash && validPages.indexOf(hash) !== -1 && typeof showPage === 'function') {
-            showPage(hash);
-        } else if (typeof loadHome === 'function') {
-            loadHome();
-        }
-    }, 500);
-};
+
 </script>
 </body>
 </html>
