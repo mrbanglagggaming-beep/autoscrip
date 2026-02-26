@@ -3520,7 +3520,19 @@ body.offline-mode { padding-top: 44px !important; }
 
   <!-- ===== NOTIFICATIONS PANEL ===== -->
   <div class="pnl" id="pnl-notifs">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    <!-- Stats row -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px">
+      <div class="cd" style="padding:20px;text-align:center">
+        <div style="font-size:.78rem;color:var(--muted);font-family:var(--font-display);letter-spacing:1px;margin-bottom:6px">মোট সাবস্ক্রাইবার</div>
+        <div id="subscriberCount" style="font-size:2rem;font-weight:700;color:var(--primary);font-family:var(--font-display)">—</div>
+      </div>
+      <div class="cd" style="padding:20px;text-align:center">
+        <div style="font-size:.78rem;color:var(--muted);font-family:var(--font-display);letter-spacing:1px;margin-bottom:6px">সক্রিয় সাবস্ক্রাইবার</div>
+        <div id="activeSubscriberCount" style="font-size:2rem;font-weight:700;color:var(--success,#00c853);font-family:var(--font-display)">—</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px">
       <!-- Send Notification -->
       <div class="cd">
         <div class="cd-hd">
@@ -3530,7 +3542,7 @@ body.offline-mode { padding-top: 44px !important; }
           <div class="fg">
             <label class="fl">প্রাপক</label>
             <select class="fc" id="ntTarget">
-              <option value="all">সকল ইউজার</option>
+              <option value="all">সকল সাবস্ক্রাইবার</option>
               <option value="site">সাইটে ব্যানার</option>
             </select>
           </div>
@@ -3545,13 +3557,19 @@ body.offline-mode { padding-top: 44px !important; }
               <option value="✅">✅ সফলতা</option>
               <option value="🎉">🎉 উৎসব</option>
               <option value="🚀">🚀 রকেট</option>
+              <option value="🛠️">🛠️ টুলস</option>
             </select>
+          </div>
+          
+          <div class="fg">
+            <label class="fl">টাইটেল (ঐচ্ছিক)</label>
+            <input type="text" class="fc" id="ntTitle" placeholder="নোটিফিকেশন টাইটেল...">
           </div>
           
           <div class="fg">
             <label class="fl">বার্তা *</label>
             <textarea class="fc" id="ntMsg" rows="4" 
-                      placeholder="নোটিফিকেশনের বার্তা..."></textarea>
+                      placeholder="নোটিফিকেশনের বার্তা লিখুন..."></textarea>
           </div>
           
           <div class="fg">
@@ -3574,7 +3592,34 @@ body.offline-mode { padding-top: 44px !important; }
             <i class="fas fa-trash"></i> সব মুছুন
           </button>
         </div>
-        <div class="cd-bd" id="notifHistory" style="max-height: 400px; overflow-y: auto;"></div>
+        <div class="cd-bd" id="notifHistory" style="max-height:420px;overflow-y:auto"></div>
+      </div>
+    </div>
+
+    <!-- Subscriber Table -->
+    <div class="cd">
+      <div class="cd-hd">
+        <div class="cd-tt">👥 সাবস্ক্রাইবার তালিকা</div>
+        <button class="btn btn-gh btn-sm" onclick="loadSubscriberStats()">
+          <i class="fas fa-sync-alt"></i> রিফ্রেশ
+        </button>
+      </div>
+      <div class="cd-bd" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr style="background:rgba(0,0,0,.2)">
+              <th style="padding:12px 16px;text-align:left;font-size:.8rem;color:var(--muted);font-weight:600">ইউজার</th>
+              <th style="padding:12px 16px;text-align:left;font-size:.8rem;color:var(--muted);font-weight:600">ইমেইল</th>
+              <th style="padding:12px 16px;text-align:left;font-size:.8rem;color:var(--muted);font-weight:600">স্ট্যাটাস</th>
+              <th style="padding:12px 16px;text-align:left;font-size:.8rem;color:var(--muted);font-weight:600">প্ল্যাটফর্ম</th>
+              <th style="padding:12px 16px;text-align:left;font-size:.8rem;color:var(--muted);font-weight:600">সাবস্ক্রাইব তারিখ</th>
+              <th style="padding:12px 16px;text-align:left;font-size:.8rem;color:var(--muted);font-weight:600">অ্যাকশন</th>
+            </tr>
+          </thead>
+          <tbody id="subscriberTableBody">
+            <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)"><i class="fas fa-spinner fa-spin" style="margin-right:8px"></i>লোড হচ্ছে...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -4010,6 +4055,7 @@ body.offline-mode { padding-top: 44px !important; }
 
 
 
+
 // ===== GLOBAL ERROR BOUNDARY =====
 window.onerror = function(msg, src, line, col, err) {
   const safeMsg = 'অপ্রত্যাশিত সমস্যা হয়েছে। পেজ রিফ্রেশ করুন।';
@@ -4219,14 +4265,15 @@ let fbApp, fbAuth, fbDb;
 
 // Firestore collections
 const FS = {
-    tools:    'autoscrip_tools',
-    users:    'autoscrip_users',
-    requests: 'autoscrip_requests',
-    comments: 'autoscrip_comments',
-    config:   'autoscrip_config',
-    admins:   'autoscrip_admins',
-    activity: 'autoscrip_activity',
-    notifs:   'autoscrip_notifications'
+    tools:       'autoscrip_tools',
+    users:       'autoscrip_users',
+    requests:    'autoscrip_requests',
+    comments:    'autoscrip_comments',
+    config:      'autoscrip_config',
+    admins:      'autoscrip_admins',
+    activity:    'autoscrip_activity',
+    notifs:      'autoscrip_notifications',
+    subscribers: 'autoscrip_subscribers'
 };
 
 // ===== CONFIGURATION =====
@@ -6404,78 +6451,172 @@ async function deleteCom(id) {
     }
 }
 
-// ===== NOTIFICATION FUNCTIONS =====
+// ===== NOTIFICATION FUNCTIONS (Firebase-powered, replaces old REST API calls) =====
 async function sendNotif() {
     const target = document.getElementById('ntTarget').value;
-    const icon = document.getElementById('ntIcon').value;
-    const msg = document.getElementById('ntMsg').value.trim();
-    const link = document.getElementById('ntLink').value.trim();
+    const icon   = document.getElementById('ntIcon').value;
+    const msg    = document.getElementById('ntMsg').value.trim();
+    const link   = document.getElementById('ntLink').value.trim();
     
-    if (!msg) {
-        toast('বার্তা লিখুন!', 'error');
-        return;
-    }
+    if (!msg) { toast('বার্তা লিখুন!', 'error'); return; }
     
     try {
-        const result = await API.post('/notifications', {
-            target,
-            icon,
-            message: msg,
-            link: link || null
+        await fbDb.collection(FS.notifs).add({
+            target:    target,
+            icon:      icon,
+            message:   msg,
+            link:      link || null,
+            sentBy:    currentUser ? (currentUser.email || 'admin') : 'admin',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        
-        if (result.success) {
-            toast('✅ নোটিফিকেশন পাঠানো হয়েছে!', 'success');
-            document.getElementById('ntMsg').value = '';
-            document.getElementById('ntLink').value = '';
-            loadNotifHistory();
-        }
-    } catch (error) {
-        toast('এরর: ' + error.message, 'error');
+        toast('✅ নোটিফিকেশন পাঠানো হয়েছে!', 'success');
+        document.getElementById('ntMsg').value  = '';
+        document.getElementById('ntLink').value = '';
+        loadNotifHistory();
+        // Update subscriber count display
+        loadSubscriberStats();
+    } catch(e) {
+        toast('এরর: ' + e.message, 'error');
     }
 }
 
 async function loadNotifHistory() {
     try {
-        const result = await API.get('/notifications/history');
-        if (result.success) {
-            renderNotifHistory(result.notifications || []);
-        }
-    } catch (error) {
-            }
+        const snap = await fbDb.collection(FS.notifs)
+            .orderBy('createdAt', 'desc')
+            .limit(50)
+            .get()
+            .catch(() => fbDb.collection(FS.notifs).limit(30).get());
+        renderNotifHistory(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    } catch(e) {
+        const el = document.getElementById('notifHistory');
+        if (el) el.innerHTML = '<div class="em"><i class="fas fa-exclamation-triangle"></i><div class="em-t">লোড করতে সমস্যা হয়েছে</div></div>';
+    }
 }
 
 function renderNotifHistory(notifs) {
     const el = document.getElementById('notifHistory');
     if (!el) return;
-    
     if (!notifs.length) {
         el.innerHTML = '<div class="em"><i class="fas fa-bell-slash"></i><div class="em-t">কোনো নোটিফিকেশন নেই</div></div>';
         return;
     }
-    
     el.innerHTML = notifs.map(n => `
-        <div class="act-item">
-            <div style="font-size:1.5rem">${n.icon || '🔔'}</div>
-            <div class="act-txt">${Security.sanitizeInput(n.message)}</div>
-            <div class="act-time">${formatDate(n.sentAt || n.createdAt)}</div>
+        <div class="act-item" style="display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)">
+            <div style="font-size:1.6rem;line-height:1">${n.icon || '🔔'}</div>
+            <div style="flex:1;min-width:0">
+                <div class="act-txt">${Security.sanitizeInput(n.message || '')}</div>
+                <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap">
+                    <span class="act-time">${formatDate(n.createdAt)}</span>
+                    <span style="font-size:.75rem;color:var(--muted)">প্রাপক: <b style="color:var(--primary)">${n.target === 'all' ? 'সবাই' : (n.target || 'সবাই')}</b></span>
+                    ${n.link ? `<a href="${Security.sanitizeInput(n.link)}" target="_blank" style="font-size:.75rem;color:var(--accent)"><i class="fas fa-link"></i> লিংক</a>` : ''}
+                </div>
+            </div>
+            <button onclick="deleteNotif('${n.id}')" title="মুছুন" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:4px;flex-shrink:0"><i class="fas fa-trash"></i></button>
         </div>
     `).join('');
 }
 
+async function deleteNotif(id) {
+    if (!confirm('এই নোটিফিকেশন মুছবেন?')) return;
+    try {
+        await fbDb.collection(FS.notifs).doc(id).delete();
+        toast('✅ মুছে গেছে', 'success');
+        loadNotifHistory();
+    } catch(e) { toast('মুছতে সমস্যা', 'error'); }
+}
+
 async function clearNotifs() {
     if (!confirm('সব নোটিফিকেশন মুছবেন?')) return;
-    
     try {
-        const result = await API.delete('/notifications/all');
-        if (result.success) {
-            toast('✅ নোটিফিকেশন মুছে গেছে!', 'success');
-            loadNotifHistory();
-        }
-    } catch (error) {
-        toast('এরর: ' + error.message, 'error');
+        const snap = await fbDb.collection(FS.notifs).get();
+        const batch = fbDb.batch();
+        snap.docs.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        toast('✅ নোটিফিকেশন মুছে গেছে!', 'success');
+        loadNotifHistory();
+    } catch(e) { toast('এরর: ' + e.message, 'error'); }
+}
+
+// ── Subscriber management (new functions) ─────────────────────
+async function loadSubscriberStats() {
+    if (!fbDb) return;
+    try {
+        const snap = await fbDb.collection('autoscrip_subscribers')
+            .where('active', '==', true)
+            .get()
+            .catch(() => fbDb.collection('autoscrip_subscribers').get());
+        const subs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const total = subs.length;
+        const active = subs.filter(s => s.active !== false).length;
+        
+        // Update UI elements
+        const el = document.getElementById('subscriberCount');
+        if (el) el.textContent = total;
+        const el2 = document.getElementById('activeSubscriberCount');
+        if (el2) el2.textContent = active;
+        
+        // Render subscriber table
+        renderSubscriberTable(subs);
+    } catch(e) {
+        console.warn('[Admin] loadSubscriberStats:', e.message);
     }
 }
+
+function renderSubscriberTable(subs) {
+    const tbody = document.getElementById('subscriberTableBody');
+    if (!tbody) return;
+    if (!subs.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)"><i class="fas fa-users-slash" style="margin-right:8px"></i>কোনো সাবস্ক্রাইবার নেই</td></tr>';
+        return;
+    }
+    tbody.innerHTML = subs.map(s => {
+        const subDate = s.subscribedAt ? formatDate(s.subscribedAt) : '—';
+        const lastAct = s.lastActive   ? formatDate(s.lastActive)   : '—';
+        const statusCls = s.active !== false ? 'success' : 'danger';
+        const statusTxt = s.active !== false ? 'সক্রিয়' : 'নিষ্ক্রিয়';
+        return `<tr>
+            <td><div style="font-weight:600;color:var(--text)">${Security.sanitizeInput(s.name || 'Unknown')}</div><div style="font-size:.75rem;color:var(--muted)">${Security.sanitizeInput(s.userId || s.id || '').substring(0,12)}...</div></td>
+            <td style="font-size:.82rem">${Security.sanitizeInput(s.email || '—')}</td>
+            <td><span class="badge badge-${statusCls === 'success' ? 'active' : 'banned'}">${statusTxt}</span></td>
+            <td style="font-size:.78rem;color:var(--muted)">${s.platform || '—'}</td>
+            <td style="font-size:.78rem;color:var(--muted)">${subDate}</td>
+            <td>
+                <button class="btn btn-gh btn-xs" onclick="sendTestNotif('${s.id}')" title="টেস্ট নোটিফিকেশন পাঠান"><i class="fas fa-paper-plane"></i></button>
+                <button class="btn btn-da btn-xs" onclick="removeSubscriber('${s.id}')" title="মুছুন"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+async function sendTestNotif(subscriberId) {
+    // Send a targeted notification to this specific subscriber
+    if (!fbDb) return;
+    try {
+        await fbDb.collection('autoscrip_notifications').add({
+            target:    subscriberId,
+            icon:      '🔔',
+            message:   'টেস্ট নোটিফিকেশন — AutoScrip Admin থেকে পাঠানো হয়েছে',
+            link:      null,
+            sentBy:    currentUser ? (currentUser.email || 'admin') : 'admin',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        toast('✅ টেস্ট নোটিফিকেশন পাঠানো হয়েছে', 'success');
+    } catch(e) {
+        toast('পাঠাতে সমস্যা: ' + e.message, 'error');
+    }
+}
+
+async function removeSubscriber(subscriberId) {
+    if (!confirm('এই সাবস্ক্রাইবার রিমুভ করবেন?')) return;
+    try {
+        await fbDb.collection('autoscrip_subscribers').doc(subscriberId).delete();
+        toast('✅ সাবস্ক্রাইবার রিমুভ হয়েছে', 'success');
+        loadSubscriberStats();
+    } catch(e) { toast('সমস্যা: ' + e.message, 'error'); }
+}
+
+
 
 // ===== ANALYTICS FUNCTIONS =====
 async function loadAnalytics() {
@@ -7160,6 +7301,11 @@ async function clearLog() {
 function showP(page) {
     document.querySelectorAll('.pnl').forEach(p => p.classList.remove('active'));
     document.getElementById('pnl-' + page)?.classList.add('active');
+    // Load data for specific panels
+    if (page === 'notifs') {
+        try { loadNotifHistory(); } catch(e) {}
+        try { loadSubscriberStats(); } catch(e) {}
+    }
     
     document.querySelectorAll('.sb-lnk').forEach(l => l.classList.remove('active'));
     document.getElementById('nav-' + page)?.classList.add('active');
@@ -7503,6 +7649,11 @@ window.rejectReq = rejectReq;
 window.deleteReq = deleteReq;
 window.sendNotif = sendNotif;
 window.clearNotifs = clearNotifs;
+window.loadNotifHistory = loadNotifHistory;
+window.loadSubscriberStats = loadSubscriberStats;
+window.sendTestNotif = sendTestNotif;
+window.removeSubscriber = removeSubscriber;
+window.deleteNotif = deleteNotif;
 window.exportReport = exportReport;
 window.exportAllData = exportAllData;
 window.importData = importData;
@@ -7664,6 +7815,11 @@ document.addEventListener('DOMContentLoaded', function() {
   try { GDPR.init(); } catch(e) {}
   try { Announcer.init(); } catch(e) {}
   try { TabSync.init(); } catch(e) {}
+  // Load notification history on startup
+  setTimeout(function() {
+    try { loadNotifHistory(); } catch(e) {}
+    try { loadSubscriberStats(); } catch(e) {}
+  }, 2000);
   // Broadcast tools changes to user tab
   var _origSave = window.saveTool;
   if (typeof _origSave === 'function') {
@@ -7674,6 +7830,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
 });
+
 
 
 
