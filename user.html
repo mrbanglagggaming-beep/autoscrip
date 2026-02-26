@@ -1519,7 +1519,7 @@ Get-Date | Format-List"></textarea>
   <div class="modal-box wide">
     <div class="modal-head"><div class="modal-title" id="detailTitle"></div><button class="modal-close" onclick="closeModal('toolDetailModal')"><i class="fas fa-times"></i></button></div>
     <div class="modal-body" id="detailContent"></div>
-    <div class="modal-foot">
+    <div class="modal-foot" id="detailFooter">
       <button class="btn btn-ghost btn-sm" id="detailBookmarkBtn" onclick="bookmarkCurrentTool()"><i class="fas fa-bookmark"></i> বুকমার্ক</button>
       <button class="btn btn-outline btn-sm" onclick="copyCurrentTool()"><i class="fas fa-copy"></i> কপি</button>
       <button class="btn btn-primary" onclick="loadToolToEditor()"><i class="fas fa-play"></i> এডিটরে লোড</button>
@@ -2149,7 +2149,7 @@ window.openToolDetail=id=>{
       '<a href="https://wa.me/?text='+encodeURIComponent((tool.name||tool.title||'')+'\n'+location.href.split('#')[0]+'#tool-'+(tool._id||tool.id))+'" target="_blank" class="btn btn-sm" style="background:#25d366;color:#fff;border:none"><i class="fab fa-whatsapp"></i> WhatsApp</a>'+
       '<button class="btn btn-sm" style="background:var(--card2);color:var(--text);border:1px solid var(--border)" onclick="copyToolLink(\'' + (tool._id||tool.id) + '\')"><i class="fas fa-link"></i> লিংক কপি</button>'+
     '</div></div>';
-  document.getElementById('detailFooter').innerHTML=
+  const _df=document.getElementById('detailFooter'); if(_df) _df.innerHTML=
     '<button class="btn btn-ghost" onclick="closeModal(\'toolDetailModal\')">বন্ধ করুন</button>'+
     '<button class="btn btn-outline btn-sm" onclick="doCopyTool(\''+id+'\');closeModal(\'toolDetailModal\')"><i class="fas fa-copy"></i> কপি</button>'+
     '<button class="btn btn-success btn-sm" onclick="doDownload(\''+id+'\')"><i class="fas fa-download"></i> .ps1</button>'+
@@ -2166,8 +2166,16 @@ window.showPage=page=>{
   if(pg){pg.classList.add('active');SEOManager.updateMeta(page,{count:getTools().filter(t=>t.status==='approved'||t.published!==false).length});Analytics.pageView(page);}
   document.getElementById('navLinks')?.classList.remove('show');
   window.scrollTo({top:0,behavior:'smooth'});
+  // Only reload data pages once unless forced — prevents duplicate Firestore calls
+  window._pageLoaded = window._pageLoaded || {};
+  const _once = ['home','youtube','community','docs'];
   const loaders={home:loadHome,tools:loadTools,scripts:loadScripts,youtube:loadYouTube,community:loadCommunity,docs:loadDocs,settings:loadSettings};
-  if(loaders[page])loaders[page]();
+  if(loaders[page]){
+    if(!_once.includes(page) || !window._pageLoaded[page]){
+      window._pageLoaded[page] = true;
+      loaders[page]();
+    }
+  }
 };
 
 // ===== SEARCH =====
