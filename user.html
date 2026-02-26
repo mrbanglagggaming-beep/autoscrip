@@ -542,7 +542,12 @@ select.form-control{cursor:pointer}
 
 /* ===== NOISE TEXTURE overlay ===== */
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4}
-.page,.navbar,.modal{z-index:1;position:relative}
+/* FIXED: .modal removed from z-index:1 override — modals need z-index:5000 */
+.page,.navbar{z-index:1;position:relative}
+/* Fix for modal-overlay based modals (about/privacy/terms) */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:5000;display:none;align-items:center;justify-content:center;padding:24px}
+.modal-overlay.show{display:flex;animation:fadeIn .25s ease}
+.modal-overlay > .modal{position:relative;inset:auto;background:var(--card2);border:1px solid rgba(255,215,0,.12);border-radius:var(--r-xl);max-height:90vh;overflow-y:auto;z-index:auto;display:block;animation:modalIn .3s ease}
 
 /* ===== CATEGORY CHIP icons ===== */
 .chip i{margin-right:4px}
@@ -856,6 +861,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .qa-label{font-family:var(--font-head);font-weight:700;font-size:.9rem;margin-bottom:4px;color:var(--text)}
 .qa-card:hover .qa-icon{transform:scale(1.1) rotate(-3deg)}
 
+/* Fix modal-header (used in about/privacy/terms modals) */
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);background:var(--card2)}
+.modal-header h3{font-family:var(--font-head);font-size:1.1rem;font-weight:700;color:var(--primary)}
+/* Fix cat-highlight cursor */
+.cat-highlight{cursor:pointer}
+
 /* ===== SHARE POPUP ===== */
 @keyframes shareIn{from{opacity:0;transform:scale(.92) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
 #sharePopup > div{animation:shareIn .25s cubic-bezier(.34,1.56,.64,1)}
@@ -952,6 +963,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <div class="dd-item" id="loginMenuItem" onclick="openModal('loginModal');closeDD('userDrop')"><i class="fas fa-sign-in-alt"></i> লগইন</div>
           <div class="dd-item" id="regMenuItem" onclick="openModal('registerModal');closeDD('userDrop')"><i class="fas fa-user-plus"></i> নিবন্ধন</div>
           <div class="dd-item" id="logoutMenuItem" style="display:none;color:var(--danger)" onclick="handleLogout();closeDD('userDrop')"><i class="fas fa-sign-out-alt"></i> লগআউট</div>
+          <div class="dd-item" id="adminMenuItem" style="display:none;color:var(--warning)" onclick="window.open('admin.html','_blank')"><i class="fas fa-shield-alt"></i> Admin Panel</div>
         </div>
       </div>
       <button class="mob-btn" onclick="toggleMobMenu()"><i class="fas fa-bars"></i></button>
@@ -1109,32 +1121,32 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div style="margin-top:48px;margin-bottom:48px">
       <div class="sec-header"><h2 class="sec-title">📂 ক্যাটাগরি</h2></div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px">
-        <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>filterTools('system',document.querySelector('.chip')),200)">
+        <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(2)');filterTools('system',chip);},200)">
           <div class="cat-hl-icon" style="background:linear-gradient(135deg,#1565c0,#1a237e)"><i class="fas fa-cogs"></i></div>
           <div class="cat-hl-name">সিস্টেম</div>
           <div class="cat-hl-count" id="catCount_system">— টুলস</div>
         </div>
-        <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>filterTools('network',null),200)">
+        <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(3)');filterTools('network',chip);},200)">
           <div class="cat-hl-icon" style="background:linear-gradient(135deg,#00838f,#004d40)"><i class="fas fa-network-wired"></i></div>
           <div class="cat-hl-name">নেটওয়ার্ক</div>
           <div class="cat-hl-count" id="catCount_network">— টুলস</div>
         </div>
-        <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>filterTools('security',null),200)">
+        <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(4)');filterTools('security',chip);},200)">
           <div class="cat-hl-icon" style="background:linear-gradient(135deg,#7b1fa2,#4a148c)"><i class="fas fa-shield-alt"></i></div>
           <div class="cat-hl-name">সিকিউরিটি</div>
           <div class="cat-hl-count" id="catCount_security">— টুলস</div>
         </div>
-        <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>filterTools('backup',null),200)">
+        <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(5)');filterTools('backup',chip);},200)">
           <div class="cat-hl-icon" style="background:linear-gradient(135deg,#f4511e,#bf360c)"><i class="fas fa-hdd"></i></div>
           <div class="cat-hl-name">ব্যাকআপ</div>
           <div class="cat-hl-count" id="catCount_backup">— টুলস</div>
         </div>
-        <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>filterTools('monitoring',null),200)">
+        <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(6)');filterTools('monitoring',chip);},200)">
           <div class="cat-hl-icon" style="background:linear-gradient(135deg,#388e3c,#1b5e20)"><i class="fas fa-chart-line"></i></div>
           <div class="cat-hl-name">মনিটরিং</div>
           <div class="cat-hl-count" id="catCount_monitoring">— টুলস</div>
         </div>
-        <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>filterTools('automation',null),200)">
+        <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(7)');filterTools('automation',chip);},200)">
           <div class="cat-hl-icon" style="background:linear-gradient(135deg,#c2185b,#880e4f)"><i class="fas fa-robot"></i></div>
           <div class="cat-hl-name">অটোমেশন</div>
           <div class="cat-hl-count" id="catCount_automation">— টুলস</div>
@@ -1271,6 +1283,8 @@ Get-Date | Format-List"></textarea>
       <div class="d-flex gap-3 flex-wrap ai-c">
         <input type="text" id="ytSearch" class="form-control" style="flex:1" placeholder="🔍 ভিডিও সার্চ করুন...">
         <button class="btn btn-danger btn-sm" onclick="searchYT()"><i class="fab fa-youtube"></i> সার্চ</button>
+        <button class="btn btn-outline btn-sm" onclick="openVideoRequestModal()"><i class="fas fa-plus"></i> ভিডিও রিকোয়েস্ট</button>
+        <a href="https://www.youtube.com/@autoscrip" target="_blank" rel="noopener" class="btn btn-ghost btn-sm"><i class="fab fa-youtube"></i> চ্যানেল</a>
       </div>
     </div>
     <div class="cat-chips" id="ytCats">
@@ -1452,7 +1466,7 @@ Get-Date | Format-List"></textarea>
           <li><a onclick="openModal('aboutModal');return false" style="cursor:pointer">আমাদের সম্পর্কে</a></li>
           <li><a onclick="openModal('privacyModal');return false" style="cursor:pointer">গোপনীয়তা নীতি</a></li>
           <li><a onclick="openModal('termsModal');return false" style="cursor:pointer">ব্যবহারের শর্ত</a></li>
-          <li><a href="/cdn-cgi/l/email-protection#23505653534c5157634256574c5040514a530d404c4e">যোগাযোগ</a></li>
+          <li><a href="https://t.me/autoscrip" target="_blank" rel="noopener">যোগাযোগ</a></li>
         </ul>
       </div>
     </div>
@@ -2312,7 +2326,12 @@ function handleGlobalSearch(e){
 }
 document.addEventListener('keydown',e=>{
   if(e.key==='/'&&e.target.tagName!=='INPUT'&&e.target.tagName!=='TEXTAREA'){e.preventDefault();showSO();}
-  if(e.key==='Escape'){document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show'));hideSO();}
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal.show,.modal-overlay.show').forEach(m=>{m.classList.remove('show');});
+    document.body.style.overflow='';
+    hideSO();
+    const sp=document.getElementById('sharePopup');if(sp)sp.remove();
+  }
 });
 
 // ===== NAV =====
@@ -2323,9 +2342,21 @@ document.addEventListener('click',e=>{if(!e.target.closest('.dropdown'))document
 window.addEventListener('scroll',()=>document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>50));
 
 // ===== MODALS =====
-window.openModal=id=>{const m=document.getElementById(id);if(m)m.classList.add('show');};
-window.closeModal=id=>{const m=document.getElementById(id);if(m)m.classList.remove('show');};
-document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show');}));
+window.openModal=id=>{
+  const m=document.getElementById(id);
+  if(!m) return;
+  m.classList.add('show');
+  // Prevent body scroll
+  document.body.style.overflow='hidden';
+};
+window.closeModal=id=>{
+  const m=document.getElementById(id);
+  if(!m) return;
+  m.classList.remove('show');
+  // Restore body scroll if no other modals open
+  if(!document.querySelector('.modal.show, .modal-overlay.show')) document.body.style.overflow='';
+};
+document.querySelectorAll('.modal,.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id);}));
 
 // ===== AUTH =====
 window.handleLogin=()=>{
@@ -3329,7 +3360,7 @@ Get-PSDrive -PSProvider FileSystem | Format-Table Name,Used,Free -AutoSize`
 function generateAI() {
   const prompt = document.getElementById('aiPrompt')?.value.trim();
   const cat    = document.getElementById('aiCategory')?.value || 'system';
-  const level  = document.getElementById('aiLevel')?.value || 'intermediate';
+  const level  = document.getElementById('aiComplexity')?.value || document.getElementById('aiLevel')?.value || 'intermediate';
   if (!prompt) { toast('প্রথমে কী চান তা লিখুন!', 'warning'); return; }
   const loading = document.getElementById('aiLoading');
   const result  = document.getElementById('aiResult');
@@ -3373,16 +3404,19 @@ function useAI() {
 
 // ── Show Bookmarks & My Scripts ───────────────────────────
 function showBookmarks() {
-  showPage('tools');
-  setTimeout(() => {
-    const tools = getTools().filter(t => App.bookmarks.includes(t._id || t.id));
-    const grid  = document.getElementById('toolsGrid');
-    if (!grid) return;
-    if (!tools.length) { toast('বুকমার্ক করা কোনো টুল নেই', 'info'); return; }
+  const tools = getTools().filter(t => App.bookmarks.includes(t._id || t.id));
+  const grid  = document.getElementById('bookmarksGrid');
+  const empty = document.getElementById('bookmarksEmpty');
+  if(grid) {
     grid.innerHTML = '';
-    tools.forEach(t => grid.appendChild(renderCard(t)));
-    toast(`📌 ${tools.length}টি বুকমার্কড টুল`, 'success');
-  }, 150);
+    if(tools.length) {
+      tools.forEach(t => grid.appendChild(renderCard(t)));
+      if(empty) empty.style.display = 'none';
+    } else {
+      if(empty) empty.style.display = 'block';
+    }
+  }
+  openModal('bookmarksModal');
 }
 function showMyScripts() {
   showPage('scripts');
@@ -3398,7 +3432,25 @@ function markAllRead() {
 }
 
 // ── Thumb Editor (placeholder) ────────────────────────────
-function openThumbEditor() { toast('থাম্বনেইল এডিটর শীঘ্রই আসছে!', 'info'); }
+function openThumbEditor() {
+  // Pre-fill from current script
+  const title = document.getElementById('scriptName')?.value || document.getElementById('scriptEditor')?.value.split('\n')[0].replace('#','').trim() || 'AutoScrip Script';
+  const cat = document.getElementById('scriptCategory')?.value || 'system';
+  if(document.getElementById('thumbTitle')) document.getElementById('thumbTitle').value = title;
+  if(document.getElementById('thumbCat')) document.getElementById('thumbCat').value = cat;
+  if(document.getElementById('thumbAuthor')) document.getElementById('thumbAuthor').value = App.user?.name || 'AutoScrip Team';
+  openModal('thumbModal');
+  setTimeout(previewThumb, 100);
+}
+
+function previewThumb() {
+  const canvas = document.getElementById('thumbCanvas');
+  if(!canvas) return;
+  const title = document.getElementById('thumbTitle')?.value || 'AutoScrip Tool';
+  const cat = document.getElementById('thumbCat')?.value || 'system';
+  const author = document.getElementById('thumbAuthor')?.value || 'AutoScrip Team';
+  drawThumb(canvas, { name: title, category: cat, author, views: 0, likes: [] });
+}
 function downloadThumb() {
   const cv = document.querySelector('#thumbModal canvas');
   if (!cv) { toast('কোনো থাম্বনেইল নেই', 'error'); return; }
