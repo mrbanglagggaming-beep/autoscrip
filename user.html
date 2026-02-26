@@ -2116,8 +2116,8 @@ window.openToolDetail=id=>{
   Analytics.toolView(tool.name||tool.title||'');
   const code=getToolCode(tool);
   const likeCount=Array.isArray(tool.likes)?tool.likes.length:(tool.likes||0);
-  document.getElementById('detailTitle').textContent=tool.name||tool.title||'';
-  document.getElementById('detailContent').innerHTML=
+  const _dt=document.getElementById('detailTitle'); if(_dt) _dt.textContent=tool.name||tool.title||'';
+  const _dc=document.getElementById('detailContent'); if(_dc) _dc.innerHTML=
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">'+
       '<div>'+
         '<div class="badge badge-primary mb-2">'+(CAT_LABEL[tool.category]||'')+'</div>'+
@@ -2400,9 +2400,11 @@ let curCat='';
 async function loadTools(){
   const grid=document.getElementById('toolsGrid');
   if(grid)grid.innerHTML='<div style="text-align:center;padding:40px;grid-column:1/-1"><div class="spinner"></div><div style="color:var(--muted);font-family:var(--font-head);margin-top:12px">লোড হচ্ছে...</div></div>';
-  const apiTools=await fetchToolsFromAPI();
-  if(apiTools&&apiTools.length){App.tools=apiTools;App.apiOnline=true;}
-  else{syncFromAdmin();if(!App.tools.length)App.tools=[...DEFAULT_TOOLS];}
+  if(!App.tools.length || !App.apiOnline){
+    const apiTools=await fetchToolsFromAPI();
+    if(apiTools&&apiTools.length){App.tools=apiTools;App.apiOnline=true;}
+    else{syncFromAdmin();if(!App.tools.length)App.tools=[...DEFAULT_TOOLS];}
+  }
   applyFilters();
   SEOManager.updateMeta('tools',{count:App.tools.length});
 }
@@ -2510,7 +2512,7 @@ window.downloadScript=()=>{
   toast('.ps1 ডাউনলোড!','success');Analytics.toolDownload(name);
 };
 window.clearEditor=()=>{document.getElementById('scriptEditor').value='';document.getElementById('scriptName').value='';toast('ক্লিয়ার','info');};
-window.clearTerminal=()=>{document.getElementById('terminal').innerHTML='<div class="t-line"><span class="t-prompt">PS C:\\></span><span class="t-info">Cleared.</span></div>';};
+window.clearTerminal=()=>{const _term=document.getElementById('terminal'); if(_term) _term.innerHTML='<div class="t-line"><span class="t-prompt">PS C:\\></span><span class="t-info">Cleared.</span></div>';};
 window.exportOutput=()=>{
   const lines=Array.from(document.getElementById('terminal').querySelectorAll('.t-line')).map(l=>l.textContent).join('\n');
   const blob=new Blob([lines],{type:'text/plain;charset=utf-8'});
@@ -2535,7 +2537,7 @@ window.analyzeScript=()=>{
   if(!safe)issues.push({type:'error',msg:'বিপজ্জনক কমান্ড পাওয়া গেছে!'});
   if(comments<2)issues.push({type:'info',msg:'কমেন্ট কম'});
   const card=document.getElementById('analysisCard');card.style.display='block';
-  document.getElementById('analysisContent').innerHTML=
+  const _ac=document.getElementById('analysisContent'); if(_ac) _ac.innerHTML=
     '<h4 style="color:var(--primary);font-family:var(--font-head);margin-bottom:14px">বিশ্লেষণ ফলাফল</h4>'+
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px;margin-bottom:14px">'+
       ['লাইন:'+lines.length+':var(--primary)','কন্ডিশন:'+conditions+':var(--info)','লুপ:'+loops+':var(--success)','ফাংশন:'+functions+':var(--warning)','কমপ্লেক্সিটি:'+complexity+':'+(complexity>20?'var(--danger)':complexity>10?'var(--warning)':'var(--success)')].map(x=>{const[l,v,c]=x.split(':');return'<div style="text-align:center;padding:12px;background:rgba(0,0,0,.2);border-radius:var(--r-md)"><div style="font-size:1.5rem;font-weight:700;color:'+c+'">'+v+'</div><div style="font-size:.72rem;color:var(--muted)">'+l+'</div></div>';}).join('')+
@@ -2730,7 +2732,7 @@ window.showDoc=(docId,el)=>{
   const doc=DOCS[docId];if(!doc)return;
   document.querySelectorAll('.doc-card').forEach(c=>c.classList.remove('active'));
   el?.classList.add('active');
-  document.getElementById('docBody').innerHTML='<h3 style="font-family:var(--font-display);font-size:1.5rem;color:var(--primary);margin-bottom:20px">'+doc.title+'</h3>'+doc.content;
+  const _db=document.getElementById('docBody'); if(_db) _db.innerHTML='<h3 style="font-family:var(--font-display);font-size:1.5rem;color:var(--primary);margin-bottom:20px">'+doc.title+'</h3>'+doc.content;
   Analytics.track('docs','view',docId);
 };
 
@@ -3032,7 +3034,7 @@ function liveSearch(q) {
 function bookmarkCurrentTool() {
   if (!App.currentTool) return;
   const id = App.currentTool._id || App.currentTool.id;
-  const btn = document.getElementById('detailBookmarkBtn');
+  const btn = document.getElementById('detailBookmarkBtn'); if(!btn) return;
   doBookmark(id, btn);
 }
 function copyCurrentTool() {
