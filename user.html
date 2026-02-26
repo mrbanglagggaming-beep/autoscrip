@@ -1884,11 +1884,9 @@ const App = {
 };
 
 // ===== API CLIENT =====
-// Detect local file / null origin - CORS will block requests in that case
 const IS_LOCAL = location.protocol === 'file:';
 const API = {
   async req(ep,method='GET',body=null,auth=false){
-    // CORS/offline guard — prevents 'origin: null' CORS errors on file://
     const _proto=location.protocol;
     const _offline=(_proto==='file:'||_proto==='about:'||_proto==='blob:'||IS_LOCAL||!navigator.onLine);
     if(_offline) return{success:false,offline:true};
@@ -1906,7 +1904,16 @@ const API = {
     }catch(e){return{success:false,offline:true};}
   },
   get(ep){return this.req(ep,'GET',null,true);},
-  post(ep,data){return this.req(ep,'POST',data,true).catch(()=>({success:false}));}
+  post(ep,data){return this.req(ep,'POST',data,true).catch(()=>({success:false}));},
+  // Fire-and-forget tracking: uses no-cors to suppress CORS console errors
+  track(ep){
+    if(IS_LOCAL||!navigator.onLine) return;
+    try{
+      fetch(API_URL+ep,{method:'POST',mode:'no-cors',
+        headers:{'Content-Type':'application/json'},body:'{}'
+      }).catch(()=>{});
+    }catch(_e){}
+  }
 };
 
 // ===== HELPERS =====
@@ -2027,7 +2034,7 @@ function doLike(id,btn){
   else{tool.likes.splice(idx,1);if(btn)btn.classList.remove('liked');}
   if(btn)btn.innerHTML='<i class="fas fa-heart"></i> '+tool.likes.length;
   toast(idx===-1?'❤️ লাইক দেওয়া হয়েছে!':'লাইক সরানো হয়েছে','info');
-  API.post('/tools/'+id+'/like',{userId:uid});
+  API.track('/tools/'+id+'/like');
 }
 function doCopyTool(id){
   const tool=getTools().find(t=>(t._id||t.id)===id);if(!tool)return;
@@ -2063,7 +2070,7 @@ function doDownload(id){
   URL.revokeObjectURL(a.href);
   toast('📥 ডাউনলোড হয়েছে!','success');
   Analytics.toolDownload(tool.name||tool.title||'');
-  API.post('/tools/'+id+'/download',{});
+  API.track('/tools/'+id+'/download');
 }
 
 function doShare(id){
@@ -2155,7 +2162,7 @@ window.openToolDetail=id=>{
     '<button class="btn btn-success btn-sm" onclick="doDownload(\''+id+'\')"><i class="fas fa-download"></i> .ps1</button>'+
     '<button class="btn btn-primary btn-sm" onclick="doRunTool(\''+id+'\');closeModal(\'toolDetailModal\')"><i class="fas fa-play"></i> স্ক্রিপ্টে খুলুন</button>';
   openModal('toolDetailModal');
-  API.post('/tools/'+id+'/view',{});
+  API.track('/tools/'+id+'/view');
 };
 
 // ===== PAGE NAVIGATION =====
