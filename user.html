@@ -1899,6 +1899,7 @@ Get-Date | Format-List"></textarea>
 
 
 
+
 // ===== TIMER REGISTRY (prevent leaks) =====
 window.__timers = [];
 const safeTimeout = (fn, ms) => { const id = setTimeout(fn, ms); window.__timers.push(id); return id; };
@@ -2124,7 +2125,17 @@ function getCatIcon(c){return{system:'fa-cogs',network:'fa-network-wired',securi
 function getCatName(c){return{system:'সিস্টেম',network:'নেটওয়ার্ক',security:'সিকিউরিটি',backup:'ব্যাকআপ',monitoring:'মনিটরিং',automation:'অটোমেশন'}[c]||c;}
 function getTools(){return App.tools.length?App.tools:DEFAULT_TOOLS;}
 function getToolCode(tool){
-  if(tool.commands&&tool.commands.length) return tool.commands.join('\n');
+  if(tool.commands&&tool.commands.length){
+    // commands is array of {title,code,comment,order} objects
+    return tool.commands.map(function(c){
+      if(typeof c==='string') return c;
+      var parts=[];
+      if(c.title) parts.push('# === '+c.title+' ===');
+      if(c.comment) parts.push('# '+c.comment);
+      if(c.code) parts.push(c.code);
+      return parts.join('\n');
+    }).join('\n\n');
+  }
   if(tool.code) return tool.code;
   return '# '+Security.escapeHtml(tool.name||tool.title||'');
 }
@@ -2183,10 +2194,10 @@ function renderCard(tool){
   el.className='yt-card';
   el.innerHTML=
     '<div class="yt-thumb">'+
-      '<canvas id="'+cvId+'" width="560" height="315"></canvas>'+
+      (tool.thumbnail?('<img src="'+tool.thumbnail+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit" onerror="this.style.display=\'none\';var cv=document.createElement(\'canvas\');cv.id=\'' +cvId+'\';cv.width=560;cv.height=315;this.parentNode.insertBefore(cv,this);setTimeout(function(){drawThumb(cv,tool);},60)" loading="lazy">'):(tool.youtube&&(function(){var vid=tool.youtube.match(/(?:v=|youtu\.be\/)([\w-]{11})/)?.[1];return vid?('<img src="https://img.youtube.com/vi/'+vid+'/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:inherit" loading="lazy" onerror="this.style.display=\'none\'">'):null;})())||('<canvas id="'+cvId+'" width="560" height="315"></canvas>'))+
       '<div class="yt-thumb-overlay"></div>'+
       '<div class="yt-play-btn"><div class="yt-play-circle"><i class="fas fa-play"></i></div></div>'+
-      '<div class="yt-duration">'+(getToolCode(tool).split('\n').length)+' lines</div>'+
+      '<div class="yt-duration">'+(getToolCode(tool).split('\n').filter(function(l){return l.trim()&&!l.startsWith('#');}).length)+' lines</div>'+
       ((tool.status==='approved'||tool.published!==false)?'<div class="yt-badge">✓</div>':'')+
       (tool.featured?'<div class="yt-featured-badge">⭐</div>':'')+
     '</div>'+
@@ -2220,7 +2231,7 @@ function renderCard(tool){
       else if(act==='share')doShare(bid);
     });
   });
-  setTimeout(()=>{const cv=document.getElementById(cvId);if(cv)drawThumb(cv,tool);},60);
+  if(!tool.thumbnail&&!(tool.youtube)){setTimeout(()=>{const cv=document.getElementById(cvId);if(cv)drawThumb(cv,tool);},60);}
   return el;
 }
 
@@ -2775,6 +2786,36 @@ function syncFromAdmin(){ _toolsCache=null; // invalidate cache on sync
   // Refresh notifications after sync
   try { setTimeout(function(){ NotifSystem.loadNotifications(false); }, 800); } catch(e) {}
 }
+
+// Apply site settings from Firestore to user site
+async function applyFirestoreSettings(){
+  if(!window._fbDb) return;
+  try {
+    const doc = await window._fbDb.collection('autoscrip_config').doc('site').get();
+    if(!doc.exists) return;
+    const s = doc.data();
+    // Site name
+    if(s.siteName){
+      document.title = s.siteName + ' — PowerShell Hub';
+      const logo = document.querySelector('.nav-brand');
+      if(logo) logo.textContent = s.siteName;
+    }
+    // Site desc / announcement
+    if(s.announcement){
+      const el = document.getElementById('announcementBar') || document.getElementById('heroBanner');
+      if(el && s.announcement) el.textContent = s.announcement;
+    }
+    // Maintenance mode
+    if(s.maintenance){
+      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0a0a0f;color:#ffd700;font-family:sans-serif;text-align:center;padding:20px"><div><div style="font-size:4rem;margin-bottom:16px">🔧</div><h1>মেইনটেন্যান্স চলছে</h1><p style="color:#888;margin-top:12px">শীঘ্রই ফিরে আসছি।</p></div></div>';
+    }
+    // YouTube channel link
+    if(s.ytChannel){
+      document.querySelectorAll('a[href*="youtube.com/@autoscrip"]').forEach(a=>{ a.href = s.ytChannel; });
+    }
+  } catch(e){ /* ignore */ }
+}
+
 // Cache to prevent duplicate Firestore reads when loadHome + loadTools both call fetchToolsFromAPI
 let _toolsCache = null;
 let _toolsCacheTs = 0;
@@ -3036,7 +3077,20 @@ const YOUTUBE_VIDEOS=[
   {id:'v7',title:'ডিস্ক ও ফাইল ম্যানেজমেন্ট PS দিয়ে',desc:'ফাইল কপি, ডিলিট, ব্যাকআপ সব PowerShell দিয়ে।',channel:'AutoScrip',views:'7.3K',date:'৫ দিন আগে',level:'beginner',vid:'',chUrl:'https://www.youtube.com/@autoscrip'},
   {id:'v8',title:'Active Directory ম্যানেজমেন্ট',desc:'AD ইউজার, গ্রুপ তৈরি ও ম্যানেজমেন্ট।',channel:'AutoScrip',views:'11K',date:'২ সপ্তাহ আগে',level:'advanced',vid:'',chUrl:'https://www.youtube.com/@autoscrip'}
 ];
-function loadYouTube(){renderVideos(YOUTUBE_VIDEOS);}
+async function loadYouTube(){
+  // Try Firestore first, fallback to hardcoded
+  try {
+    if(window._fbDb){
+      const snap=await window._fbDb.collection('autoscrip_youtube').orderBy('order','asc').get().catch(()=>window._fbDb.collection('autoscrip_youtube').get());
+      if(!snap.empty){
+        const vids=snap.docs.map(d=>({id:d.id,...d.data()}));
+        renderVideos(vids);
+        return;
+      }
+    }
+  } catch(e){}
+  renderVideos(YOUTUBE_VIDEOS);
+}
 window.searchYouTube=()=>{
   const q=document.getElementById('youtubeSearch')?.value?.toLowerCase()||'';
   const lvl=document.getElementById('videoLevel')?.value||'';
@@ -4117,6 +4171,8 @@ document.addEventListener('DOMContentLoaded', function() {
   try { TabSync.init(); } catch(e) {}
   try { SessionPing.start(); } catch(e) {}
   try { NotifSystem.init(); } catch(e) {}
+  // Apply Firestore settings to user site
+  setTimeout(function(){ try { applyFirestoreSettings(); } catch(e){} }, 1500);
   try { startLoading(); } catch(e) {
     var ls = document.getElementById('loadingScreen');
     if (ls) { ls.classList.add('hidden'); ls.style.display = 'none'; }
@@ -4150,6 +4206,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
 
 
 
