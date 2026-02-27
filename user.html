@@ -575,6 +575,25 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:linear-gradient(var(--primary),var(--secondary));border-radius:99px;box-shadow:0 0 8px rgba(255,215,0,.2)}
 ::-webkit-scrollbar-thumb:hover{background:var(--primary)}
+
+/* ─── Per-Command Copy Blocks ─── */
+.tw-cmd-block { margin-bottom: 12px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,.08); }
+.tw-cmd-block-header {
+  display: flex; align-items: center; gap: 8px; padding: 7px 12px;
+  background: rgba(255,255,255,.05); border-bottom: 1px solid rgba(255,255,255,.07);
+  flex-wrap: wrap;
+}
+.tw-cmd-block-title { font-family: var(--font-head); font-size: .78rem; font-weight: 700; color: var(--primary); flex: 1; }
+.tw-cmd-block-comment { font-size: .73rem; color: var(--muted); font-style: italic; }
+.tw-cmd-copy-btn {
+  display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
+  background: rgba(255,215,0,.12); border: 1px solid rgba(255,215,0,.3);
+  border-radius: 100px; color: var(--primary); font-size: .72rem; font-weight: 700;
+  cursor: pointer; transition: .15s; font-family: var(--font-head);
+  white-space: nowrap;
+}
+.tw-cmd-copy-btn:hover { background: rgba(255,215,0,.22); }
+.tw-cmd-block .tw-term-body { padding: 8px 12px; }
 </style>
 </head>
 <body>
@@ -1512,6 +1531,8 @@ Get-Date | Format-List"></textarea>
 
 
 
+
+
 // ===== TIMER REGISTRY (prevent leaks) =====
 window.__timers = [];
 const safeTimeout = (fn, ms) => { const id = setTimeout(fn, ms); window.__timers.push(id); return id; };
@@ -1825,12 +1846,9 @@ function renderCard(tool){
       '<button class="yt-action-btn" data-act="run" data-id="'+id+'" title="স্ক্রিপ্টে খুলুন"><i class="fas fa-play"></i> রান</button>'+
       '<button class="yt-action-btn" data-act="copy" data-id="'+id+'" title="কোড কপি"><i class="fas fa-copy"></i> কপি</button>'+
       '<button class="yt-action-btn'+(liked?' liked':'')+'" data-act="like" data-id="'+id+'" title="লাইক"><i class="fas fa-heart"></i> '+likeCount+'</button>'+
-      '<button class="yt-more-btn" data-act="more" data-id="'+id+'" title="আরো"><i class="fas fa-ellipsis-h"></i></button>'+
-      '<div class="yt-more-menu" id="more_'+id+'">'+
-        '<div class="yt-more-item" data-act="bk" data-id="'+id+'">'+(bk?'<i class="fas fa-bookmark" style="color:var(--primary)"></i> বুকমার্ক করা':'<i class="far fa-bookmark"></i> বুকমার্ক')+'</div>'+
-        '<div class="yt-more-item" data-act="dl" data-id="'+id+'"><i class="fas fa-download"></i> .ps1 ডাউনলোড</div>'+
-        '<div class="yt-more-item" data-act="share" data-id="'+id+'"><i class="fas fa-share-alt"></i> শেয়ার করুন</div>'+
-      '</div>'+
+      '<button class="yt-action-btn" data-act="share" data-id="'+id+'" title="শেয়ার করুন"><i class="fas fa-share-alt"></i> শেয়ার</button>'+
+      '<button class="yt-action-btn'+(bk?' bk-active':'')+'" data-act="bk" data-id="'+id+'" title="বুকমার্ক">'+(bk?'<i class="fas fa-bookmark" style="color:var(--primary)"></i>':'<i class="far fa-bookmark"></i>')+'</button>'+
+      '<button class="yt-action-btn" data-act="dl" data-id="'+id+'" title=".ps1 ডাউনলোড"><i class="fas fa-download"></i></button>'+
     '</div>';
   el.querySelector('.yt-thumb').addEventListener('click',()=>openToolDetail(id));
   el.querySelector('.yt-title').addEventListener('click',()=>openToolDetail(id));
@@ -1844,15 +1862,7 @@ function renderCard(tool){
       else if(act==='bk')doBookmark(bid,btn);
       else if(act==='dl')doDownload(bid);
       else if(act==='share')doShare(bid);
-      else if(act==='more'){
-        // Toggle overflow menu
-        const menu=document.getElementById('more_'+bid);
-        if(menu){
-          const isOpen=menu.classList.contains('show');
-          document.querySelectorAll('.yt-more-menu.show').forEach(m=>m.classList.remove('show'));
-          if(!isOpen){menu.classList.add('show');}
-        }
-      }
+
     });
   });
   if(!tool.thumbnail&&!(tool.youtube)){setTimeout(()=>{const cv=document.getElementById(cvId);if(cv)drawThumb(cv,tool);},60);}
@@ -2188,13 +2198,56 @@ window.openToolDetail = window.openToolWindow = function(id) {
     '<div style="font-size:.76rem;color:var(--muted);font-family:var(--font-head);letter-spacing:1px;margin-bottom:8px">ক্যাটাগরি</div>'+
     '<div style="display:inline-block;padding:5px 14px;border-radius:100px;font-size:.8rem;font-weight:700;font-family:var(--font-head);background:'+catCol.bg+';color:#fff">'+catLabel+'</div>';
 
-  // ─ Code ─
+  // ─ Code ─ (grouped per command block with individual copy buttons)
   const codeDiv = document.getElementById('twCode');
-  if(codeDiv) codeDiv.innerHTML = code.split('\n').map(l=>{
-    const trimmed = l.trim();
-    const cls = trimmed.startsWith('#') ? 'tw-cmd-comment' : 'tw-cmd-out';
-    return '<div class="tw-term-line"><span class="tw-prompt">PS&gt;</span><span class="'+cls+'">'+Security.escapeHtml(l||' ')+'</span></div>';
-  }).join('');
+  if(codeDiv){
+    const cmds = tool.commands && tool.commands.length
+      ? tool.commands.filter(c => typeof c === 'object' ? c.code : c)
+      : null;
+
+    if(cmds && cmds.length > 1){
+      // Multiple command blocks — render each with its own copy button
+      codeDiv.innerHTML = cmds.map((c, ci)=>{
+        const blockTitle = (typeof c==='object') ? (c.title||('কমান্ড '+(ci+1))) : ('কমান্ড '+(ci+1));
+        const blockComment = (typeof c==='object') ? (c.comment||'') : '';
+        const blockCode = (typeof c==='object') ? (c.code||'') : c;
+        const blockId = 'twcmd_'+id+'_'+ci;
+        const lines = blockCode.split('\n').map(l=>{
+          const cls = l.trim().startsWith('#') ? 'tw-cmd-comment' : 'tw-cmd-out';
+          return '<div class="tw-term-line"><span class="tw-prompt">PS&gt;</span><span class="'+cls+'">'+Security.escapeHtml(l||' ')+'</span></div>';
+        }).join('');
+        return '<div class="tw-cmd-block" id="'+blockId+'">'+
+          '<div class="tw-cmd-block-header">'+
+            '<span class="tw-cmd-block-title"><i class="fas fa-terminal" style="font-size:.75rem;margin-right:5px;opacity:.7"></i>'+Security.escapeHtml(blockTitle)+'</span>'+
+            (blockComment?'<span class="tw-cmd-block-comment">'+Security.escapeHtml(blockComment)+'</span>':'')+
+            '<button class="tw-cmd-copy-btn" onclick="(function(){'+
+              'var txt=document.getElementById(\''+blockId+'\').dataset.code;'+
+              'navigator.clipboard&&navigator.clipboard.writeText(txt).then(()=>toast(\'✅ কপি হয়েছে!\',\'success\')).catch(()=>{var ta=document.createElement(\'textarea\');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand(\'copy\');document.body.removeChild(ta);toast(\'✅ কপি হয়েছে!\',\'success\');}'+');'+
+            '})()"><i class="fas fa-copy"></i> কপি</button>'+
+          '</div>'+
+          '<div class="tw-term-body">'+lines+'</div>'+
+        '</div>';
+      }).join('');
+      // Store code per block as dataset
+      cmds.forEach((c, ci)=>{
+        const el = document.getElementById('twcmd_'+id+'_'+ci);
+        if(el) el.dataset.code = (typeof c==='object') ? (c.code||'') : c;
+      });
+      // Update main footer copy button to copy all
+      const footerCopyBtn = document.querySelector('#twFooter .btn-outline');
+      if(footerCopyBtn){
+        footerCopyBtn.title = 'সব কমান্ড কপি করুন';
+        footerCopyBtn.innerHTML = '<i class="fas fa-copy"></i> সব কপি';
+      }
+    } else {
+      // Single block — original rendering
+      codeDiv.innerHTML = code.split('\n').map(l=>{
+        const trimmed = l.trim();
+        const cls = trimmed.startsWith('#') ? 'tw-cmd-comment' : 'tw-cmd-out';
+        return '<div class="tw-term-line"><span class="tw-prompt">PS&gt;</span><span class="'+cls+'">'+Security.escapeHtml(l||' ')+'</span></div>';
+      }).join('');
+    }
+  }
 
   // ─ Share buttons ─
   const shareDiv = document.getElementById('twShareBtns');
@@ -2291,7 +2344,7 @@ document.addEventListener('keydown',e=>{
 window.toggleMobMenu=()=>document.getElementById('navLinks').classList.toggle('show');
 window.toggleDD=id=>{const el=document.getElementById(id);const open=el.classList.contains('show');document.querySelectorAll('.dropdown.show').forEach(d=>d.classList.remove('show'));if(!open)el.classList.add('show');};
 window.closeDD=id=>document.getElementById(id)?.classList.remove('show');
-document.addEventListener('click',e=>{if(!e.target.closest('.dropdown'))document.querySelectorAll('.dropdown.show').forEach(d=>d.classList.remove('show'));if(!e.target.closest('.yt-card'))document.querySelectorAll('.yt-more-menu.show').forEach(m=>m.classList.remove('show'));});
+document.addEventListener('click',e=>{if(!e.target.closest('.dropdown'))document.querySelectorAll('.dropdown.show').forEach(d=>d.classList.remove('show'));});
 window.addEventListener('scroll',()=>document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>50));
 
 // ===== MODALS =====
@@ -4056,6 +4109,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+
 
 
 
