@@ -2834,6 +2834,10 @@ body.offline-mode { padding-top: 44px !important; }
       <i class="fas fa-comments"></i>
       <span class="sb-lnk-txt">কমিউনিটি</span>
     </button>
+    <button class="sb-lnk" id="nav-youtube" onclick="showP('youtube');loadYoutubeVideos()">
+      <i class="fab fa-youtube" style="color:#ff0000"></i>
+      <span class="sb-lnk-txt">ভিডিও টিউটোরিয়াল</span>
+    </button>
     
     <!-- Management Section -->
     <div class="sb-sec">ম্যানেজমেন্ট</div>
@@ -3716,202 +3720,125 @@ body.offline-mode { padding-top: 44px !important; }
 
   <!-- ===== SETTINGS PANEL ===== -->
   <div class="pnl" id="pnl-settings">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
       <!-- Left Column -->
       <div>
-        <!-- Site Settings -->
-        <div class="cd" style="margin-bottom: 24px;">
-          <div class="cd-hd">
-            <div class="cd-tt">⚙️ সাইট সেটিংস</div>
-          </div>
+        <div class="cd" style="margin-bottom:24px">
+          <div class="cd-hd"><div class="cd-tt">⚙️ সাইট সেটিংস</div></div>
           <div class="cd-bd">
-            <div class="fg">
-              <label class="fl">সাইটের নাম</label>
-              <input type="text" class="fc" id="stSiteName" value="AutoScrip">
-            </div>
-            
-            <div class="fg">
-              <label class="fl">সাইটের বিবরণ</label>
-              <textarea class="fc" id="stSiteDesc" rows="3">বাংলাদেশের সেরা নিরাপদ PowerShell প্ল্যাটফর্ম।</textarea>
-            </div>
-            
-            <div class="fg">
-              <label class="fl">YouTube চ্যানেল লিংক</label>
-              <input type="url" class="fc" id="stYTChannel" 
-                     placeholder="https://youtube.com/@...">
-            </div>
-            
-            <div class="fg">
-              <label class="fl">সাইটের URL</label>
-              <input type="url" class="fc" id="stSiteURL" 
-                     placeholder="https://autoscrip.com">
-            </div>
-            
-            <div style="display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
-              <label class="fck">
-                <div class="tg">
-                  <input type="checkbox" id="stMaintenance">
-                  <div class="tg-sl"></div>
-                </div>
-                মেইনটেন্যান্স মোড
-              </label>
-              <label class="fck">
-                <div class="tg">
-                  <input type="checkbox" id="stComments" checked>
-                  <div class="tg-sl"></div>
-                </div>
-                মন্তব্য চালু
-              </label>
-              <label class="fck">
-                <div class="tg">
-                  <input type="checkbox" id="stRequests" checked>
-                  <div class="tg-sl"></div>
-                </div>
-                রিকোয়েস্ট চালু
-              </label>
-            </div>
-            
-            <button class="btn btn-pr" onclick="saveSettings()">
-              <i class="fas fa-save"></i> সেটিংস সেভ করুন
-            </button>
+            <div class="fg"><label class="fl">সাইটের নাম</label><input type="text" class="fc" id="stSiteName" value="AutoScrip"></div>
+            <div class="fg"><label class="fl">সাইটের বিবরণ</label><textarea class="fc" id="stSiteDesc" rows="2">বাংলাদেশের সেরা নিরাপদ PowerShell প্ল্যাটফর্ম।</textarea></div>
+            <div class="fg"><label class="fl">YouTube চ্যানেল লিংক</label><input type="url" class="fc" id="stYTChannel" placeholder="https://youtube.com/@..."></div>
+            <div class="fg"><label class="fl">সাইটের URL</label><input type="url" class="fc" id="stSiteURL" placeholder="https://autoscrip.com"></div>
+            <div class="fg"><label class="fl">যোগাযোগ ইমেইল</label><input type="email" class="fc" id="stContactEmail" placeholder="admin@autoscrip.com"></div>
+            <div class="fg"><label class="fl">টেলিগ্রাম গ্রুপ</label><input type="url" class="fc" id="stTelegramGroup" placeholder="https://t.me/..."></div>
+            <div class="fg"><label class="fl">Facebook গ্রুপ</label><input type="url" class="fc" id="stFacebookGroup" placeholder="https://facebook.com/groups/..."></div>
+            <div class="fg"><label class="fl">ফুটার টেক্সট</label><input type="text" class="fc" id="stFooterText" placeholder="© 2025 AutoScrip"></div>
           </div>
         </div>
-        
-        <!-- Password Change -->
+
+        <div class="cd" style="margin-bottom:24px">
+          <div class="cd-hd"><div class="cd-tt">🏠 হোম পেজ কাস্টমাইজেশন</div></div>
+          <div class="cd-bd">
+            <div class="fg"><label class="fl">Hero শিরোনাম</label><input type="text" class="fc" id="stHeroTitle" placeholder="⚡ AUTOSCRIP"></div>
+            <div class="fg"><label class="fl">Hero সাবটাইটেল</label><textarea class="fc" id="stHeroSubtitle" rows="2" placeholder="বাংলায় PowerShell টুলস..."></textarea></div>
+            <div class="fg"><label class="fl">📢 ঘোষণা ব্যানার</label><input type="text" class="fc" id="stAnnouncement" placeholder="নতুন আপডেট: v3.0 প্রকাশিত!"></div>
+          </div>
+        </div>
+
+        <!-- Activity Log (preserved) -->
         <div class="cd">
-          <div class="cd-hd">
-            <div class="cd-tt">🔐 পাসওয়ার্ড পরিবর্তন</div>
+          <div class="cd-hd" style="display:flex;align-items:center;justify-content:space-between">
+            <div class="cd-tt">📋 অ্যাক্টিভিটি লগ</div>
+            <button class="btn btn-sm btn-ghost" onclick="clearActivityLog()"><i class="fas fa-trash"></i></button>
           </div>
-          <div class="cd-bd">
-            <div class="fg">
-              <label class="fl">বর্তমান পাসওয়ার্ড</label>
-              <div style="position: relative;">
-                <input type="password" class="fc" id="curPwd">
-                <i class="fas fa-eye" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer;" 
-                   onclick="togglePasswordVisibility('curPwd', this)"></i>
-              </div>
-            </div>
-            
-            <div class="fg">
-              <label class="fl">নতুন পাসওয়ার্ড</label>
-              <div style="position: relative;">
-                <input type="password" class="fc" id="newPwd">
-                <i class="fas fa-eye" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer;" 
-                   onclick="togglePasswordVisibility('newPwd', this)"></i>
-              </div>
-              <div class="progress" style="margin-top: 8px;">
-                <div class="progress-bar" id="passwordStrength" style="width: 0%;"></div>
-              </div>
-            </div>
-            
-            <div class="fg">
-              <label class="fl">নিশ্চিত করুন</label>
-              <div style="position: relative;">
-                <input type="password" class="fc" id="cfmPwd">
-                <i class="fas fa-eye" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer;" 
-                   onclick="togglePasswordVisibility('cfmPwd', this)"></i>
-              </div>
-            </div>
-            
-            <button class="btn btn-dn btn-sm" onclick="changePwd()">
-              <i class="fas fa-key"></i> পরিবর্তন করুন
-            </button>
-          </div>
-        </div>
-        
-        <!-- 2FA Settings -->
-        <div class="cd" style="margin-top: 24px;">
-          <div class="cd-hd">
-            <div class="cd-tt">🔐 দ্বি-স্তরীয় যাচাইকরণ</div>
-          </div>
-          <div class="cd-bd">
-            <div class="d-flex ai-center gap-3">
-              <div class="tg">
-                <input type="checkbox" id="twoFactorToggle" onchange="toggle2FA()">
-                <div class="tg-sl"></div>
-              </div>
-              <span>Google Authenticator / Authy</span>
-            </div>
-            <div id="qrCodeSetup" style="display: none; text-align: center; margin-top: 20px;">
-              <canvas id="qrCodeCanvas"></canvas>
-              <p class="text-muted" style="font-size: 0.85rem; margin-top: 12px;">
-                Google Authenticator এ স্ক্যান করুন
-              </p>
-            </div>
-          </div>
+          <div class="cd-bd" id="actLog" style="max-height:400px;overflow-y:auto"></div>
         </div>
       </div>
-      
+
       <!-- Right Column -->
       <div>
-        <!-- Data Management -->
-        <div class="cd" style="margin-bottom: 24px;">
-          <div class="cd-hd">
-            <div class="cd-tt">💾 ডেটা ম্যানেজমেন্ট</div>
-          </div>
+        <div class="cd" style="margin-bottom:24px">
+          <div class="cd-hd"><div class="cd-tt">🔧 ফিচার নিয়ন্ত্রণ</div></div>
           <div class="cd-bd">
-            <button class="btn btn-ot w-100 mb-3" onclick="exportAllData()">
-              <i class="fas fa-download"></i> সব ডেটা এক্সপোর্ট
-            </button>
-            <button class="btn btn-ot w-100 mb-3" onclick="showImportWizard()">
-              <i class="fas fa-upload"></i> ডেটা ইম্পোর্ট
-            </button>
-            <button class="btn btn-gh w-100 mb-3" onclick="backupData()">
-              <i class="fas fa-database"></i> লোকাল ব্যাকআপ
-            </button>
-            <hr style="border-color: var(--border); margin: 20px 0;">
-            <button class="btn btn-dn btn-sm w-100" onclick="clearAllData()">
-              <i class="fas fa-trash"></i> সব ডেটা মুছুন
-            </button>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <label class="fck"><div class="tg"><input type="checkbox" id="stMaintenance"><div class="tg-sl"></div></div> 🔴 মেইনটেন্যান্স মোড</label>
+              <label class="fck"><div class="tg"><input type="checkbox" id="stRegistration" checked><div class="tg-sl"></div></div> নতুন রেজিস্ট্রেশন চালু</label>
+              <label class="fck"><div class="tg"><input type="checkbox" id="stComments" checked><div class="tg-sl"></div></div> মন্তব্য চালু</label>
+              <label class="fck"><div class="tg"><input type="checkbox" id="stRequests" checked><div class="tg-sl"></div></div> টুল রিকোয়েস্ট চালু</label>
+              <label class="fck"><div class="tg"><input type="checkbox" id="stCommunityEnabled" checked><div class="tg-sl"></div></div> কমিউনিটি পেজ চালু</label>
+              <label class="fck"><div class="tg"><input type="checkbox" id="stShowFeatured" checked><div class="tg-sl"></div></div> ফিচার্ড টুলস দেখাও</label>
+              <label class="fck"><div class="tg"><input type="checkbox" id="stShareEnabled" checked><div class="tg-sl"></div></div> শেয়ার বাটন চালু</label>
+              <label class="fck"><div class="tg"><input type="checkbox" id="stDownloadEnabled" checked><div class="tg-sl"></div></div> .ps1 ডাউনলোড চালু</label>
+              <label class="fck"><div class="tg"><input type="checkbox" id="stRunEnabled" checked><div class="tg-sl"></div></div> PowerShell রান চালু</label>
+            </div>
+            <div class="fg" style="margin-top:16px">
+              <label class="fl">সর্বোচ্চ ফ্রি টুলস (0 = সীমাহীন)</label>
+              <input type="number" class="fc" id="stMaxFreeTools" value="0" min="0">
+            </div>
           </div>
         </div>
-        
-        <!-- Cache Management -->
-        <div class="cd" style="margin-bottom: 24px;">
-          <div class="cd-hd">
-            <div class="cd-tt">🚀 ক্যাশ ম্যানেজমেন্ট</div>
-          </div>
-          <div class="cd-bd">
-            <div class="cache-item">
-              <span class="cache-path">টুলস লিস্ট</span>
-              <span class="cache-time">৫ মিনিট</span>
-              <button class="btn btn-xs btn-gh" onclick="purgeCache('tools')">
-                <i class="fas fa-bolt"></i> purge
-              </button>
-            </div>
-            <div class="cache-item">
-              <span class="cache-path">ইউজার ডাটা</span>
-              <span class="cache-time">১০ মিনিট</span>
-              <button class="btn btn-xs btn-gh" onclick="purgeCache('users')">
-                <i class="fas fa-bolt"></i> purge
-              </button>
-            </div>
-            <div class="cache-item">
-              <span class="cache-path">অ্যানালিটিক্স</span>
-              <span class="cache-time">১ ঘণ্টা</span>
-              <button class="btn btn-xs btn-gh" onclick="purgeCache('analytics')">
-                <i class="fas fa-bolt"></i> purge
-              </button>
-            </div>
-            <button class="btn btn-gh w-100 mt-3" onclick="purgeAllCache()">
-              <i class="fas fa-trash"></i> সব ক্যাশ মুছুন
-            </button>
-          </div>
+
+        <div style="display:flex;gap:10px;margin-bottom:8px">
+          <button class="btn btn-primary" style="flex:1;padding:14px" onclick="saveSettings()">
+            <i class="fas fa-save"></i> সব সেটিংস সেভ করুন
+          </button>
+          <button class="btn btn-ghost" onclick="loadSettings()"><i class="fas fa-sync"></i></button>
         </div>
-        
-        <!-- Activity Log -->
-        <div class="cd">
-          <div class="cd-hd">
-            <div class="cd-tt">📋 অ্যাক্টিভিটি লগ</div>
-            <button class="btn btn-gh btn-sm" onclick="clearLog()">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-          <div class="cd-bd" id="actLog" style="max-height: 400px; overflow-y: auto;"></div>
-        </div>
+        <p style="font-size:.75rem;color:var(--muted);text-align:center">সেটিংস সেভ করলে ইউজার সাইটে সাথে সাথে প্রযোজ্য হবে।</p>
       </div>
     </div>
   </div>
+
+    <!-- ══════════════════ YouTube ভিডিও ম্যানেজ ══════════════════ -->
+    <div id="pnl-youtube" class="pnl" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div>
+          <div class="pnl-tt"><i class="fab fa-youtube" style="color:#ff0000"></i> ভিডিও টিউটোরিয়াল ম্যানেজ</div>
+          <p style="color:var(--muted);font-size:.85rem;margin-top:4px">ইউজার সাইটে YouTube ভিডিও যোগ, এডিট ও ডিলিট করুন</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="loadYoutubeVideos()"><i class="fas fa-sync"></i> রিফ্রেশ</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+        <!-- Video List -->
+        <div>
+          <div class="cd-hd" style="margin-bottom:12px"><div class="cd-tt">📋 ভিডিও তালিকা</div></div>
+          <div id="ytVideoList"><div class="em"><i class="fas fa-spinner fa-spin"></i><div class="em-t">লোড হচ্ছে...</div></div></div>
+        </div>
+        <!-- Add/Edit Form -->
+        <div>
+          <div class="cd" id="ytVideoForm">
+            <div class="cd-hd"><div class="cd-tt" id="ytFormTitle">নতুন ভিডিও যোগ করুন</div></div>
+            <div class="cd-bd">
+              <div class="fg"><label class="fl">শিরোনাম *</label><input type="text" class="fc" id="ytVidTitle" placeholder="PowerShell পরিচিতি..."></div>
+              <div class="fg"><label class="fl">বিবরণ</label><textarea class="fc" id="ytVidDesc" rows="2" placeholder="ভিডিওর সংক্ষিপ্ত বিবরণ..."></textarea></div>
+              <div class="fg">
+                <label class="fl">YouTube Video ID *</label>
+                <input type="text" class="fc" id="ytVidId" placeholder="dQw4w9WgXcQ">
+                <p style="font-size:.74rem;color:var(--muted);margin-top:3px">URL-এ <b>v=</b> এর পরের ১১টি অক্ষর</p>
+              </div>
+              <div class="fg"><label class="fl">চ্যানেল URL (ঐচ্ছিক)</label><input type="url" class="fc" id="ytVidUrl" placeholder="https://youtube.com/watch?v=..."></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="fg">
+                  <label class="fl">লেভেল</label>
+                  <select class="fc" id="ytVidLevel">
+                    <option value="beginner">🟢 বিগিনার</option>
+                    <option value="intermediate">🟡 ইন্টারমিডিয়েট</option>
+                    <option value="advanced">🔴 অ্যাডভান্সড</option>
+                  </select>
+                </div>
+                <div class="fg"><label class="fl">ভিউ সংখ্যা</label><input type="text" class="fc" id="ytVidViews" placeholder="12K"></div>
+              </div>
+              <div class="fg"><label class="fl">তারিখ</label><input type="text" class="fc" id="ytVidDate" placeholder="২ সপ্তাহ আগে"></div>
+              <div style="display:flex;gap:8px;margin-top:4px">
+                <button class="btn btn-primary" style="flex:1" onclick="saveYtVideo()"><i class="fas fa-save"></i> সেভ করুন</button>
+                <button class="btn btn-ghost" onclick="resetYtForm()"><i class="fas fa-times"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
 </main>
 </div><!-- layout -->
@@ -4051,6 +3978,9 @@ body.offline-mode { padding-top: 44px !important; }
 <!-- Toast Container -->
 <div class="tc" id="toastC"></div>
 <script>
+
+
+
 
 
 
@@ -4241,11 +4171,7 @@ let fbApp, fbAuth, fbDb;
                 }
                 fbAuth = firebase.auth();
                 fbDb   = firebase.firestore();
-                // Enable Firestore offline persistence
-                // Persistence (compat SDK v10 style)
-                fbDb.enablePersistence({ synchronizeTabs: true }).catch(function() {
-                    /* Persistence errors silently ignored (multiple tabs, deprecated API, etc.) */
-                });
+                // Firebase compat SDK v10+ caches offline automatically — no enablePersistence needed
                 console.log('✅ Firebase initialized successfully');
             } catch(e) {
                 console.error('Firebase init error:', e.message);
@@ -4269,7 +4195,8 @@ const FS = {
     admins:      'autoscrip_admins',
     activity:    'autoscrip_activity',
     notifs:      'autoscrip_notifications',
-    subscribers: 'autoscrip_subscribers'
+    subscribers: 'autoscrip_subscribers',
+    youtube:     'autoscrip_youtube'
 };
 
 // ===== CONFIGURATION =====
@@ -4726,6 +4653,31 @@ const API = {
             }
 
             // ── SETTINGS ─────────────────────────────────────────
+            
+            // YouTube video management routes
+            if (ep === 'youtube' && method === 'GET') {
+                const snap = await this._col(FS.youtube).orderBy('order', 'asc').get()
+                    .catch(() => this._col(FS.youtube).get());
+                return { success:true, videos: this._docs(snap) };
+            }
+            if (ep === 'youtube' && method === 'POST') {
+                const vData = body;
+                vData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                vData.order = vData.order || Date.now();
+                const ref = await this._col(FS.youtube).add(vData);
+                return { success:true, video:{ id:ref.id, ...vData } };
+            }
+            if (ep.startsWith('youtube/') && method === 'PUT') {
+                const vid = ep.split('/')[1];
+                await this._col(FS.youtube).doc(vid).set(body, { merge:true });
+                return { success:true };
+            }
+            if (ep.startsWith('youtube/') && method === 'DELETE') {
+                const vid = ep.split('/')[1];
+                await this._col(FS.youtube).doc(vid).delete();
+                return { success:true };
+            }
+
             if (ep === 'settings' && method === 'GET') {
                 const doc = await this._col(FS.config).doc('site').get();
                 return { success:true, settings: doc.exists ? doc.data() : {} };
@@ -4834,7 +4786,11 @@ const API = {
             return { success:false, error:'Endpoint not implemented in Firebase mode: ' + endpoint };
 
         } catch(err) {
-            console.error('[Firebase API Error]', endpoint, err);
+            // Suppress expected non-critical errors from console
+            const _silentEps   = ['admins', 'settings'];
+            const _silentCodes = ['permission-denied', 'unavailable'];
+            const _isSilent = _silentEps.some(e => endpoint.includes(e)) || _silentCodes.includes(err.code);
+            if (!_isSilent) console.warn('[Firebase]', endpoint, err.message);
             return { success:false, error: err.message || 'Firebase error' };
         }
     },
@@ -5045,7 +5001,154 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('fbAuth not initialized — Firebase SDK may have failed to load');
         return;
     }
-    fbAuth.onAuthStateChanged(async (user) => {
+    
+// ===== YOUTUBE VIDEO MANAGEMENT =====
+let _ytVideos = [];
+let _editYtId = null;
+
+async function loadYoutubeVideos() {
+    const el = document.getElementById('ytVideoList');
+    if (el) el.innerHTML = '<div class="em"><i class="fas fa-spinner fa-spin"></i><div class="em-t">লোড হচ্ছে...</div></div>';
+    if (!fbDb) { if(el) el.innerHTML = '<div class="em"><i class="fas fa-wifi" style="opacity:.4"></i><div class="em-t">অফলাইন</div></div>'; return; }
+    try {
+        const result = await API.get('/youtube');
+        if (result.success) {
+            _ytVideos = result.videos || [];
+            renderYoutubeList(_ytVideos);
+        }
+    } catch(e) {
+        if(el) el.innerHTML = '<div class="em"><i class="fas fa-exclamation-triangle" style="opacity:.4"></i><div class="em-t">লোড করতে সমস্যা</div></div>';
+    }
+}
+
+function renderYoutubeList(vids) {
+    const el = document.getElementById('ytVideoList');
+    if (!el) return;
+    if (!vids || !vids.length) {
+        el.innerHTML = '<div class="em"><i class="fab fa-youtube" style="opacity:.3;font-size:2rem"></i><div class="em-t">কোনো ভিডিও নেই — নিচ থেকে যোগ করুন</div></div>';
+        return;
+    }
+    el.innerHTML = vids.map((v, i) => {
+        const ytId = v.vid || (v.chUrl || '').match(/(?:v=|youtu\.be\/)([\w-]{11})/)?.[1] || '';
+        const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : '';
+        const levelBadge = { beginner:'🟢', intermediate:'🟡', advanced:'🔴' }[v.level] || '⚪';
+        return `<div class="cd" style="margin-bottom:12px;padding:0">
+          <div style="display:flex;gap:12px;align-items:center;padding:14px 16px">
+            <div style="width:100px;height:56px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#111">
+              ${thumb ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover" onerror="this.src=''">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#555"><i class="fab fa-youtube"></i></div>'}
+            </div>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${v.title || 'শিরোনাম নেই'}</div>
+              <div style="font-size:.78rem;color:var(--muted);margin-top:2px">${levelBadge} ${v.level || 'beginner'} · ${v.views || '0'} views</div>
+              <div style="font-size:.75rem;color:var(--muted);margin-top:2px;font-family:monospace">${ytId ? 'youtube.com/watch?v='+ytId : (v.chUrl||'লিংক নেই')}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+              <button class="btn btn-sm btn-ghost" onclick="editYtVideo('${v.id||v._id}')"><i class="fas fa-edit"></i></button>
+              <button class="btn btn-sm btn-ghost" style="color:var(--danger)" onclick="deleteYtVideo('${v.id||v._id}')"><i class="fas fa-trash"></i></button>
+              ${i > 0 ? `<button class="btn btn-sm btn-ghost" onclick="reorderYtVideo('${v.id||v._id}',-1)"><i class="fas fa-arrow-up"></i></button>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+}
+
+function editYtVideo(id) {
+    const v = _ytVideos.find(x => (x.id||x._id) === id);
+    if (!v) return;
+    _editYtId = id;
+    document.getElementById('ytVidTitle').value = v.title || '';
+    document.getElementById('ytVidDesc').value  = v.desc  || '';
+    document.getElementById('ytVidId').value    = v.vid   || '';
+    document.getElementById('ytVidUrl').value   = v.chUrl || '';
+    document.getElementById('ytVidLevel').value = v.level || 'beginner';
+    document.getElementById('ytVidViews').value = v.views || '';
+    document.getElementById('ytVidDate').value  = v.date  || '';
+    document.getElementById('ytFormTitle').textContent = 'ভিডিও এডিট করুন';
+    document.getElementById('ytVideoForm').scrollIntoView({behavior:'smooth'});
+}
+
+function resetYtForm() {
+    _editYtId = null;
+    ['ytVidTitle','ytVidDesc','ytVidId','ytVidUrl','ytVidViews','ytVidDate'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.value = '';
+    });
+    const lv = document.getElementById('ytVidLevel');
+    if(lv) lv.value = 'beginner';
+    const ft = document.getElementById('ytFormTitle');
+    if(ft) ft.textContent = 'নতুন ভিডিও যোগ করুন';
+}
+
+async function saveYtVideo() {
+    const title  = document.getElementById('ytVidTitle')?.value.trim();
+    const desc   = document.getElementById('ytVidDesc')?.value.trim();
+    const vid    = document.getElementById('ytVidId')?.value.trim();
+    const chUrl  = document.getElementById('ytVidUrl')?.value.trim();
+    const level  = document.getElementById('ytVidLevel')?.value || 'beginner';
+    const views  = document.getElementById('ytVidViews')?.value.trim();
+    const date   = document.getElementById('ytVidDate')?.value.trim();
+
+    if (!title) { toast('শিরোনাম লিখুন!', 'error'); return; }
+    if (!vid && !chUrl) { toast('YouTube Video ID বা চ্যানেল URL দিন!', 'error'); return; }
+
+    const data = { title, desc, vid, chUrl, level, views, date, channel: 'AutoScrip', id: _editYtId || null };
+
+    try {
+        let result;
+        if (_editYtId) {
+            result = await API.put('/youtube/' + _editYtId, data);
+        } else {
+            result = await API.post('/youtube', data);
+        }
+        if (result.success) {
+            toast(_editYtId ? '✅ ভিডিও আপডেট হয়েছে!' : '✅ ভিডিও যোগ হয়েছে!', 'success');
+            resetYtForm();
+            await loadYoutubeVideos();
+        } else {
+            toast(result.error || 'সমস্যা হয়েছে', 'error');
+        }
+    } catch(e) {
+        toast('এরর: ' + e.message, 'error');
+    }
+}
+
+async function deleteYtVideo(id) {
+    if (!confirm('এই ভিডিও মুছবেন?')) return;
+    try {
+        const result = await API.delete('/youtube/' + id);
+        if (result.success) {
+            toast('🗑️ ভিডিও মুছে গেছে!', 'success');
+            await loadYoutubeVideos();
+        }
+    } catch(e) {
+        toast('মুছতে সমস্যা: ' + e.message, 'error');
+    }
+}
+
+async function reorderYtVideo(id, dir) {
+    const idx = _ytVideos.findIndex(v => (v.id||v._id) === id);
+    if (idx < 0) return;
+    const newIdx = idx + dir;
+    if (newIdx < 0 || newIdx >= _ytVideos.length) return;
+    // Swap order values
+    const a = _ytVideos[idx], b = _ytVideos[newIdx];
+    try {
+        await fbDb.collection(FS.youtube).doc(a.id||a._id).update({ order: newIdx * 100 });
+        await fbDb.collection(FS.youtube).doc(b.id||b._id).update({ order: idx * 100 });
+        toast('ক্রম পরিবর্তিত!', 'success');
+        await loadYoutubeVideos();
+    } catch(e) { toast('এরর: ' + e.message, 'error'); }
+}
+
+// Expose globally
+window.loadYoutubeVideos = loadYoutubeVideos;
+window.saveYtVideo = saveYtVideo;
+window.deleteYtVideo = deleteYtVideo;
+window.editYtVideo = editYtVideo;
+window.resetYtForm = resetYtForm;
+window.reorderYtVideo = reorderYtVideo;
+
+fbAuth.onAuthStateChanged(async (user) => {
         if (!user) return; // Not logged in — stay on login screen
 
         // Multi-layer admin check (same as doLogin)
@@ -5059,7 +5162,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 fbDb.collection(FS.admins).doc(user.uid).get(),
                 new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
             ]);
-            if (doc.exists) { adminData = doc.data(); hasAdminDoc = true; }
+            if (doc.exists) {
+                adminData = doc.data(); hasAdminDoc = true;
+            } else if (user.email === ADMIN_EMAIL_MASTER || user.uid === ADMIN_UID_MASTER) {
+                try {
+                    const _d = { name: user.displayName || user.email.split('@')[0], email: user.email, role: 'super_admin', uid: user.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+                    await fbDb.collection(FS.admins).doc(user.uid).set(_d, { merge: true });
+                    adminData = _d; hasAdminDoc = true;
+                } catch(_ce) {}
+            }
         } catch(e) {
             console.warn('[AuthState] Firestore read failed — using email/UID fallback');
         }
@@ -5225,7 +5336,23 @@ async function doLogin() {
                 fbDb.collection(FS.admins).doc(user.uid).get(),
                 new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
             ]);
-            if (doc.exists) { adminData = doc.data(); hasAdminDoc = true; }
+            if (doc.exists) {
+                    adminData = doc.data(); hasAdminDoc = true;
+                } else if (isAdminEmail || isMasterUID) {
+                    // Master admin — auto-create doc so Firestore Rules allow access
+                    try {
+                        const _d = {
+                            name:      user.displayName || user.email.split('@')[0],
+                            email:     user.email,
+                            role:      'super_admin',
+                            uid:       user.uid,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+                        await fbDb.collection(FS.admins).doc(user.uid).set(_d, { merge: true });
+                        adminData = _d; hasAdminDoc = true;
+                        console.log('[Login] Admin doc auto-created ✅');
+                    } catch(_ce) { /* ignore — will use email/UID fallback */ }
+                }
             console.log('[Login] Firestore admin doc:', hasAdminDoc ? 'FOUND' : 'NOT FOUND');
         } catch(e) {
             console.warn('[Login] Firestore read failed:', e.message, '— using email/UID fallback');
@@ -7083,41 +7210,78 @@ async function executeImport() {
 
 // ===== SETTINGS FUNCTIONS =====
 async function loadSettings() {
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val !== undefined ? val : ''; };
+    const chk = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
+
     try {
         const result = await API.get('/settings');
         if (result.success && result.settings) {
             const s = result.settings;
-            document.getElementById('stSiteName').value = s.siteName || 'AutoScrip';
-            document.getElementById('stSiteDesc').value = s.siteDesc || '';
-            document.getElementById('stYTChannel').value = s.ytChannel || '';
-            document.getElementById('stSiteURL').value = s.siteURL || '';
-            document.getElementById('stMaintenance').checked = !!s.maintenance;
-            document.getElementById('stComments').checked = s.comments !== false;
-            document.getElementById('stRequests').checked = s.requests !== false;
+            set('stSiteName',        s.siteName || 'AutoScrip');
+            set('stSiteDesc',        s.siteDesc || '');
+            set('stYTChannel',       s.ytChannel || '');
+            set('stSiteURL',         s.siteURL || '');
+            set('stAnnouncement',    s.announcement || '');
+            set('stHeroTitle',       s.heroTitle || '');
+            set('stHeroSubtitle',    s.heroSubtitle || '');
+            set('stMaxFreeTools',    s.maxFreeTools || '');
+            set('stContactEmail',    s.contactEmail || '');
+            set('stTelegramGroup',   s.telegramGroup || '');
+            set('stFacebookGroup',   s.facebookGroup || '');
+            set('stFooterText',      s.footerText || '');
+            chk('stMaintenance',     s.maintenance);
+            chk('stComments',        s.comments !== false);
+            chk('stRequests',        s.requests !== false);
+            chk('stRegistration',    s.registration !== false);
+            chk('stShowFeatured',    s.showFeatured !== false);
+            chk('stShareEnabled',    s.shareEnabled !== false);
+            chk('stDownloadEnabled', s.downloadEnabled !== false);
+            chk('stRunEnabled',      s.runEnabled !== false);
+            chk('stCommunityEnabled',s.communityEnabled !== false);
         }
-        
-        loadNotifHistory();
-        loadActivityLog();
-    } catch (error) {
-            }
+    } catch (error) { /* offline fallback */ }
+
+    try { loadNotifHistory(); } catch(e) {}
+    try { loadActivityLog(); } catch(e) {}
 }
 
 async function saveSettings() {
+    const get = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+    const chk = id => { const el = document.getElementById(id); return el ? el.checked : false; };
+
     const settings = {
-        siteName: document.getElementById('stSiteName').value,
-        siteDesc: document.getElementById('stSiteDesc').value,
-        ytChannel: document.getElementById('stYTChannel').value,
-        siteURL: document.getElementById('stSiteURL').value,
-        maintenance: document.getElementById('stMaintenance').checked,
-        comments: document.getElementById('stComments').checked,
-        requests: document.getElementById('stRequests').checked
+        siteName:           get('stSiteName'),
+        siteDesc:           get('stSiteDesc'),
+        ytChannel:          get('stYTChannel'),
+        siteURL:            get('stSiteURL'),
+        announcement:       get('stAnnouncement'),
+        heroTitle:          get('stHeroTitle'),
+        heroSubtitle:       get('stHeroSubtitle'),
+        maintenance:        chk('stMaintenance'),
+        comments:           chk('stComments'),
+        requests:           chk('stRequests'),
+        registration:       chk('stRegistration'),
+        showFeatured:       chk('stShowFeatured'),
+        shareEnabled:       chk('stShareEnabled'),
+        downloadEnabled:    chk('stDownloadEnabled'),
+        runEnabled:         chk('stRunEnabled'),
+        communityEnabled:   chk('stCommunityEnabled'),
+        maxFreeTools:       parseInt(get('stMaxFreeTools')) || 0,
+        contactEmail:       get('stContactEmail'),
+        telegramGroup:      get('stTelegramGroup'),
+        facebookGroup:      get('stFacebookGroup'),
+        footerText:         get('stFooterText'),
     };
-    
+
+    if (!fbDb) { toast('অফলাইন — সেভ করা গেল না', 'error'); return; }
+
     try {
         const result = await API.put('/settings', settings);
         if (result.success) {
             toast('✅ সেটিংস সেভ হয়েছে!', 'success');
             logActivity('সাইট সেটিংস আপডেট করা হয়েছে');
+        } else {
+            toast(result.error || 'সমস্যা হয়েছে', 'error');
         }
     } catch (error) {
         toast('এরর: ' + error.message, 'error');
@@ -7332,7 +7496,8 @@ function showP(page) {
         'analytics': 'অ্যানালিটিক্স',
         'heatmap': 'হিটম্যাপ',
         'team': 'অ্যাডমিন টিম',
-        'settings': 'সেটিংস'
+        'settings': 'সাইট সেটিংস',
+        'youtube': 'ভিডিও টিউটোরিয়াল'
     };
     document.getElementById('pTitle').textContent = titles[page] || page;
 }
@@ -7840,6 +8005,9 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
 });
+
+
+
 
 
 
