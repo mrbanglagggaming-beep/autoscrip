@@ -4056,6 +4056,7 @@ body.offline-mode { padding-top: 44px !important; }
 
 
 
+
 // ===== GLOBAL ERROR BOUNDARY =====
 window.onerror = function(msg, src, line, col, err) {
   const safeMsg = 'অপ্রত্যাশিত সমস্যা হয়েছে। পেজ রিফ্রেশ করুন।';
@@ -4242,13 +4243,8 @@ let fbApp, fbAuth, fbDb;
                 fbDb   = firebase.firestore();
                 // Enable Firestore offline persistence
                 // Persistence (compat SDK v10 style)
-                fbDb.enablePersistence({ synchronizeTabs: true }).catch(e => {
-                    // Ignore expected errors
-                    if (e.code === 'failed-precondition') {
-                        console.warn('Firestore: Multiple tabs open, persistence disabled in extra tabs');
-                    } else if (e.code !== 'unimplemented') {
-                        console.warn('Firestore persistence:', e.code);
-                    }
+                fbDb.enablePersistence({ synchronizeTabs: true }).catch(function() {
+                    /* Persistence errors silently ignored (multiple tabs, deprecated API, etc.) */
                 });
                 console.log('✅ Firebase initialized successfully');
             } catch(e) {
@@ -6453,44 +6449,51 @@ async function deleteCom(id) {
 
 // ===== NOTIFICATION FUNCTIONS (Firebase-powered, replaces old REST API calls) =====
 async function sendNotif() {
-    const target = document.getElementById('ntTarget').value;
-    const icon   = document.getElementById('ntIcon').value;
-    const msg    = document.getElementById('ntMsg').value.trim();
-    const link   = document.getElementById('ntLink').value.trim();
-    
+    const target = document.getElementById('ntTarget')?.value || 'all';
+    const icon   = document.getElementById('ntIcon')?.value   || '🔔';
+    const title  = document.getElementById('ntTitle')?.value?.trim() || '';
+    const msg    = document.getElementById('ntMsg')?.value?.trim()   || '';
+    const link   = document.getElementById('ntLink')?.value?.trim()  || '';
     if (!msg) { toast('বার্তা লিখুন!', 'error'); return; }
-    
+    if (!fbDb) { toast('অফলাইন — ইন্টারনেট চালু করুন', 'error'); return; }
+    const btn = document.querySelector('[onclick="sendNotif()"]');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> পাঠানো হচ্ছে...'; }
     try {
         await fbDb.collection(FS.notifs).add({
-            target:    target,
-            icon:      icon,
-            message:   msg,
-            link:      link || null,
-            sentBy:    currentUser ? (currentUser.email || 'admin') : 'admin',
+            target, icon, title: title || null, message: msg,
+            link: link || null,
+            sentBy: currentUser ? (currentUser.email || 'admin') : 'admin',
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         toast('✅ নোটিফিকেশন পাঠানো হয়েছে!', 'success');
-        document.getElementById('ntMsg').value  = '';
-        document.getElementById('ntLink').value = '';
+        if (document.getElementById('ntMsg'))   document.getElementById('ntMsg').value   = '';
+        if (document.getElementById('ntLink'))  document.getElementById('ntLink').value  = '';
+        if (document.getElementById('ntTitle')) document.getElementById('ntTitle').value = '';
         loadNotifHistory();
-        // Update subscriber count display
-        loadSubscriberStats();
+        setTimeout(() => { try { loadSubscriberStats(); } catch(e){} }, 600);
     } catch(e) {
-        toast('এরর: ' + e.message, 'error');
+        toast(e.message?.includes('offline') ? 'অফলাইন — ইন্টারনেট চালু করুন' : 'এরর: ' + e.message, 'error');
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> পাঠান'; }
     }
 }
 
 async function loadNotifHistory() {
+    const el = document.getElementById('notifHistory');
+    if (el) el.innerHTML = '<div class="em"><i class="fas fa-spinner fa-spin"></i><div class="em-t">লোড হচ্ছে...</div></div>';
+    if (!fbDb) {
+        if (el) el.innerHTML = '<div class="em"><i class="fas fa-wifi" style="opacity:.4"></i><div class="em-t">ইন্টারনেট সংযোগ নেই</div></div>';
+        return;
+    }
     try {
         const snap = await fbDb.collection(FS.notifs)
-            .orderBy('createdAt', 'desc')
-            .limit(50)
-            .get()
+            .orderBy('createdAt', 'desc').limit(50).get()
             .catch(() => fbDb.collection(FS.notifs).limit(30).get());
         renderNotifHistory(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     } catch(e) {
-        const el = document.getElementById('notifHistory');
-        if (el) el.innerHTML = '<div class="em"><i class="fas fa-exclamation-triangle"></i><div class="em-t">লোড করতে সমস্যা হয়েছে</div></div>';
+        if (el) el.innerHTML = e.message && e.message.includes('offline')
+            ? '<div class="em"><i class="fas fa-wifi" style="opacity:.4"></i><div class="em-t">অফলাইন — ইন্টারনেট চালু করুন</div></div>'
+            : '<div class="em"><i class="fas fa-bell-slash" style="opacity:.4"></i><div class="em-t">কোনো নোটিফিকেশন নেই</div></div>';
     }
 }
 
@@ -6528,38 +6531,46 @@ async function deleteNotif(id) {
 
 async function clearNotifs() {
     if (!confirm('সব নোটিফিকেশন মুছবেন?')) return;
+    if (!fbDb) { toast('অফলাইনে মুছা সম্ভব নয়', 'error'); return; }
     try {
         const snap = await fbDb.collection(FS.notifs).get();
+        if (!snap.docs.length) { toast('মুছার কিছু নেই', 'info'); return; }
         const batch = fbDb.batch();
         snap.docs.forEach(d => batch.delete(d.ref));
         await batch.commit();
-        toast('✅ নোটিফিকেশন মুছে গেছে!', 'success');
+        toast('✅ সব নোটিফিকেশন মুছে গেছে!', 'success');
         loadNotifHistory();
-    } catch(e) { toast('এরর: ' + e.message, 'error'); }
+    } catch(e) {
+        toast(e.message?.includes('offline') ? 'অফলাইন — ইন্টারনেট চালু করুন' : 'এরর: ' + e.message, 'error');
+    }
 }
 
 // ── Subscriber management (new functions) ─────────────────────
 async function loadSubscriberStats() {
-    if (!fbDb) return;
+    const tbody = document.getElementById('subscriberTableBody');
+    const cntEl = document.getElementById('subscriberCount');
+    const actEl = document.getElementById('activeSubscriberCount');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)"><i class="fas fa-spinner fa-spin" style="margin-right:8px"></i>লোড হচ্ছে...</td></tr>';
+    if (!fbDb) {
+        if (cntEl) cntEl.textContent = '—';
+        if (actEl) actEl.textContent = '—';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)"><i class="fas fa-wifi" style="margin-right:8px;opacity:.4"></i>অফলাইন</td></tr>';
+        return;
+    }
     try {
         const snap = await fbDb.collection('autoscrip_subscribers')
-            .where('active', '==', true)
-            .get()
+            .where('active', '==', true).get()
             .catch(() => fbDb.collection('autoscrip_subscribers').get());
         const subs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        const total = subs.length;
-        const active = subs.filter(s => s.active !== false).length;
-        
-        // Update UI elements
-        const el = document.getElementById('subscriberCount');
-        if (el) el.textContent = total;
-        const el2 = document.getElementById('activeSubscriberCount');
-        if (el2) el2.textContent = active;
-        
-        // Render subscriber table
+        if (cntEl) cntEl.textContent = subs.length;
+        if (actEl) actEl.textContent = subs.filter(s => s.active !== false).length;
         renderSubscriberTable(subs);
     } catch(e) {
-        console.warn('[Admin] loadSubscriberStats:', e.message);
+        if (cntEl) cntEl.textContent = '—';
+        if (actEl) actEl.textContent = '—';
+        if (tbody) tbody.innerHTML = e.message && e.message.includes('offline')
+            ? '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)"><i class="fas fa-wifi" style="margin-right:8px;opacity:.4"></i>অফলাইন — ডেটা দেখা যাচ্ছে না</td></tr>'
+            : '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)"><i class="fas fa-users-slash" style="margin-right:8px"></i>কোনো সাবস্ক্রাইবার নেই</td></tr>';
     }
 }
 
@@ -6590,20 +6601,19 @@ function renderSubscriberTable(subs) {
 }
 
 async function sendTestNotif(subscriberId) {
-    // Send a targeted notification to this specific subscriber
-    if (!fbDb) return;
+    if (!fbDb) { toast('অফলাইনে পাঠানো সম্ভব নয়', 'error'); return; }
+    if (!subscriberId) return;
     try {
         await fbDb.collection('autoscrip_notifications').add({
-            target:    subscriberId,
-            icon:      '🔔',
-            message:   'টেস্ট নোটিফিকেশন — AutoScrip Admin থেকে পাঠানো হয়েছে',
-            link:      null,
-            sentBy:    currentUser ? (currentUser.email || 'admin') : 'admin',
+            target: subscriberId, icon: '🔔',
+            message: 'টেস্ট নোটিফিকেশন — AutoScrip Admin থেকে পাঠানো',
+            link: null,
+            sentBy: currentUser ? (currentUser.email || 'admin') : 'admin',
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         toast('✅ টেস্ট নোটিফিকেশন পাঠানো হয়েছে', 'success');
     } catch(e) {
-        toast('পাঠাতে সমস্যা: ' + e.message, 'error');
+        toast(e.message?.includes('offline') ? 'অফলাইন — ইন্টারনেট চালু করুন' : 'পাঠাতে সমস্যা', 'error');
     }
 }
 
@@ -7830,6 +7840,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
 });
+
 
 
 
