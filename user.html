@@ -1054,7 +1054,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px">
             <button id="subscribeNotifBtn" onclick="NotifSystem.subscribe()"
               style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,215,0,.3);background:rgba(255,215,0,.1);color:var(--primary,#ffd700);font-size:.8rem;font-weight:600;cursor:pointer;transition:.2s;font-family:var(--font-head,inherit)">
-              <i class="fas fa-bell"></i><span>সাবস্ক্রাইব</span>
+              <i class="fas fa-bell"></i><span> id="footerCopyright"সাবস্ক্রাইব</span>
             </button>
             <button onclick="NotifSystem.loadNotifications(true)"
               style="padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-size:.8rem;cursor:pointer;transition:.2s">
@@ -1103,10 +1103,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <!-- HOME PAGE -->
 <div id="homePage" class="page active">
   <div class="hero">
-    <div class="hero-badge"><span class="h-dot"></span> Admin Connected — Live Data</div>
+    
     <h1 class="hero-title">AUTOSCRIP</h1>
     <div class="hero-ver">POWERSHELL PLATFORM</div>
-    <p class="hero-sub">বাংলাদেশের প্রথম নিরাপদ PowerShell প্ল্যাটফর্ম — AI স্ক্রিপ্ট জেনারেটর, অ্যাডমিন-অ্যাপ্রুভড টুলস ও লাইভ কমিউনিটি।</p>
+    <div id="announcementBar" style="display:none;background:linear-gradient(90deg,#ffd700,#ff6a00);color:#000;padding:8px 20px;border-radius:var(--r-full);font-size:.85rem;font-weight:700;margin-bottom:12px;text-align:center"></div>
+    <p class="hero-sub" id="heroSubEl">বাংলাদেশের প্রথম নিরাপদ PowerShell প্ল্যাটফর্ম — AI স্ক্রিপ্ট জেনারেটর, অ্যাডমিন-অ্যাপ্রুভড টুলস ও লাইভ কমিউনিটি।</p>
     <div class="hero-btns">
       <button class="btn btn-primary btn-lg" onclick="showPage('tools')"><i class="fas fa-tools"></i> টুলস দেখুন</button>
       <button class="btn btn-outline btn-lg" onclick="openModal('aiModal')"><i class="fas fa-robot"></i> AI স্ক্রিপ্ট</button>
@@ -1134,7 +1135,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
     <!-- Hero Social Links -->
     <div class="hero-socials" style="display:flex;gap:14px;justify-content:center;margin:20px 0;flex-wrap:wrap">
-      <a href="https://www.facebook.com/groups/autoscrip" target="_blank" rel="noopener"
+      <a id="footerFacebook" href="https://www.facebook.com/groups/autoscrip" target="_blank" rel="noopener"
          style="display:flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(24,119,242,.15);border:1px solid rgba(24,119,242,.4);border-radius:50px;color:#1877f2;font-weight:600;font-size:.88rem;text-decoration:none;transition:.2s"
          onmouseover="this.style.background='rgba(24,119,242,.3)'" onmouseout="this.style.background='rgba(24,119,242,.15)'">
         <i class="fab fa-facebook-f"></i> Facebook
@@ -1144,7 +1145,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
          onmouseover="this.style.background='rgba(255,0,0,.25)'" onmouseout="this.style.background='rgba(255,0,0,.12)'">
         <i class="fab fa-youtube"></i> YouTube
       </a>
-      <a href="https://t.me/autoscrip" target="_blank" rel="noopener"
+      <a id="footerTelegram" href="https://t.me/autoscrip" target="_blank" rel="noopener"
          style="display:flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(0,136,204,.12);border:1px solid rgba(0,136,204,.4);border-radius:50px;color:#0088cc;font-weight:600;font-size:.88rem;text-decoration:none;transition:.2s"
          onmouseover="this.style.background='rgba(0,136,204,.25)'" onmouseout="this.style.background='rgba(0,136,204,.12)'">
         <i class="fab fa-telegram"></i> Telegram
@@ -1892,6 +1893,7 @@ Get-Date | Format-List"></textarea>
 </div>
 
 <script>
+
 
 
 
@@ -2794,26 +2796,106 @@ async function applyFirestoreSettings(){
     const doc = await window._fbDb.collection('autoscrip_config').doc('site').get();
     if(!doc.exists) return;
     const s = doc.data();
-    // Site name
+    window._siteSettings = s; // cache globally
+
+    // Site name & title
     if(s.siteName){
       document.title = s.siteName + ' — PowerShell Hub';
-      const logo = document.querySelector('.nav-brand');
-      if(logo) logo.textContent = s.siteName;
+      document.querySelectorAll('.nav-brand,.footer-brand').forEach(el=>{
+        if(el.textContent.includes('AUTOSCRIP')) el.textContent = '⚡ '+s.siteName.toUpperCase();
+      });
     }
-    // Site desc / announcement
-    if(s.announcement){
-      const el = document.getElementById('announcementBar') || document.getElementById('heroBanner');
-      if(el && s.announcement) el.textContent = s.announcement;
+
+    // Hero title
+    if(s.heroTitle){
+      const ht = document.querySelector('.hero-title');
+      if(ht) ht.textContent = s.heroTitle;
     }
+
+    // Hero subtitle
+    if(s.heroSubtitle){
+      const hs = document.getElementById('heroSubEl') || document.querySelector('.hero-sub');
+      if(hs) hs.textContent = s.heroSubtitle;
+    }
+
+    // Announcement bar
+    const annBar = document.getElementById('announcementBar');
+    if(annBar){
+      if(s.announcement && s.announcement.trim()){
+        annBar.textContent = '📢 ' + s.announcement;
+        annBar.style.display = 'block';
+      } else {
+        annBar.style.display = 'none';
+      }
+    }
+
     // Maintenance mode
     if(s.maintenance){
       document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0a0a0f;color:#ffd700;font-family:sans-serif;text-align:center;padding:20px"><div><div style="font-size:4rem;margin-bottom:16px">🔧</div><h1>মেইনটেন্যান্স চলছে</h1><p style="color:#888;margin-top:12px">শীঘ্রই ফিরে আসছি।</p></div></div>';
+      return;
     }
-    // YouTube channel link
+
+    // YouTube channel links
     if(s.ytChannel){
-      document.querySelectorAll('a[href*="youtube.com/@autoscrip"]').forEach(a=>{ a.href = s.ytChannel; });
+      document.querySelectorAll('a[href*="youtube.com/@"]').forEach(a=>{ a.href = s.ytChannel; });
     }
-  } catch(e){ /* ignore */ }
+
+    // Footer: telegram
+    if(s.telegramGroup){
+      document.querySelectorAll('a[href*="t.me/"]').forEach(a=>{ a.href = s.telegramGroup; });
+      const tEl = document.getElementById('footerTelegram');
+      if(tEl) tEl.href = s.telegramGroup;
+    }
+
+    // Footer: facebook
+    if(s.facebookGroup){
+      document.querySelectorAll('a[href*="facebook.com/groups/"]').forEach(a=>{ a.href = s.facebookGroup; });
+      const fbEl = document.getElementById('footerFacebook');
+      if(fbEl) fbEl.href = s.facebookGroup;
+    }
+
+    // Footer text
+    if(s.footerText){
+      const ft = document.getElementById('footerCopyright');
+      if(ft) ft.textContent = s.footerText;
+    }
+
+    // Contact email
+    if(s.contactEmail){
+      document.querySelectorAll('a[href^="mailto:"]').forEach(a=>{ a.href = 'mailto:'+s.contactEmail; });
+    }
+
+    // Feature toggles
+    // Registration
+    if(s.registration === false){
+      document.querySelectorAll('[onclick*="registerModal"],[onclick*="openRegister"]').forEach(btn=>{
+        btn.style.display='none';
+      });
+    }
+
+    // Community page
+    if(s.communityEnabled === false){
+      const commNav = document.querySelector('[data-page="community"]') || 
+                      Array.from(document.querySelectorAll('[onclick]')).find(el=>el.getAttribute('onclick').includes('community'));
+      if(commNav) commNav.style.display='none';
+    }
+
+    // Share buttons
+    if(s.shareEnabled === false){
+      document.querySelectorAll('[data-act="share"],[onclick*="doShare"]').forEach(el=>el.style.display='none');
+    }
+
+    // Download buttons
+    if(s.downloadEnabled === false){
+      document.querySelectorAll('[data-act="dl"],[onclick*="doDownload"]').forEach(el=>el.style.display='none');
+    }
+
+    // Run buttons
+    if(s.runEnabled === false){
+      document.querySelectorAll('[data-act="run"],[onclick*="doRun"]').forEach(el=>el.style.display='none');
+    }
+
+  } catch(e){ /* silent - offline or no settings doc yet */ }
 }
 
 // Cache to prevent duplicate Firestore reads when loadHome + loadTools both call fetchToolsFromAPI
@@ -3078,10 +3160,12 @@ const YOUTUBE_VIDEOS=[
   {id:'v8',title:'Active Directory ম্যানেজমেন্ট',desc:'AD ইউজার, গ্রুপ তৈরি ও ম্যানেজমেন্ট।',channel:'AutoScrip',views:'11K',date:'২ সপ্তাহ আগে',level:'advanced',vid:'',chUrl:'https://www.youtube.com/@autoscrip'}
 ];
 async function loadYouTube(){
-  // Try Firestore first, fallback to hardcoded
   try {
     if(window._fbDb){
-      const snap=await window._fbDb.collection('autoscrip_youtube').orderBy('order','asc').get().catch(()=>window._fbDb.collection('autoscrip_youtube').get());
+      // Try ordered, fallback to unordered
+      const snap=await window._fbDb.collection('autoscrip_youtube')
+        .orderBy('order','asc').get()
+        .catch(()=>window._fbDb.collection('autoscrip_youtube').get());
       if(!snap.empty){
         const vids=snap.docs.map(d=>({id:d.id,...d.data()}));
         renderVideos(vids);
@@ -3089,6 +3173,7 @@ async function loadYouTube(){
       }
     }
   } catch(e){}
+  // Firestore empty or offline — show hardcoded defaults
   renderVideos(YOUTUBE_VIDEOS);
 }
 window.searchYouTube=()=>{
@@ -4206,6 +4291,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
 
 
 
