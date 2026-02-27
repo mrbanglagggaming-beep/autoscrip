@@ -4892,7 +4892,7 @@ const API = {
     // â”€â”€ Firestore helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     _col(name) { return fbDb.collection(name); },
     _ts() { return firebase.firestore.FieldValue.serverTimestamp(); },
-    _id(doc) { const d = doc.data(); return { id: doc.id, _id: doc.id, ...d }; },  // v13 fix: expose both .id and ._id
+    _id(doc) { return { id: doc.id, ...doc.data() }; },
     _docs(snap) { return snap.docs.map(d => this._id(d)); },
 
     // â”€â”€ Generic request shim (kept for compatibility) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -4939,7 +4939,7 @@ const API = {
             if (/^tools\/[^/]+$/.test(ep) && method === 'PUT') {
                 const id = ep.split('/')[1];
                 await this._col(FS.tools).doc(id).update({ ...data, updatedAt:this._ts() });
-                const idx = allTools.findIndex(t => (t.id||t._id) === id);  // v13 fix
+                const idx = allTools.findIndex(t => t.id === id);
                 if (idx >= 0) allTools[idx] = { ...allTools[idx], ...data };
                 return { success:true, tool: { id, ...data } };
             }
@@ -4948,7 +4948,7 @@ const API = {
             if (/^tools\/[^/]+$/.test(ep) && method === 'DELETE') {
                 const id = ep.split('/')[1];
                 await this._col(FS.tools).doc(id).delete();
-                allTools = allTools.filter(t => (t.id||t._id) !== id);  // v13 fix
+                allTools = allTools.filter(t => t.id !== id);
                 return { success:true };
             }
 
@@ -4958,7 +4958,7 @@ const API = {
                 const batch = fbDb.batch();
                 ids.forEach(id => batch.delete(this._col(FS.tools).doc(id)));
                 await batch.commit();
-                allTools = allTools.filter(t => !ids.includes(t.id||t._id));  // v13 fix
+                allTools = allTools.filter(t => !ids.includes(t.id));
                 return { success:true, deleted: ids.length };
             }
 
@@ -4969,7 +4969,7 @@ const API = {
                     const batch = fbDb.batch();
                     ids.forEach(id => batch.update(this._col(FS.tools).doc(id), { ...updates, updatedAt:this._ts() }));
                     await batch.commit();
-                    allTools = allTools.map(t => ids.includes(t.id||t._id) ? { ...t, ...updates } : t);  // v13 fix
+                    allTools = allTools.map(t => ids.includes(t.id) ? { ...t, ...updates } : t);
                 }
                 return { success:true };
             }
@@ -6218,12 +6218,7 @@ async function loadTools() {
     try {
         const result = await API.get('/tools');
         if (result.success) {
-            // v13 fix: normalize â€” ensure every tool has .id from Firestore
-            allTools = (result.tools || []).map(t => ({
-                ...t,
-                id: t.id || t._id || '',
-                _id: t.id || t._id || ''  // keep _id alias for backward compat
-            }));
+            allTools = result.tools || [];
             renderToolsTable(allTools);
             document.getElementById('toolCount').textContent = allTools.length;
             
@@ -6258,7 +6253,7 @@ function renderToolsTable(tools) {
     
     tb.innerHTML = tools.map(tool => {
         const cmdCount = tool.commands?.length || 1;
-        const toolId = tool.id || tool._id || '';  // v13 fix: Firestore uses .id
+        const toolId = tool.id || tool._id;
         const checked = selectedTools.includes(toolId) ? 'checked' : '';
         return `
         <tr>
@@ -6552,11 +6547,6 @@ async function saveTool(preview = false) {
 }
 
 async function editTool(id) {
-    // v13 fix: guard against undefined/null id
-    if (!id || id === 'undefined' || id === 'null') {
-        toast('âŒ à¦Ÿà§à¦² à¦†à¦‡à¦¡à¦¿ à¦ªà¦¾à¦“à¦¯à¦¼à¦¾ à¦¯à¦¾à¦¯à¦¼à¦¨à¦¿! à¦ªà§‡à¦œ à¦°à¦¿à¦«à§à¦°à§‡à¦¶ à¦•à¦°à§à¦¨à¥¤', 'error');
-        return;
-    }
     try {
         const result = await API.get(`/tools/${id}`);
         if (!result.success || !result.tool) {
@@ -6566,7 +6556,7 @@ async function editTool(id) {
         
         const tool = result.tool;
         
-        document.getElementById('editToolId').value = tool.id || tool._id || '';  // v13 fix: Firestore uses .id
+        document.getElementById('editToolId').value = tool.id || tool._id;
         document.getElementById('toolVersion').value = tool.version || 1;
         document.getElementById('toolTitle').value = tool.title || '';
         document.getElementById('toolCat').value = tool.category || 'system';
@@ -6604,61 +6594,26 @@ async function editTool(id) {
 }
 
 async function deleteTool(id) {
-    // v13 fix: guard against undefined/null id
-    if (!id || id === 'undefined' || id === 'null') {
-        toast('âŒ à¦Ÿà§à¦² à¦†à¦‡à¦¡à¦¿ à¦ªà¦¾à¦“à¦¯à¦¼à¦¾ à¦¯à¦¾à¦¯à¦¼à¦¨à¦¿! à¦ªà§‡à¦œ à¦°à¦¿à¦«à§à¦°à§‡à¦¶ à¦•à¦°à§à¦¨à¥¤', 'error');
+    if (!confirm('à¦†à¦ªà¦¨à¦¿ à¦•à¦¿ à¦¨à¦¿à¦¶à§à¦šà¦¿à¦¤? à¦à¦‡ à¦Ÿà§à¦² à¦¸à§à¦¥à¦¾à¦¯à¦¼à§€à¦­à¦¾à¦¬à§‡ à¦®à§à¦›à§‡ à¦¯à¦¾à¦¬à§‡!')) {
         return;
     }
     
-    // Use custom confirm dialog
-    const cfm = document.getElementById('cfmDlg');
-    const cfmTt = document.getElementById('cfmTt');
-    const cfmSb = document.getElementById('cfmSb');
-    const cfmOk = document.getElementById('cfmOk');
-    
-    if (cfm && cfmTt && cfmOk) {
-        cfmTt.textContent = 'ðŸ—‘ï¸ à¦Ÿà§à¦² à¦¡à¦¿à¦²à¦¿à¦Ÿ à¦•à¦°à¦¬à§‡à¦¨?';
-        cfmSb.textContent = 'à¦à¦‡ à¦•à¦¾à¦œà¦Ÿà¦¿ à¦ªà§‚à¦°à§à¦¬à¦¾à¦¬à¦¸à§à¦¥à¦¾à¦¯à¦¼ à¦«à§‡à¦°à¦¾à¦¨à§‹ à¦¯à¦¾à¦¬à§‡ à¦¨à¦¾à¥¤ à¦Ÿà§à¦²à¦Ÿà¦¿ à¦¸à§à¦¥à¦¾à¦¯à¦¼à§€à¦­à¦¾à¦¬à§‡ à¦®à§à¦›à§‡ à¦¯à¦¾à¦¬à§‡!';
-        cfm.classList.add('active');
-        
-        // Remove old listener if any
-        const newOk = cfmOk.cloneNode(true);
-        cfmOk.parentNode.replaceChild(newOk, cfmOk);
-        
-        newOk.addEventListener('click', async function() {
-            cfm.classList.remove('active');
+    try {
+        const result = await API.delete(`/tools/${id}`);
+        if (result.success) {
+            toast('ðŸ—‘ï¸ à¦Ÿà§à¦² à¦¡à¦¿à¦²à¦¿à¦Ÿ à¦¹à¦¯à¦¼à§‡à¦›à§‡!', 'success');
+            // Sync to localStorage
             try {
-                const result = await API.delete(`/tools/${id}`);
-                if (result.success) {
-                    toast('ðŸ—‘ï¸ à¦Ÿà§à¦² à¦¡à¦¿à¦²à¦¿à¦Ÿ à¦¹à¦¯à¦¼à§‡à¦›à§‡!', 'success');
-                    try {
-                        const tools = JSON.parse(localStorage.getItem('autoscrip_tools') || '[]');
-                        localStorage.setItem('autoscrip_tools', JSON.stringify(tools.filter(t => (t._id||t.id) !== id)));
-                    } catch(e) {}
-                    await loadTools();
-                    await loadDashboard();
-                } else {
-                    toast(result.error || 'à¦¡à¦¿à¦²à¦¿à¦Ÿ à¦•à¦°à¦¤à§‡ à¦¸à¦®à¦¸à§à¦¯à¦¾', 'error');
-                }
-            } catch (error) {
-                toast('à¦¸à¦¾à¦°à§à¦­à¦¾à¦° à¦à¦°à¦°: ' + error.message, 'error');
-            }
-        }, { once: true });
-    } else {
-        // Fallback to native confirm if custom dialog not found
-        if (!confirm('à¦†à¦ªà¦¨à¦¿ à¦•à¦¿ à¦¨à¦¿à¦¶à§à¦šà¦¿à¦¤? à¦à¦‡ à¦Ÿà§à¦² à¦¸à§à¦¥à¦¾à¦¯à¦¼à§€à¦­à¦¾à¦¬à§‡ à¦®à§à¦›à§‡ à¦¯à¦¾à¦¬à§‡!')) return;
-        try {
-            const result = await API.delete(`/tools/${id}`);
-            if (result.success) {
-                toast('ðŸ—‘ï¸ à¦Ÿà§à¦² à¦¡à¦¿à¦²à¦¿à¦Ÿ à¦¹à¦¯à¦¼à§‡à¦›à§‡!', 'success');
-                await loadTools();
-                await loadDashboard();
-            } else {
-                toast(result.error || 'à¦¡à¦¿à¦²à¦¿à¦Ÿ à¦•à¦°à¦¤à§‡ à¦¸à¦®à¦¸à§à¦¯à¦¾', 'error');
-            }
-        } catch (error) {
-            toast('à¦¸à¦¾à¦°à§à¦­à¦¾à¦° à¦à¦°à¦°: ' + error.message, 'error');
+                const tools = JSON.parse(localStorage.getItem('autoscrip_tools') || '[]');
+                localStorage.setItem('autoscrip_tools', JSON.stringify(tools.filter(t => (t._id||t.id) !== id)));
+            } catch(e) {}
+            await loadTools();
+            await loadDashboard();
+        } else {
+            toast(result.error || 'à¦¡à¦¿à¦²à¦¿à¦Ÿ à¦•à¦°à¦¤à§‡ à¦¸à¦®à¦¸à§à¦¯à¦¾', 'error');
         }
+    } catch (error) {
+        toast('à¦¸à¦¾à¦°à§à¦­à¦¾à¦° à¦à¦°à¦°: ' + error.message, 'error');
     }
 }
 
@@ -8155,13 +8110,12 @@ function toggleSb() {
 function startClock() {
     function update() {
         const now = new Date();
-        // v13 fix: use English numerals for clock (bn-BD shows Bangla à§¦à§§à§¨à§©)
-        const h = String(now.getHours()).padStart(2, '0');
-        const m = String(now.getMinutes()).padStart(2, '0');
-        const s = String(now.getSeconds()).padStart(2, '0');
-        const ampm = now.getHours() < 12 ? 'AM' : 'PM';
-        const el = document.getElementById('topbarClock');
-        if (el) el.textContent = h + ':' + m + ':' + s + ' ' + ampm;
+        document.getElementById('topbarClock').textContent = now.toLocaleString('bn-BD', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        });
     }
     update();
     setInterval(update, 1000);
@@ -8266,8 +8220,7 @@ function getCategoryIcon(cat) {
 function formatDate(date) {
     if (!date) return 'â€”';
     const d = new Date(date);
-    // v13 fix: use en-GB for English numerals (bn-BD shows Bangla à§¦à§§à§¨à§©)
-    return d.toLocaleDateString('en-GB', {
+    return d.toLocaleDateString('bn-BD', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
