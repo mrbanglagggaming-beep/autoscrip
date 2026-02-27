@@ -4726,13 +4726,16 @@ const Security = {
     },
     
     setupSecurityHeaders() {
-        // Note: X-Frame-Options and other security headers must be set server-side.
-        // Only Content-Security-Policy can be partially set via meta tag.
-        // Skipping meta http-equiv security headers to avoid browser warnings.
-        const cspMeta = document.createElement('meta');
-        cspMeta.httpEquiv = 'X-Content-Type-Options';
-        cspMeta.content = 'nosniff';
-        document.head.appendChild(cspMeta);
+        // Ensure UTF-8 charset is explicitly set to prevent Bangla encoding issues
+        const existingCharset = document.querySelector('meta[charset]');
+        if (existingCharset) {
+            existingCharset.setAttribute('charset', 'UTF-8');
+        }
+        // Force Content-Type with charset via http-equiv
+        const ctMeta = document.createElement('meta');
+        ctMeta.httpEquiv = 'Content-Type';
+        ctMeta.content = 'text/html; charset=utf-8';
+        document.head.insertBefore(ctMeta, document.head.firstChild);
     },
     
     sanitizeInput(input) {
