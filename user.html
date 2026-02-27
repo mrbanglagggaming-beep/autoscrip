@@ -106,7 +106,7 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
 
 /* DROPDOWNS */
 .dropdown{position:relative}
-.dd-menu{position:absolute;top:calc(100% + 10px);right:0;background:var(--card2);border:1px solid rgba(255,215,0,.15);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);min-width:220px;z-index:2000;display:none;overflow:hidden}
+.dd-menu{position:absolute;top:calc(100% + 10px);right:0;background:var(--card2);border:1px solid rgba(255,215,0,.15);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);min-width:220px;z-index:2000;display:none}
 .dropdown.show .dd-menu{display:block;animation:menuIn .2s ease}
 @keyframes menuIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .dd-item{display:flex;align-items:center;gap:12px;padding:11px 18px;color:var(--muted);font-size:.88rem;cursor:pointer;transition:var(--ease);font-family:var(--font-head)}
@@ -116,12 +116,12 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
 .dd-head{padding:12px 18px 6px;font-size:.78rem;color:var(--muted);letter-spacing:1px;font-family:var(--font-head)}
 
 /* NOTIF PANEL */
-.np-panel{position:absolute;top:calc(100% + 10px);right:0;width:300px;background:var(--card2);border:1px solid rgba(255,215,0,.15);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);z-index:2000;display:none;overflow:hidden}
+.np-panel{position:absolute;top:calc(100% + 10px);right:0;width:320px;background:var(--card2);border:1px solid rgba(255,215,0,.15);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);z-index:2000;display:none}
 .np-panel.show{display:block;animation:menuIn .2s ease}
 .np-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .np-head h4{font-family:var(--font-head);color:var(--primary);font-size:.95rem}
-.np-body{max-height:300px;overflow-y:auto}
-.np-item{padding:11px 18px;border-bottom:1px solid var(--border);font-size:.83rem;color:var(--muted);cursor:pointer;transition:var(--ease)}
+.np-body{max-height:280px;overflow-y:auto;overflow-x:hidden}
+.np-item{display:flex;align-items:flex-start;gap:8px;padding:11px 18px;border-bottom:1px solid var(--border);font-size:.83rem;color:var(--muted);cursor:pointer;transition:var(--ease)}
 .np-item:hover{background:rgba(255,215,0,.04);color:var(--text)}
 
 /* BUTTONS */
@@ -973,7 +973,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .np-footer{padding:12px 16px;border-top:1px solid var(--border)}
 #subscribeNotifBtn:hover{opacity:.85;transform:translateY(-1px)}
 #notifBadge{display:none}
-.np-item{display:flex;align-items:flex-start;padding:11px 18px;border-bottom:1px solid var(--border);font-size:.83rem;color:var(--muted);cursor:pointer;transition:var(--ease)}
+/* .np-item already defined above */
 .np-item:hover{background:rgba(255,215,0,.04);color:var(--text)}
 .np-item:last-child{border-bottom:none}
 
@@ -1892,6 +1892,8 @@ Get-Date | Format-List"></textarea>
 </div>
 
 <script>
+
+
 
 
 
@@ -3937,7 +3939,10 @@ const NotifSystem = (function() {
 
   // ── Load notifications from Firestore ────────────────────────
   async function loadNotifications(showToastOnNew) {
-    if (!window._fbDb) return;
+    if (!window._fbDb) {
+      _renderNotifPanel();
+      return;
+    }
     try {
       var snap = await window._fbDb
         .collection(FS_NOTIFS)
@@ -3962,7 +3967,10 @@ const NotifSystem = (function() {
         _notifCache = snap2.docs.map(function(d) { return { id: d.id, ...d.data() }; });
         _renderNotifPanel();
         if (_notifCache.length > 0) _showDot();
-      } catch(e2) { console.warn('[NotifSystem] load error:', e2.message); }
+      } catch(e2) {
+        _renderNotifPanel(); // show empty state, not endless spinner
+        console.warn('[NotifSystem] Offline or Firestore error:', e2.message);
+      }
     }
   }
 
@@ -4073,11 +4081,16 @@ const NotifSystem = (function() {
 
   // ── Init ──────────────────────────────────────────────────────
   function init() {
-    // Load existing notifications (non-realtime for initial load)
+    // Show empty state immediately (no spinning forever if offline)
+    var body = document.getElementById('notifPanelBody');
+    if (body) {
+      body.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:.85rem"><i class="fas fa-bell-slash" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:.4"></i>কোনো নোটিফিকেশন নেই</div>';
+    }
+    // Try Firestore after DOM is ready
     setTimeout(function() {
-      loadNotifications(false);
-      checkStatus();
-    }, 1500);
+      try { loadNotifications(false); } catch(e) {}
+      try { checkStatus(); } catch(e) {}
+    }, 2000);
   }
 
   return {
@@ -4125,10 +4138,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!e.target.closest('.dropdown')) {
       document.querySelectorAll('.dropdown.show').forEach(function(d) { d.classList.remove('show'); });
     }
-    if (!e.target.closest('.np-panel') && !e.target.closest('[onclick*="toggleDD"]')) {
-      var np = document.getElementById('notifDrop');
-      if (np) np.classList.remove('show');
-    }
   });
 
   // ESC key closes modals
@@ -4141,6 +4150,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+
 
 
 
