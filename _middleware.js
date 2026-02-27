@@ -1,13 +1,15 @@
 /**
- * AutoScrip — Vercel CORS Middleware
- * ফাইল: api/_middleware.js
- * সব API route-এ CORS headers যোগ করে
+ * AutoScrip — Vercel Middleware
+ * ফাইল: _middleware.js
+ * CORS headers + UTF-8 charset for HTML pages
  */
+import { NextResponse } from 'next/server';
 
 export function middleware(request) {
   const origin = request.headers.get('origin') || '*';
-  
-  // Handle preflight OPTIONS request
+  const url = request.nextUrl.pathname;
+
+  // ── Handle preflight OPTIONS ──────────────────────────────────────
   if (request.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
@@ -21,15 +23,31 @@ export function middleware(request) {
     });
   }
 
-  return new Response(null, {
-    headers: {
-      'Access-Control-Allow-Origin':  origin,
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token',
-    }
-  });
+  // ── API routes: শুধু CORS ─────────────────────────────────────────
+  if (url.startsWith('/api/')) {
+    const response = NextResponse.next();
+    response.headers.set('Access-Control-Allow-Origin',  origin);
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token');
+    return response;
+  }
+
+  // ── HTML pages: charset=utf-8 সেট করো ───────────────────────────
+  const isHtmlPage =
+    url === '/' ||
+    url === '/admin' ||
+    url === '/user' ||
+    url.endsWith('.html');
+
+  if (isHtmlPage) {
+    const response = NextResponse.next();
+    response.headers.set('Content-Type', 'text/html; charset=utf-8');
+    return response;
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: '/api/:path*',
+  matcher: ['/', '/admin', '/user', '/api/:path*', '/(.*)\\.html'],
 };
