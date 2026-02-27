@@ -3987,6 +3987,7 @@ body.offline-mode { padding-top: 44px !important; }
 
 
 
+
 // ===== GLOBAL ERROR BOUNDARY =====
 window.onerror = function(msg, src, line, col, err) {
   const safeMsg = 'অপ্রত্যাশিত সমস্যা হয়েছে। পেজ রিফ্রেশ করুন।';
@@ -5006,50 +5007,121 @@ document.addEventListener('DOMContentLoaded', async () => {
 let _ytVideos = [];
 let _editYtId = null;
 
+// Default YouTube videos (same as user.html hardcoded)
+const DEFAULT_YT_VIDEOS = [
+    {id:'v1',title:'PowerShell পরিচিতি — একদম শুরু থেকে বাংলায়',desc:'PowerShell কী, কেন শিখবেন, কীভাবে শুরু করবেন।',channel:'AutoScrip',views:'12K',date:'২ সপ্তাহ আগে',level:'beginner',vid:'',chUrl:'https://www.youtube.com/@autoscrip'},
+    {id:'v2',title:'PowerShell দিয়ে নেটওয়ার্ক মনিটরিং',desc:'Get-NetAdapter, Test-Connection সহ সম্পূর্ণ গাইড।',channel:'AutoScrip',views:'8.4K',date:'১ মাস আগে',level:'intermediate',vid:'',chUrl:'https://www.youtube.com/@autoscrip'},
+    {id:'v3',title:'Windows সিকিউরিটি অডিট PowerShell দিয়ে',desc:'ইভেন্ট লগ ও ফায়ারওয়াল ম্যানেজমেন্ট।',channel:'AutoScrip',views:'15K',date:'৩ সপ্তাহ আগে',level:'advanced',vid:'',chUrl:'https://www.youtube.com/@autoscrip'},
+    {id:'v4',title:'PowerShell অটোমেশন — ৫টি প্রজেক্ট',desc:'ব্যাকআপ, লগ ক্লিনআপ, রিপোর্ট জেনারেটর।',channel:'AutoScrip',views:'22K',date:'২ মাস আগে',level:'intermediate',vid:'',chUrl:'https://www.youtube.com/@autoscrip'},
+    {id:'v5',title:'PowerShell ফাংশন ও মডিউল তৈরি',desc:'Reusable ফাংশন ও কাস্টম মডিউল।',channel:'AutoScrip',views:'9.1K',date:'৩ মাস আগে',level:'advanced',vid:'',chUrl:'https://www.youtube.com/@autoscrip'},
+    {id:'v6',title:'PowerShell ভেরিয়েবল, লুপ ও কন্ডিশন',desc:'বেসিক প্রোগ্রামিং কনসেপ্ট বাংলায়।',channel:'AutoScrip',views:'18K',date:'৩ সপ্তাহ আগে',level:'beginner',vid:'',chUrl:'https://www.youtube.com/@autoscrip'},
+    {id:'v7',title:'ডিস্ক ও ফাইল ম্যানেজমেন্ট PS দিয়ে',desc:'ফাইল কপি, ডিলিট, ব্যাকআপ সব PowerShell দিয়ে।',channel:'AutoScrip',views:'7.3K',date:'৫ দিন আগে',level:'beginner',vid:'',chUrl:'https://www.youtube.com/@autoscrip'},
+    {id:'v8',title:'Active Directory ম্যানেজমেন্ট',desc:'AD ইউজার, গ্রুপ তৈরি ও ম্যানেজমেন্ট।',channel:'AutoScrip',views:'11K',date:'২ সপ্তাহ আগে',level:'advanced',vid:'',chUrl:'https://www.youtube.com/@autoscrip'}
+];
+
 async function loadYoutubeVideos() {
     const el = document.getElementById('ytVideoList');
     if (el) el.innerHTML = '<div class="em"><i class="fas fa-spinner fa-spin"></i><div class="em-t">লোড হচ্ছে...</div></div>';
-    if (!fbDb) { if(el) el.innerHTML = '<div class="em"><i class="fas fa-wifi" style="opacity:.4"></i><div class="em-t">অফলাইন</div></div>'; return; }
+    if (!fbDb) {
+        // Offline — show defaults with note
+        _ytVideos = DEFAULT_YT_VIDEOS.map((v,i) => ({...v, _isDefault:true, order:i*100}));
+        renderYoutubeList(_ytVideos);
+        return;
+    }
     try {
         const result = await API.get('/youtube');
         if (result.success) {
-            _ytVideos = result.videos || [];
-            renderYoutubeList(_ytVideos);
+            if (result.videos && result.videos.length > 0) {
+                _ytVideos = result.videos;
+                renderYoutubeList(_ytVideos);
+            } else {
+                // Firestore empty — show defaults + seed button
+                _ytVideos = DEFAULT_YT_VIDEOS.map((v,i) => ({...v, _isDefault:true, order:i*100}));
+                renderYoutubeList(_ytVideos, true); // true = showSeedBanner
+            }
+        } else {
+            _ytVideos = DEFAULT_YT_VIDEOS.map((v,i) => ({...v, _isDefault:true, order:i*100}));
+            renderYoutubeList(_ytVideos, true);
         }
     } catch(e) {
-        if(el) el.innerHTML = '<div class="em"><i class="fas fa-exclamation-triangle" style="opacity:.4"></i><div class="em-t">লোড করতে সমস্যা</div></div>';
+        if(el) el.innerHTML = '<div class="em"><i class="fas fa-exclamation-triangle" style="opacity:.4"></i><div class="em-t">লোড করতে সমস্যা: ' + (e.message||'') + '</div></div>';
     }
 }
 
-function renderYoutubeList(vids) {
+async function seedDefaultVideos() {
+    if (!fbDb) { toast('অফলাইন — seed করা সম্ভব নয়', 'error'); return; }
+    if (!confirm('৮টি ডিফল্ট ভিডিও Firestore-এ সেভ করবেন? এরপর এডিট ও ডিলিট করা যাবে।')) return;
+    try {
+        const batch = fbDb.batch();
+        DEFAULT_YT_VIDEOS.forEach((v, i) => {
+            const ref = fbDb.collection(FS.youtube).doc('default_'+v.id);
+            batch.set(ref, {...v, order: i*100, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+        });
+        await batch.commit();
+        toast('✅ ৮টি ডিফল্ট ভিডিও Firestore-এ সেভ হয়েছে!', 'success');
+        await loadYoutubeVideos();
+    } catch(e) {
+        toast('সমস্যা: ' + e.message, 'error');
+    }
+}
+window.seedDefaultVideos = seedDefaultVideos;
+
+function renderYoutubeList(vids, showSeedBanner=false) {
     const el = document.getElementById('ytVideoList');
     if (!el) return;
+
+    let html = '';
+
+    // Seed banner when Firestore is empty
+    if (showSeedBanner) {
+        html += `<div class="cd" style="margin-bottom:16px;border:2px dashed var(--warning);background:rgba(255,170,0,.07)">
+          <div class="cd-bd" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <div>
+              <div style="font-weight:700;color:var(--warning)">⚠️ Firestore-এ কোনো ভিডিও নেই</div>
+              <div style="font-size:.8rem;color:var(--muted);margin-top:3px">নিচের ডিফল্ট ভিডিওগুলো দেখাচ্ছে। Seed করলে এডিট/ডিলিট করা যাবে।</div>
+            </div>
+            <button class="btn btn-warning btn-sm" onclick="seedDefaultVideos()"><i class="fas fa-upload"></i> ডিফল্ট Seed করুন</button>
+          </div>
+        </div>`;
+    }
+
     if (!vids || !vids.length) {
-        el.innerHTML = '<div class="em"><i class="fab fa-youtube" style="opacity:.3;font-size:2rem"></i><div class="em-t">কোনো ভিডিও নেই — নিচ থেকে যোগ করুন</div></div>';
+        el.innerHTML = html + '<div class="em"><i class="fab fa-youtube" style="opacity:.3;font-size:2rem"></i><div class="em-t">কোনো ভিডিও নেই — নিচ থেকে যোগ করুন</div></div>';
         return;
     }
-    el.innerHTML = vids.map((v, i) => {
-        const ytId = v.vid || (v.chUrl || '').match(/(?:v=|youtu\.be\/)([\w-]{11})/)?.[1] || '';
+
+    html += vids.map((v, i) => {
+        const ytId = v.vid || (v.chUrl||'').match(/(?:v=|youtu\.be\/)([-\w]{11})/)?.[1] || '';
         const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : '';
-        const levelBadge = { beginner:'🟢', intermediate:'🟡', advanced:'🔴' }[v.level] || '⚪';
-        return `<div class="cd" style="margin-bottom:12px;padding:0">
-          <div style="display:flex;gap:12px;align-items:center;padding:14px 16px">
-            <div style="width:100px;height:56px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#111">
-              ${thumb ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover" onerror="this.src=''">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#555"><i class="fab fa-youtube"></i></div>'}
+        const levelBadge = {beginner:'🟢',intermediate:'🟡',advanced:'🔴'}[v.level] || '⚪';
+        const isDefault = v._isDefault;
+        return `<div class="cd" style="margin-bottom:10px;padding:0${isDefault?';opacity:.75':''}">
+          <div style="display:flex;gap:12px;align-items:center;padding:12px 14px">
+            <div style="width:96px;height:54px;border-radius:5px;overflow:hidden;flex-shrink:0;background:#111">
+              ${thumb ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.src=''">` :
+                '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#555"><i class="fab fa-youtube"></i></div>'}
             </div>
             <div style="flex:1;min-width:0">
-              <div style="font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${v.title || 'শিরোনাম নেই'}</div>
-              <div style="font-size:.78rem;color:var(--muted);margin-top:2px">${levelBadge} ${v.level || 'beginner'} · ${v.views || '0'} views</div>
-              <div style="font-size:.75rem;color:var(--muted);margin-top:2px;font-family:monospace">${ytId ? 'youtube.com/watch?v='+ytId : (v.chUrl||'লিংক নেই')}</div>
+              <div style="font-weight:600;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                ${isDefault ? '<span style="font-size:.7rem;background:#ff9800;color:#000;padding:1px 5px;border-radius:3px;margin-right:5px">DEFAULT</span>' : ''}
+                ${v.title||'শিরোনাম নেই'}
+              </div>
+              <div style="font-size:.76rem;color:var(--muted);margin-top:2px">${levelBadge} ${v.level||'beginner'} · ${v.views||'0'} views</div>
+              <div style="font-size:.73rem;color:var(--muted);margin-top:1px;font-family:monospace">${ytId?'youtu.be/'+ytId:(v.chUrl||'লিংক নেই')}</div>
             </div>
-            <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
-              <button class="btn btn-sm btn-ghost" onclick="editYtVideo('${v.id||v._id}')"><i class="fas fa-edit"></i></button>
-              <button class="btn btn-sm btn-ghost" style="color:var(--danger)" onclick="deleteYtVideo('${v.id||v._id}')"><i class="fas fa-trash"></i></button>
-              ${i > 0 ? `<button class="btn btn-sm btn-ghost" onclick="reorderYtVideo('${v.id||v._id}',-1)"><i class="fas fa-arrow-up"></i></button>` : ''}
+            <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+              ${isDefault ? '' : `
+              <button class="btn btn-sm btn-ghost" onclick="editYtVideo('${v.id||v._id}')" title="এডিট"><i class="fas fa-edit"></i></button>
+              <button class="btn btn-sm btn-ghost" style="color:var(--danger)" onclick="deleteYtVideo('${v.id||v._id}')" title="ডিলিট"><i class="fas fa-trash"></i></button>
+              ${i>0?`<button class="btn btn-sm btn-ghost" onclick="reorderYtVideo('${v.id||v._id}',-1)" title="উপরে"><i class="fas fa-arrow-up"></i></button>`:''}
+              `}
+              ${isDefault ? `<button class="btn btn-sm btn-ghost" style="color:var(--warning)" onclick="seedDefaultVideos()" title="Seed করুন"><i class="fas fa-upload"></i></button>` : ''}
             </div>
           </div>
         </div>`;
     }).join('');
+
+    el.innerHTML = html;
 }
 
 function editYtVideo(id) {
@@ -8005,6 +8077,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
 });
+
 
 
 
