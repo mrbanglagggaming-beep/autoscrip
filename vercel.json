@@ -1,24 +1,30 @@
 {
-  "rewrites": [
-    { "source": "/", "destination": "/user.html" },
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/tools", "destination": "/user.html" },
-    { "source": "/scripts", "destination": "/user.html" },
-    { "source": "/community", "destination": "/user.html" },
-    { "source": "/docs", "destination": "/user.html" },
-    { "source": "/settings", "destination": "/user.html" }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false,
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/(.*)\\.html",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), interest-cohort=()" }
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.js",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.css",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/css; charset=utf-8"
+        }
       ]
     }
   ]
