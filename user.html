@@ -2819,6 +2819,7 @@ const YOUTUBE_VIDEOS=[
   {id:'v7',title:'ডিস্ক ও ফাইল ম্যানেজমেন্ট PS দিয়ে',desc:'ফাইল কপি, ডিলিট, ব্যাকআপ সব PowerShell দিয়ে।',channel:'AutoScrip',views:'7.3K',date:'৫ দিন আগে',level:'beginner',vid:'',chUrl:'https://www.youtube.com/@autoscrip'},
   {id:'v8',title:'Active Directory ম্যানেজমেন্ট',desc:'AD ইউজার, গ্রুপ তৈরি ও ম্যানেজমেন্ট।',channel:'AutoScrip',views:'11K',date:'২ সপ্তাহ আগে',level:'advanced',vid:'',chUrl:'https://www.youtube.com/@autoscrip'}
 ];
+let _loadedYTVideos = null; // Stores currently loaded videos (Firestore or default)
 async function loadYouTube(){
   try {
     if(window._fbDb){
@@ -2828,18 +2829,20 @@ async function loadYouTube(){
         .catch(()=>window._fbDb.collection('autoscrip_youtube').get());
       if(!snap.empty){
         const vids=snap.docs.map(d=>({id:d.id,...d.data()}));
+        _loadedYTVideos = vids;
         renderVideos(vids);
         return;
       }
     }
   } catch(e){}
   // Firestore empty or offline — show hardcoded defaults
+  _loadedYTVideos = YOUTUBE_VIDEOS;
   renderVideos(YOUTUBE_VIDEOS);
 }
 window.searchYouTube=()=>{
   const q=document.getElementById('youtubeSearch')?.value?.toLowerCase()||'';
   const lvl=document.getElementById('videoLevel')?.value||'';
-  let vids=YOUTUBE_VIDEOS;
+  let vids=_loadedYTVideos||YOUTUBE_VIDEOS;
   if(q)vids=vids.filter(v=>v.title.toLowerCase().includes(q)||v.desc.toLowerCase().includes(q));
   if(lvl)vids=vids.filter(v=>v.level===lvl);
   renderVideos(vids);if(!vids.length)toast('কোনো ভিডিও নেই','info');
@@ -3419,7 +3422,7 @@ function filterYT(level, btn) {
   document.querySelectorAll('#ytCats .chip').forEach(c => c.classList.remove('active'));
   if (btn) btn.classList.add('active');
   const q = document.getElementById('ytSearch')?.value?.toLowerCase() || '';
-  let vids = YOUTUBE_VIDEOS;
+  let vids = _loadedYTVideos || YOUTUBE_VIDEOS;
   if (level) vids = vids.filter(v => v.level === level);
   if (q) vids = vids.filter(v => v.title.toLowerCase().includes(q) || v.desc.toLowerCase().includes(q));
   renderVideos(vids);
@@ -3427,7 +3430,7 @@ function filterYT(level, btn) {
 function searchYT() {
   const q   = document.getElementById('ytSearch')?.value?.toLowerCase() || '';
   const lvl = document.getElementById('videoLevelReq')?.value || _ytFilter;
-  let vids = YOUTUBE_VIDEOS;
+  let vids = _loadedYTVideos || YOUTUBE_VIDEOS;
   if (q) vids = vids.filter(v => v.title.toLowerCase().includes(q) || v.desc.toLowerCase().includes(q));
   if (lvl) vids = vids.filter(v => v.level === lvl);
   renderVideos(vids);
