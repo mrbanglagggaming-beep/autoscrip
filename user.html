@@ -1518,6 +1518,7 @@ Get-Date | Format-List"></textarea>
 
 
 
+
 // ===== TIMER REGISTRY (prevent leaks) =====
 window.__timers = [];
 const safeTimeout = (fn, ms) => { const id = setTimeout(fn, ms); window.__timers.push(id); return id; };
@@ -1828,8 +1829,7 @@ function renderCard(tool){
       '</div>'+
     '</div>'+
     '<div class="yt-actions">'+
-      '<button class="yt-action-btn" data-act="run" data-id="'+id+'" title="স্ক্রিপ্টে খুলুন"><i class="fas fa-play"></i> রান</button>'+
-      '<button class="yt-action-btn" data-act="copy" data-id="'+id+'" title="কোড কপি"><i class="fas fa-copy"></i> কপি</button>'+
+      '<button class="yt-action-btn" data-act="copy" data-id="'+id+'" title="কোড কপি করুন — তারপর PowerShell-এ পেস্ট করুন"><i class="fas fa-copy"></i> কপি</button>'+
       '<button class="yt-action-btn'+(liked?' liked':'')+'" data-act="like" data-id="'+id+'" title="লাইক"><i class="fas fa-heart"></i> '+likeCount+'</button>'+
       '<button class="yt-action-btn" data-act="share" data-id="'+id+'" title="শেয়ার করুন"><i class="fas fa-share-alt"></i> শেয়ার</button>'+
       '<button class="yt-action-btn'+(bk?' bk-active':'')+'" data-act="bk" data-id="'+id+'" title="বুকমার্ক">'+(bk?'<i class="fas fa-bookmark" style="color:var(--primary)"></i>':'<i class="far fa-bookmark"></i>')+'</button>'+
@@ -1843,7 +1843,6 @@ function renderCard(tool){
       const act=btn.dataset.act,bid=btn.dataset.id;
       if(act==='like')doLike(bid,btn);
       else if(act==='copy')doCopyTool(bid);
-      else if(act==='run')doRunTool(bid);
       else if(act==='bk')doBookmark(bid,btn);
       else if(act==='dl')doDownload(bid);
       else if(act==='share')doShare(bid);
@@ -2552,7 +2551,7 @@ async function applyFirestoreSettings(){
 
     // Run buttons
     if(s.runEnabled === false){
-      document.querySelectorAll('[data-act="run"],[onclick*="doRun"]').forEach(el=>el.style.display='none');
+      // run button removed
     }
 
   } catch(e){ /* silent - offline or no settings doc yet */ }
@@ -2986,7 +2985,7 @@ window.savePost=()=>{
 const DOCS={
   'getting-started':{title:'🚀 দ্রুত শুরু',content:'<h3>AutoScrip এ স্বাগতম!</h3><p>বাংলাদেশের প্রথম PowerShell প্ল্যাটফর্ম।</p><ul style="margin:16px 0 16px 24px"><li>১০০+ PowerShell টুলস ব্রাউজ ও ডাউনলোড</li><li>স্ক্রিপ্ট লিখুন ও AI দিয়ে তৈরি করুন</li><li>বাংলা ভিডিও টিউটোরিয়াল দেখুন</li><li>কমিউনিটিতে প্রশ্ন করুন</li></ul><h4>ডেমো:</h4><pre><code>admin@autoscrip.pro / admin123\nrahim@test.com / user123</code></pre>'},
   syntax:{title:'💻 PowerShell সিনট্যাক্স',content:'<h3>মূল সিনট্যাক্স</h3><h4>ভেরিয়েবল:</h4><pre><code>$name = "বাংলাদেশ"\n$number = 42\n$services = Get-Service</code></pre><h4>কন্ডিশন:</h4><pre><code>if ($value -gt 10) {\n    Write-Host "বেশি"\n} else {\n    Write-Host "কম"\n}</code></pre><h4>লুপ:</h4><pre><code>foreach ($s in Get-Service) {\n    Write-Host $s.Name\n}</code></pre><h4>এরর হ্যান্ডলিং:</h4><pre><code>try {\n    Get-Item "C:\\path" -ErrorAction Stop\n} catch (_e) {\n    Write-Host "Error: $_"\n}</code></pre>'},
-  'tools-guide':{title:'🔧 টুলস গাইড',content:'<h3>টুলস ব্যবহার</h3><h4>খোঁজা:</h4><p>সার্চ বারে কীওয়ার্ড লিখুন, ক্যাটাগরি ফিল্টার করুন।</p><h4>রান:</h4><p>"রান" বাটনে ক্লিক — টুল এডিটরে লোড হয়।</p><h4>কপি:</h4><p>"কপি" বাটন — ক্লিপবোর্ডে।</p><h4>ডাউনলোড:</h4><p>".ps1" — প্রফেশনাল হেডার সহ।</p><h4>শেয়ার:</h4><p>Facebook, Twitter, WhatsApp।</p><h4>টুল রিকোয়েস্ট:</h4><p>নিজের টুল সাবমিট করুন — অ্যাডমিন অ্যাপ্রুভ করবে।</p>'},
+  'tools-guide':{title:'🔧 টুলস গাইড',content:'<h3>টুলস ব্যবহার</h3><h4>খোঁজা:</h4><p>সার্চ বারে কীওয়ার্ড লিখুন, ক্যাটাগরি ফিল্টার করুন।</p><h4>কপি করুন:</h4><p>"কপি" বাটনে ক্লিক — কোড ক্লিপবোর্ডে কপি হবে। তারপর PowerShell-এ পেস্ট করুন।</p><h4>কপি:</h4><p>"কপি" বাটন — ক্লিপবোর্ডে।</p><h4>ডাউনলোড:</h4><p>".ps1" — প্রফেশনাল হেডার সহ।</p><h4>শেয়ার:</h4><p>Facebook, Twitter, WhatsApp।</p><h4>টুল রিকোয়েস্ট:</h4><p>নিজের টুল সাবমিট করুন — অ্যাডমিন অ্যাপ্রুভ করবে।</p>'},
   security:{title:'🔒 সিকিউরিটি গাইড',content:'<h3>সিকিউরিটি ফিচার</h3><h4>ব্লকড কমান্ড:</h4><pre><code>rm -rf, format C:, shutdown\nnet user /add, reg delete\nbcdedit, diskpart\nDisable-WindowsFirewall</code></pre><h4>টিপস:</h4><ul style="margin:0 0 0 24px"><li>পাসওয়ার্ড হার্ডকোড করবেন না</li><li>Execution Policy যাচাই করুন</li><li>নিয়মিত অডিট চালান</li></ul>'},
   cmdlets:{title:'⚡ Cmdlet রেফারেন্স',content:'<h3>পপুলার Cmdlets</h3><h4>সিস্টেম:</h4><ul style="margin:0 0 10px 24px"><li><code>Get-ComputerInfo</code></li><li><code>Get-Process</code></li><li><code>Get-Service</code></li><li><code>Get-EventLog</code></li></ul><h4>ফাইল:</h4><ul style="margin:0 0 10px 24px"><li><code>Get-Item, Copy-Item, Remove-Item</code></li><li><code>Get-ChildItem</code></li></ul><h4>নেটওয়ার্ক:</h4><ul style="margin:0 0 10px 24px"><li><code>Test-Connection</code></li><li><code>Get-NetAdapter</code></li><li><code>Resolve-DnsName</code></li></ul>'},
   examples:{title:'📖 উদাহরণ',content:'<h3>রেডি কোড</h3><h4>আপটাইম:</h4><pre><code>$os = Get-CimInstance Win32_OperatingSystem\n$up = (Get-Date) - $os.LastBootUpTime\nWrite-Host ("আপটাইম: " + [math]::Round($up.TotalHours,1) + "h")</code></pre><h4>ডিস্ক চেক:</h4><pre><code>Get-PSDrive -PSProvider FileSystem | ForEach-Object {\n    if ($_.Used) {\n        $pct = [math]::Round($_.Used/($_.Used+$_.Free)*100)\n        Write-Host ($_.Name + ": " + $pct + "%")\n    }\n}</code></pre>'},
@@ -4100,6 +4099,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
 
 
 
