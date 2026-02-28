@@ -731,13 +731,10 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
       <!-- Left: Value Proposition -->
       <div class="hero-left">
         <div id="announcementBar"></div>
-        <div class="hero-eyebrow">
-          <span class="h-dot"></span>
-          বাংলাদেশের প্রথম PowerShell প্ল্যাটফর্ম
-        </div>
+
         <h1 class="hero-title">AUTOSCRIP</h1>
         <div class="hero-platform">POWERSHELL PLATFORM</div>
-        <p class="hero-desc" id="heroSubEl">AI-চালিত স্ক্রিপ্ট জেনারেটর, অ্যাডমিন-অ্যাপ্রুভড টুলস ও সক্রিয় কমিউনিটি — সম্পূর্ণ বাংলায়।</p>
+        <p class="hero-desc" id="heroSubEl" style="display:none"></p>
         <div class="hero-ctas">
           <button class="btn btn-primary btn-lg" onclick="showPage('tools')"><i class="fas fa-tools"></i> টুলস ব্রাউজ করুন</button>
           <button class="btn btn-outline btn-lg" onclick="showPage('scripts')"><i class="fas fa-code"></i> এডিটর খুলুন</button>
@@ -750,37 +747,9 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
           <a id="footerTelegram" href="https://t.me/autoscrip" target="_blank" rel="noopener" class="hero-social-link" style="background:rgba(0,136,204,.08);border-color:rgba(0,136,204,.3);color:#0088cc"><i class="fab fa-telegram"></i> Telegram</a>
           <a href="https://github.com/autoscrip" target="_blank" rel="noopener" class="hero-social-link" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.15);color:var(--muted)"><i class="fab fa-github"></i> GitHub</a>
         </div>
-        <!-- Stats -->
-        <div class="hero-stat-row">
-          <div class="hero-stat-item"><div class="hero-stat-num" id="hStTools">0</div><div class="hero-stat-lbl">টুলস ও স্ক্রিপ্ট</div></div>
-          <div class="hero-stat-item"><div class="hero-stat-num" id="hStUsers">0</div><div class="hero-stat-lbl">সক্রিয় ইউজার</div></div>
-          <div class="hero-stat-item"><div class="hero-stat-num" id="hStOnline">0</div><div class="hero-stat-lbl">এখন অনলাইন</div></div>
-          <div class="hero-stat-item"><div class="hero-stat-num">১০০%</div><div class="hero-stat-lbl">নিরাপদ স্ক্রিপ্ট</div></div>
-        </div>
+
       </div>
-      <!-- Right: Animated Terminal -->
-      <div class="hero-right">
-        <div class="hero-terminal">
-          <div class="hv-bar">
-            <span class="hv-dot r"></span><span class="hv-dot y"></span><span class="hv-dot g"></span>
-            <span class="hv-title">PowerShell 7.4 — AutoScrip</span>
-          </div>
-          <div class="hv-body">
-            <div class="hv-line delay1"><span class="hv-prompt">PS C:\Users\Admin&gt;</span> <span class="hv-cmd">Get-SystemInfo</span></div>
-            <div class="hv-line delay2"><span class="hv-out">OS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : Windows 11 Pro (23H2)</span></div>
-            <div class="hv-line delay3"><span class="hv-out">CPU&nbsp;&nbsp;&nbsp;&nbsp; : Intel Core i7-13700K</span></div>
-            <div class="hv-line delay4"><span class="hv-out">RAM&nbsp;&nbsp;&nbsp;&nbsp; : 32.0 GB (24.6 GB free)</span></div>
-            <div class="hv-line delay5"><span class="hv-out">Uptime&nbsp; : 2d 14h 32m</span></div>
-            <div class="hv-line delay6"><span class="hv-success">✓ System healthy — AutoScrip v7.1</span></div>
-            <div class="hv-line delay7"><span class="hv-prompt">PS C:\Users\Admin&gt;</span> <span class="hv-cursor">█</span></div>
-          </div>
-          <div class="hv-term-footer">
-            <span class="hv-badge"><i class="fas fa-shield-alt"></i> নিরাপদ</span>
-            <span class="hv-badge"><i class="fas fa-robot"></i> AI পাওয়ারড</span>
-            <span class="hv-badge"><i class="fas fa-globe"></i> বাংলায়</span>
-          </div>
-        </div>
-      </div>
+
     </div>
     <div class="hero-scroll-indicator" onclick="document.querySelector('.features-section').scrollIntoView({behavior:'smooth'})">
       <span>এক্সপ্লোর করুন</span>
@@ -808,11 +777,7 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
           <div class="feat-label">কমিউনিটি</div>
           <div class="feat-desc">প্রশ্ন করুন, উত্তর দিন</div>
         </div>
-        <div class="feat-card" onclick="showPage('docs')">
-          <div class="feat-icon-wrap" style="background:linear-gradient(135deg,#388e3c,#1b5e20)"><i class="fas fa-book" style="color:#a5d6a7"></i></div>
-          <div class="feat-label">ডকুমেন্টেশন</div>
-          <div class="feat-desc">সম্পূর্ণ গাইড ও রেফারেন্স</div>
-        </div>
+
       </div>
     </div>
   </section>
@@ -1522,6 +1487,7 @@ Get-Date | Format-List"></textarea>
 </div>
 
 <script>
+
 
 
 
@@ -4109,6 +4075,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
 
 
 
