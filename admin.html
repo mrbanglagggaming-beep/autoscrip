@@ -4561,6 +4561,7 @@ body.offline-mode { padding-top: 44px !important; }
 
 
 
+
 // ===== GLOBAL ERROR BOUNDARY =====
 window.onerror = function(msg, src, line, col, err) {
   const safeMsg = 'অপ্রত্যাশিত সমস্যা হয়েছে। পেজ রিফ্রেশ করুন।';
@@ -5639,13 +5640,13 @@ async function loadYoutubeVideos() {
                 _ytVideos = result.videos;
                 renderYoutubeList(_ytVideos);
             } else {
-                // Firestore empty — show defaults + seed button
-                _ytVideos = DEFAULT_YT_VIDEOS.map((v,i) => ({...v, _isDefault:true, order:i*100}));
-                renderYoutubeList(_ytVideos, true); // true = showSeedBanner
+                // Firestore empty — show seed option
+                _ytVideos = [];
+                renderYoutubeList([], true); // showSeedBanner=true, no default videos
             }
         } else {
-            _ytVideos = DEFAULT_YT_VIDEOS.map((v,i) => ({...v, _isDefault:true, order:i*100}));
-            renderYoutubeList(_ytVideos, true);
+            _ytVideos = [];
+            renderYoutubeList([], true);
         }
     } catch(e) {
         if(el) el.innerHTML = '<div class="em"><i class="fas fa-exclamation-triangle" style="opacity:.4"></i><div class="em-t">লোড করতে সমস্যা: ' + (e.message||'') + '</div></div>';
@@ -5653,19 +5654,39 @@ async function loadYoutubeVideos() {
 }
 
 async function seedDefaultVideos() {
-    if (!fbDb) { toast('অফলাইন — seed করা সম্ভব নয়', 'error'); return; }
-    if (!confirm('৮টি ডিফল্ট ভিডিও Firestore-এ সেভ করবেন? এরপর এডিট ও ডিলিট করা যাবে।')) return;
-    try {
-        const batch = fbDb.batch();
-        DEFAULT_YT_VIDEOS.forEach((v, i) => {
-            const ref = fbDb.collection(FS.youtube).doc('default_'+v.id);
-            batch.set(ref, {...v, order: i*100, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
-        });
-        await batch.commit();
-        toast('✅ ৮টি ডিফল্ট ভিডিও Firestore-এ সেভ হয়েছে!', 'success');
-        await loadYoutubeVideos();
-    } catch(e) {
-        toast('সমস্যা: ' + e.message, 'error');
+    if (!fbDb) { toast('Firebase সংযুক্ত নয়!', 'error'); return; }
+    if (!confirm(DEFAULT_YT_VIDEOS.length + 'টি ডিফল্ট ভিডিও Firestore-এ সেভ করবেন?')) return;
+    
+    toast('সেভ হচ্ছে...', 'info');
+    let saved = 0, failed = 0;
+    
+    for (const v of DEFAULT_YT_VIDEOS) {
+        try {
+            const data = {
+                title:   v.title,
+                desc:    v.desc || '',
+                vid:     v.vid || '',
+                chUrl:   v.chUrl || '',
+                level:   v.level || 'beginner',
+                views:   v.views || '0',
+                date:    v.date || '',
+                channel: v.channel || 'AutoScrip',
+                order:   saved * 100,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            await fbDb.collection(FS.youtube).add(data);
+            saved++;
+        } catch(e) {
+            console.error('[Seed] Failed:', v.title, e.message);
+            failed++;
+        }
+    }
+    
+    if (saved > 0) {
+        toast('✅ ' + saved + 'টি ভিডিও সেভ হয়েছে!' + (failed>0?' ('+failed+'টি ব্যর্থ)':''), 'success');
+        await loadYoutubeVideos(); // Reload from Firestore
+    } else {
+        toast('❌ কোনো ভিডিও সেভ হয়নি। Firestore Rules চেক করুন।', 'error');
     }
 }
 window.seedDefaultVideos = seedDefaultVideos;
@@ -5811,7 +5832,7 @@ async function saveYtVideo() {
     const date   = document.getElementById('ytVidDate')?.value.trim();
 
     if (!title) { toast('শিরোনাম লিখুন!', 'error'); return; }
-    if (!vid && !chUrl) { toast('YouTube Video ID বা চ্যানেল URL দিন!', 'error'); return; }
+    if (!vid && !chUrl) { toast('YouTube Video ID (যেমন: dQw4w9WgXcQ) অথবা চ্যানেল URL দিন!', 'error'); return; }
 
     const data = { title, desc, vid, chUrl, level, views, date, channel: 'AutoScrip', id: _editYtId || null };
 
@@ -5823,11 +5844,13 @@ async function saveYtVideo() {
             result = await API.post('/youtube', data);
         }
         if (result.success) {
-            toast(_editYtId ? '✅ ভিডিও আপডেট হয়েছে!' : '✅ ভিডিও যোগ হয়েছে!', 'success');
+            const msg = _editYtId ? '✅ ভিডিও আপডেট হয়েছে!' : '✅ ভিডিও যোগ হয়েছে!';
+            toast(msg, 'success');
             resetYtForm();
+            // Reload from Firestore to get fresh data
             await loadYoutubeVideos();
         } else {
-            toast(result.error || 'সমস্যা হয়েছে', 'error');
+            toast('সমস্যা: ' + (result.error || 'অজানা এরর'), 'error');
         }
     } catch(e) {
         toast('এরর: ' + e.message, 'error');
@@ -5835,12 +5858,22 @@ async function saveYtVideo() {
 }
 
 async function deleteYtVideo(id) {
-    if (!confirm('এই ভিডিও মুছবেন?')) return;
+    const v = (_ytVideos||[]).find(x => (x.id||x._id) === id);
+    const title = v?.title || 'এই ভিডিও';
+    if (!confirm('মুছবেন? "' + title + '"')) return;
     try {
+        toast('মুছা হচ্ছে...', 'info');
         const result = await API.delete('/youtube/' + id);
         if (result.success) {
-            toast('🗑️ ভিডিও মুছে গেছে!', 'success');
-            await loadYoutubeVideos();
+            // Remove from local array immediately
+            _ytVideos = (_ytVideos||[]).filter(x => (x.id||x._id) !== id);
+            renderYoutubeList(_ytVideos, _ytVideos.length === 0);
+            toast('🗑️ "' + title + '" মুছে গেছে!', 'success');
+            // Update count
+            const countEl = document.getElementById('ytVidCount');
+            if (countEl) countEl.textContent = _ytVideos.length + 'টি ভিডিও';
+        } else {
+            toast('মুছতে সমস্যা: ' + (result.error||'অজানা'), 'error');
         }
     } catch(e) {
         toast('মুছতে সমস্যা: ' + e.message, 'error');
@@ -8748,6 +8781,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
 });
+
 
 
 
