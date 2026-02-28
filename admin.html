@@ -4562,15 +4562,28 @@ body.offline-mode { padding-top: 44px !important; }
 
 
 
+
 // ===== GLOBAL ERROR BOUNDARY =====
 window.onerror = function(msg, src, line, col, err) {
+  // Suppress Firestore / network errors from global handler
+  const msgStr = String(msg || '');
+  const SILENT = ['permission-denied','Missing or insufficient','offline','network','Failed to get','ResizeObserver'];
+  if (SILENT.some(s => msgStr.includes(s))) return true;
   const safeMsg = 'অপ্রত্যাশিত সমস্যা হয়েছে। পেজ রিফ্রেশ করুন।';
   try { toast(safeMsg, 'error'); } catch(e) {}
-  return true; // prevent default browser error
+  return true;
 };
 window.addEventListener('unhandledrejection', (e) => {
   e.preventDefault();
-  try { toast('নেটওয়ার্ক সমস্যা। পুনরায় চেষ্টা করুন।', 'warning'); } catch(e2) {}
+  // Suppress Firestore permission/network errors from showing as toasts
+  const msg = e?.reason?.message || e?.reason || '';
+  const code = e?.reason?.code || '';
+  const SILENT = ['permission-denied','unavailable','cancelled','already-exists'];
+  const SILENT_MSG = ['Missing or insufficient','offline','network','Failed to get'];
+  const isSilent = SILENT.includes(code) || SILENT_MSG.some(s => String(msg).includes(s));
+  if (!isSilent) {
+    try { toast('নেটওয়ার্ক সমস্যা। পুনরায় চেষ্টা করুন।', 'warning'); } catch(e2) {}
+  }
 });
 
 
@@ -5016,9 +5029,9 @@ const API = {
 
             // ── TOOLS ──────────────────────────────────────────────
             if (ep === 'tools' && method === 'GET') {
-                const snap = await this._col(FS.tools).orderBy('createdAt','desc').get().catch(() =>
-                    this._col(FS.tools).get()
-                );
+                const snap = await this._col(FS.tools).orderBy('createdAt','desc').get()
+                    .catch(() => this._col(FS.tools).get())
+                    .catch(() => ({ docs: [], size: 0 }));
                 const tools = this._docs(snap);
                 allTools = tools;
                 let views=0, downloads=0, likes=0;
@@ -5101,9 +5114,9 @@ const API = {
 
             // ── USERS ─────────────────────────────────────────────
             if (ep === 'users' && method === 'GET') {
-                const snap = await this._col(FS.users).orderBy('createdAt','desc').get().catch(() =>
-                    this._col(FS.users).get()
-                );
+                const snap = await this._col(FS.users).orderBy('createdAt','desc').get()
+                    .catch(() => this._col(FS.users).get())
+                    .catch(() => ({ docs: [], size: 0 }));
                 const users = this._docs(snap);
                 allUsers = users;
                 return { success:true, users, total:users.length };
@@ -5187,10 +5200,11 @@ const API = {
 
             // ── DASHBOARD STATS ────────────────────────────────────
             if (ep === 'dashboard/stats' && method === 'GET') {
+                const EMPTY_SNAP = { docs: [], size: 0, forEach: ()=>{} };
                 const [toolsSnap, usersSnap, reqSnap] = await Promise.all([
-                    this._col(FS.tools).get(),
-                    this._col(FS.users).get(),
-                    this._col(FS.requests).where('status','==','pending').get().catch(()=>({size:0}))
+                    this._col(FS.tools).get().catch(() => EMPTY_SNAP),
+                    this._col(FS.users).get().catch(() => EMPTY_SNAP),
+                    this._col(FS.requests).where('status','==','pending').get().catch(()=> EMPTY_SNAP)
                 ]);
                 const tools = this._docs(toolsSnap);
                 allTools = tools;
@@ -5258,7 +5272,8 @@ const API = {
             // YouTube video management routes
             if (ep === 'youtube' && method === 'GET') {
                 const snap = await this._col(FS.youtube).orderBy('order', 'asc').get()
-                    .catch(() => this._col(FS.youtube).get());
+                    .catch(() => this._col(FS.youtube).get())
+                    .catch(() => ({ docs: [], size: 0 }));
                 return { success:true, videos: this._docs(snap) };
             }
             if (ep === 'youtube' && method === 'POST') {
@@ -5387,12 +5402,18 @@ const API = {
             return { success:false, error:'Endpoint not implemented in Firebase mode: ' + endpoint };
 
         } catch(err) {
-            // Suppress expected non-critical errors from console
-            const _silentEps   = ['admins', 'settings'];
-            const _silentCodes = ['permission-denied', 'unavailable'];
-            const _isSilent = _silentEps.some(e => endpoint.includes(e)) || _silentCodes.includes(err.code);
+            const _silentEps   = ['admins', 'settings', 'users', 'requests', 'subscribers', 'analytics', 'activity', 'heatmap'];
+            const _silentCodes = ['permission-denied', 'unavailable', 'cancelled'];
+            const _silentMsg   = ['Missing or insufficient', 'offline', 'Failed to get'];
+            const _isSilent = _silentEps.some(e => endpoint.includes(e))
+                || _silentCodes.includes(err.code)
+                || _silentMsg.some(m => (err.message||'').includes(m));
             if (!_isSilent) console.warn('[Firebase]', endpoint, err.message);
-            return { success:false, error: err.message || 'Firebase error' };
+            // Return friendly error for permission issues
+            const friendlyErr = _silentCodes.includes(err.code)
+                ? 'অ্যাক্সেস সীমিত — Firestore Rules চেক করুন'
+                : (err.message || 'Firebase error');
+            return { success:false, error: friendlyErr, _code: err.code };
         }
     },
 
@@ -8781,6 +8802,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
 });
+
 
 
 
