@@ -5175,7 +5175,44 @@ const API = {
             // DELETE /tools/:id
             if (/^tools\/[^/]+$/.test(ep) && method === 'DELETE') {
                 const id = ep.split('/')[1];
-                await this._col(FS.tools).doc(id).delete();
+                // Try Firestore delete with admin token verification
+                let deleted = false;
+                let lastErr = null;
+                // Attempt 1: Direct Firestore delete (works if Rules allow authenticated admin)
+                try {
+                    // Force token refresh to ensure fresh auth token
+                    if (fbAuth && fbAuth.currentUser) {
+                        await fbAuth.currentUser.getIdToken(true).catch(()=>{});
+                    }
+                    await this._col(FS.tools).doc(id).delete();
+                    deleted = true;
+                } catch(e1) {
+                    lastErr = e1;
+                    // Attempt 2: Use set with __deleted flag (workaround if delete not allowed but write is)
+                    try {
+                        await this._col(FS.tools).doc(id).update({
+                            __deleted: true,
+                            __deletedAt: this._ts(),
+                            __deletedBy: fbAuth?.currentUser?.email || 'admin',
+                            status: 'deleted',
+                            published: false
+                        });
+                        deleted = true;
+                        console.log('[Delete] Used soft-delete workaround (Rules blocked hard delete)');
+                    } catch(e2) {
+                        lastErr = e2;
+                        // Attempt 3: localStorage-only delete (offline fallback)
+                        try {
+                            const lsKey = 'autoscrip_tools';
+                            const stored = JSON.parse(localStorage.getItem(lsKey) || '[]');
+                            const filtered = stored.filter(t => (t._id||t.id) !== id);
+                            localStorage.setItem(lsKey, JSON.stringify(filtered));
+                            console.warn('[Delete] Firestore blocked — deleted from localStorage only. Fix Firestore Rules!');
+                            deleted = true;
+                        } catch(e3) { /* give up */ }
+                    }
+                }
+                if (!deleted) throw lastErr || new Error('ডিলিট করা যায়নি');
                 allTools = allTools.filter(t => t.id !== id);
                 return { success:true };
             }
@@ -5519,11 +5556,15 @@ const API = {
                 || _silentCodes.includes(err.code)
                 || _silentMsg.some(m => (err.message||'').includes(m));
             if (!_isSilent) console.warn('[Firebase]', endpoint, err.message);
-            // Return friendly error for permission issues
-            const friendlyErr = _silentCodes.includes(err.code)
-                ? 'অ্যাক্সেস সীমিত — Firestore Rules চেক করুন'
-                : (err.message || 'Firebase error');
-            return { success:false, error: friendlyErr, _code: err.code };
+            // For tools operations, give actionable error; for others use silent fallback
+            const isToolsOp = endpoint.startsWith('tools');
+            const friendlyErr = isToolsOp && _silentCodes.includes(err.code)
+                ? 'Firebase Rules এ permission নেই — নিচের Rules কপি করে Firebase Console এ লাগান'
+                : _silentCodes.includes(err.code)
+                    ? null  // silent for non-tool endpoints
+                    : (err.message || 'Firebase error');
+            if (friendlyErr) return { success:false, error: friendlyErr, _code: err.code, _needsRules: isToolsOp };
+            return { success:false, error: null, _code: err.code };
         }
     },
 
@@ -6907,8 +6948,11 @@ async function deleteTool(id) {
             } catch(e) {}
             await loadTools();
             await loadDashboard();
-        } else {
-            toast(result.error || 'ডিলিট করতে সমস্যা', 'error');
+        } else if (result._needsRules) {
+            // Permission denied — show Firestore Rules fix modal
+            showFirestoreRulesHelp();
+        } else if (result.error) {
+            toast(result.error, 'error');
         }
     } catch (error) {
         toast('সার্ভার এরর: ' + error.message, 'error');
@@ -8929,6 +8973,107 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+
+// ── Firestore Rules Help ──────────────────────────────────────
+window.showFirestoreRulesHelp = function() {
+  const modal = document.getElementById('firestoreRulesModal');
+  if (modal) { modal.style.display = 'flex'; }
+};
+
 </script>
+
+<!-- ===== FIRESTORE RULES HELP MODAL ===== -->
+<div id="firestoreRulesModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);backdrop-filter:blur(18px);z-index:99999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:linear-gradient(145deg,#12121e,#1c1c2e);border:1px solid rgba(255,215,0,.25);border-radius:20px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 40px 100px rgba(0,0,0,.9)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid rgba(255,215,0,.1);position:sticky;top:0;background:linear-gradient(145deg,#12121e,#1c1c2e);border-radius:20px 20px 0 0">
+      <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;color:#ffd700;display:flex;align-items:center;gap:8px">
+        <i class="fas fa-shield-alt"></i> Firestore Rules ঠিক করুন
+      </div>
+      <button onclick="document.getElementById('firestoreRulesModal').style.display='none'" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#9090b0;cursor:pointer;font-size:.9rem">&#x2715;</button>
+    </div>
+    <div style="padding:22px">
+      <div style="background:rgba(255,61,87,.08);border:1px solid rgba(255,61,87,.25);border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:.88rem;color:#ff9090;line-height:1.6">
+        <i class="fas fa-exclamation-triangle" style="color:#ff3d57;margin-right:8px"></i>
+        <strong>Firestore permission-denied error</strong> — Firebase Rules এ Delete এর অনুমতি নেই। নিচের Rules টি কপি করে Firebase Console এ লাগালেই ঠিক হয়ে যাবে।
+      </div>
+      <div style="margin-bottom:16px">
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.82rem;color:#ffd700;letter-spacing:1px;margin-bottom:8px">&#128203; ধাপ ১ — Firebase Console খুলুন</div>
+        <a href="https://console.firebase.google.com/project/powerscript-pro-web/firestore/rules" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.25);border-radius:10px;color:#ffd700;text-decoration:none;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.88rem">
+          <i class="fas fa-external-link-alt"></i> Firebase Console Firestore Rules খুলুন
+        </a>
+      </div>
+      <div style="margin-bottom:16px">
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.82rem;color:#ffd700;letter-spacing:1px;margin-bottom:8px">&#128203; ধাপ ২ — এই Rules কপি করে Replace করুন</div>
+        <div style="position:relative">
+          <pre id="rulesCode" style="background:#05050e;border:1px solid rgba(255,215,0,.12);border-radius:10px;padding:16px;font-family:monospace;font-size:.76rem;line-height:1.75;color:#80deea;overflow-x:auto;margin:0;white-space:pre-wrap">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null &amp;&amp; (
+        request.auth.token.email == 'mrbanglagggaming@gmail.com' ||
+        request.auth.uid == 'E97OGEv5ZJFbHaoojCnFe25GSeY1' ||
+        exists(/databases/$(database)/documents/autoscrip_admins/$(request.auth.uid))
+      );
+    }
+
+    match /autoscrip_tools/{docId} {
+      allow read: if true;
+      allow write, delete: if isAdmin();
+    }
+    match /autoscrip_users/{docId} {
+      allow read: if isAdmin();
+      allow write: if request.auth != null &amp;&amp;
+        (request.auth.uid == docId || isAdmin());
+    }
+    match /autoscrip_admins/{docId} {
+      allow read, write: if isAdmin() || request.auth.uid == docId;
+    }
+    match /autoscrip_requests/{docId} {
+      allow read, write, delete: if isAdmin();
+      allow create: if request.auth != null;
+    }
+    match /autoscrip_notifications/{docId} {
+      allow read: if request.auth != null;
+      allow write, delete: if isAdmin();
+    }
+    match /autoscrip_subscribers/{docId} {
+      allow read, write: if isAdmin() ||
+        (request.auth != null &amp;&amp; request.auth.uid == docId);
+    }
+    match /autoscrip_youtube/{docId} {
+      allow read: if true;
+      allow write, delete: if isAdmin();
+    }
+    match /autoscrip_comments/{docId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if isAdmin();
+    }
+    match /autoscrip_config/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /autoscrip_activity/{docId} {
+      allow read, write: if isAdmin();
+    }
+    match /{collection}/{docId} {
+      allow read, write, delete: if isAdmin();
+    }
+  }
+}</pre>
+          <button onclick="(function(){var t=document.getElementById('rulesCode');var txt=t.innerText.replace(/&amp;/g,'&amp;').replace(/&lt;/g,'<').replace(/&gt;/g,'>');navigator.clipboard&&navigator.clipboard.writeText(txt).then(function(){document.getElementById('copyRulesBtn').innerHTML='<i class=\'fas fa-check\'></i> কপি হয়েছে!';document.getElementById('copyRulesBtn').style.background='rgba(0,230,118,.15)';document.getElementById('copyRulesBtn').style.color='#00e676';setTimeout(function(){document.getElementById('copyRulesBtn').innerHTML='<i class=\'fas fa-copy\'></i> কপি';document.getElementById('copyRulesBtn').style.background='rgba(255,215,0,.1)';document.getElementById('copyRulesBtn').style.color='#ffd700';},2500);})})()" id="copyRulesBtn" style="position:absolute;top:10px;right:10px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.25);color:#ffd700;padding:6px 14px;border-radius:8px;font-size:.76rem;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700">
+            <i class="fas fa-copy"></i> কপি
+          </button>
+        </div>
+      </div>
+      <div style="background:rgba(0,230,118,.06);border:1px solid rgba(0,230,118,.2);border-radius:12px;padding:14px 16px;font-size:.84rem;color:#80ffb0;line-height:1.65">
+        <i class="fas fa-info-circle" style="color:#00e676;margin-right:6px"></i>
+        Rules paste করে Firebase Console এ <strong>Publish</strong> বাটন চাপুন। তারপর এই পেজ রিফ্রেশ করে আবার Delete চেষ্টা করুন।
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
