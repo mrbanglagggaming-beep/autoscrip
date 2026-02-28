@@ -26,19 +26,33 @@
     var files = ['firebase-app-compat.js','firebase-auth-compat.js','firebase-firestore-compat.js'];
     var cdnIdx = 0, fileIdx = 0;
     function next() {
-      if (fileIdx >= files.length) return;
+      if (fileIdx >= files.length) {
+        // All scripts loaded — now safe to init Firebase
+        console.log('[Firebase] All SDK scripts loaded, initializing...');
+        if (typeof initFirebase === 'function') {
+          initFirebase();
+        } else {
+          // initFirebase defined later in the page — wait for it
+          document.addEventListener('DOMContentLoaded', function() {
+            if (typeof initFirebase === 'function') initFirebase();
+          });
+        }
+        return;
+      }
       var s = document.createElement('script');
       s.src = CDNs[cdnIdx] + files[fileIdx];
       s.onload = function() { fileIdx++; next(); };
       s.onerror = function() {
         if (cdnIdx < CDNs.length - 1) {
-          cdnIdx++; fileIdx = 0;
-          console.warn('[Firebase] Primary CDN failed, trying jsdelivr...');
+          // Switch CDN, keep fileIdx so we retry only the failed file
+          cdnIdx++;
+          console.warn('[Firebase] Primary CDN failed for ' + files[fileIdx] + ', trying jsdelivr...');
+          next();
         } else {
-          console.error('[Firebase] All CDNs failed:', files[fileIdx]);
-          fileIdx++;
+          console.error('[Firebase] All CDNs failed for:', files[fileIdx]);
+          fileIdx++; // skip and try next file
+          next();
         }
-        next();
       };
       document.head.appendChild(s);
     }
@@ -4877,7 +4891,7 @@ let fbApp, fbAuth, fbDb;
     const maxWait = 10000;
     const start = Date.now();
     function tryInit() {
-        if (typeof firebase !== 'undefined') {
+        if (typeof firebase !== 'undefined' && typeof firebase.auth === 'function' && typeof firebase.firestore === 'function') {
             try {
                 // Prevent duplicate app
                 if (!firebase.apps.length) {
@@ -9011,7 +9025,7 @@ service cloud.firestore {
 
     function isAdmin() {
       return request.auth != null &amp;&amp; (
-        request.auth.token.email == 'mrbanglagggaming@gmail.com' ||
+        request.auth.token.email == '<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e9849b8b88878e85888e8e8e888480878ea98e84888085c78a8684">[email&#160;protected]</a>' ||
         request.auth.uid == 'E97OGEv5ZJFbHaoojCnFe25GSeY1' ||
         exists(/databases/$(database)/documents/autoscrip_admins/$(request.auth.uid))
       );
@@ -9069,11 +9083,4 @@ service cloud.firestore {
       </div>
       <div style="background:rgba(0,230,118,.06);border:1px solid rgba(0,230,118,.2);border-radius:12px;padding:14px 16px;font-size:.84rem;color:#80ffb0;line-height:1.65">
         <i class="fas fa-info-circle" style="color:#00e676;margin-right:6px"></i>
-        Rules paste করে Firebase Console এ <strong>Publish</strong> বাটন চাপুন। তারপর এই পেজ রিফ্রেশ করে আবার Delete চেষ্টা করুন।
-      </div>
-    </div>
-  </div>
-</div>
-
-</body>
-</html>
+        Rules paste করে Firebase Console এ <strong>Publish</strong> বাটন চাপুন। তারপর এই পেজ রিফ্
