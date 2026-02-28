@@ -3182,7 +3182,16 @@ body.offline-mode { padding-top: 44px !important; }
 #aria-live { position: absolute; left: -9999px; }
 
   
-  </style>
+  
+/* ─── YouTube Admin Panel ─── */
+.yt-admin-grid { display:grid; grid-template-columns: 1fr 420px; gap:20px; align-items:start; }
+@media(max-width:1100px){ .yt-admin-grid{ grid-template-columns:1fr; } }
+.yt-list-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.yt-list-title { font-family:var(--font-heading); font-weight:700; font-size:1rem; color:var(--text); }
+.yt-list-count { font-size:.75rem; color:var(--muted); background:var(--bg2); padding:3px 10px; border-radius:100px; }
+.yt-form-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:20px; position:sticky; top:80px; }
+.yt-form-title { font-family:var(--font-heading); font-weight:700; font-size:.95rem; color:var(--primary); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+</style>
 </head>
 <body>
 <div id="adminBgGlow" aria-hidden="true"></div>
@@ -4291,17 +4300,19 @@ body.offline-mode { padding-top: 44px !important; }
         </div>
         <button class="btn btn-primary btn-sm" onclick="loadYoutubeVideos()"><i class="fas fa-sync"></i> রিফ্রেশ</button>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <div class="yt-admin-grid">
         <!-- Video List -->
         <div>
-          <div class="cd-hd" style="margin-bottom:12px"><div class="cd-tt">📋 ভিডিও তালিকা</div></div>
+          <div class="yt-list-header">
+            <div class="yt-list-title">📋 ভিডিও তালিকা <span class="yt-list-count" id="ytVidCount">লোড হচ্ছে...</span></div>
+            <button class="btn btn-sm" style="background:rgba(255,215,0,.1);color:var(--primary);border:1px solid rgba(255,215,0,.2)" onclick="loadYoutubeVideos()"><i class="fas fa-sync-alt"></i> রিফ্রেশ</button>
+          </div>
           <div id="ytVideoList"><div class="em"><i class="fas fa-spinner fa-spin"></i><div class="em-t">লোড হচ্ছে...</div></div></div>
         </div>
         <!-- Add/Edit Form -->
         <div>
-          <div class="cd yt-form-col" id="ytVideoForm">
-            <div class="cd-hd"><div class="cd-tt" id="ytFormTitle">নতুন ভিডিও যোগ করুন</div></div>
-            <div class="cd-bd">
+          <div class="yt-form-card" id="ytVideoForm">
+            <div class="yt-form-title"><i class="fab fa-youtube" style="color:#ff4444"></i> <span id="ytFormTitle">নতুন ভিডিও যোগ করুন</span></div>
               <div class="fg"><label class="fl">শিরোনাম *</label><input type="text" class="fc" id="ytVidTitle" placeholder="PowerShell পরিচিতি..."></div>
               <div class="fg"><label class="fl">বিবরণ</label><textarea class="fc" id="ytVidDesc" rows="2" placeholder="ভিডিওর সংক্ষিপ্ত বিবরণ..."></textarea></div>
               <div class="fg">
@@ -4470,6 +4481,7 @@ body.offline-mode { padding-top: 44px !important; }
 <!-- Toast Container -->
 <div class="tc" id="toastC"></div>
 <script>
+
 
 
 
@@ -5569,60 +5581,74 @@ function renderYoutubeList(vids, showSeedBanner=false) {
 
     let html = '';
 
-    // Seed banner when Firestore is empty
+    // Seed banner
     if (showSeedBanner) {
-        html += `<div class="cd" style="margin-bottom:16px;border:2px dashed var(--warning);background:rgba(255,170,0,.07)">
-          <div class="cd-bd" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 16px">
+        html += `<div class="cd" style="margin-bottom:16px;border:2px dashed var(--warning);background:rgba(255,170,0,.06);border-radius:10px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 16px">
             <div>
-              <div style="font-weight:700;color:var(--warning)">⚠️ Firestore-এ কোনো ভিডিও নেই</div>
-              <div style="font-size:.8rem;color:var(--muted);margin-top:3px">নিচের ডিফল্ট ভিডিওগুলো দেখাচ্ছে। Seed করলে Firestore-এ সেভ হবে — তারপর এডিট/ডিলিট করা যাবে।</div>
+              <div style="font-weight:700;color:var(--warning);font-size:.9rem">⚠️ Firestore-এ কোনো ভিডিও নেই</div>
+              <div style="font-size:.78rem;color:var(--muted);margin-top:3px">ডিফল্ট ভিডিওগুলো দেখাচ্ছে। <strong>Seed</strong> করলে এডিট/ডিলিট করা যাবে।</div>
             </div>
-            <button class="btn btn-warning btn-sm" onclick="seedDefaultVideos()"><i class="fas fa-upload"></i> সব Seed করুন</button>
+            <button class="btn btn-warning btn-sm" onclick="seedDefaultVideos()"><i class="fas fa-cloud-upload-alt"></i> সব Firestore-এ সেভ করুন</button>
           </div>
         </div>`;
     }
 
     if (!vids || !vids.length) {
-        el.innerHTML = html + '<div class="em"><i class="fab fa-youtube" style="opacity:.3;font-size:2rem"></i><div class="em-t">কোনো ভিডিও নেই — নিচ থেকে যোগ করুন</div></div>';
+        el.innerHTML = html + '<div class="em" style="padding:40px 0"><i class="fab fa-youtube" style="opacity:.25;font-size:3rem;color:red"></i><div class="em-t" style="margin-top:12px">কোনো ভিডিও নেই — নিচের ফর্ম থেকে যোগ করুন</div></div>';
         return;
     }
 
-    html += vids.map((v, i) => {
-        const ytId = v.vid || (v.chUrl||'').match(/(?:v=|youtu\.be\/)([-\w]{11})/)?.[1] || '';
-        const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : '';
-        const levelBadge = {beginner:'🟢',intermediate:'🟡',advanced:'🔴'}[v.level] || '⚪';
-        const isDefault = v._isDefault;
-        const vidId = v.id || v._id || '';
+    const lvlColor = {beginner:'#4caf50',intermediate:'#ff9800',advanced:'#f44336'};
+    const lvlName  = {beginner:'বিগিনার',intermediate:'ইন্টারমিডিয়েট',advanced:'অ্যাডভান্সড'};
 
-        return `<div class="cd" style="margin-bottom:10px;padding:0">
-          <div style="display:flex;gap:12px;align-items:center;padding:12px 14px">
-            <div style="width:96px;height:54px;border-radius:5px;overflow:hidden;flex-shrink:0;background:#111">
+    html += `<div style="display:grid;grid-template-columns:1fr;gap:10px">`;
+    html += vids.map((v, i) => {
+        const ytId    = v.vid || (v.chUrl||'').match(/(?:v=|youtu\.be\/)([-\w]{11})/)?.[1] || '';
+        const thumb   = ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : '';
+        const isDefault = !!v._isDefault;
+        const vidId   = v.id || v._id || '';
+        const lvlCol  = lvlColor[v.level] || '#888';
+        const lvlLbl  = lvlName[v.level]  || v.level || '';
+
+        return `<div style="display:flex;gap:12px;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;transition:.2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+            <!-- Thumb -->
+            <div style="width:100px;height:58px;border-radius:7px;overflow:hidden;flex-shrink:0;background:#111;display:flex;align-items:center;justify-content:center">
               ${thumb
-                ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.src=''">`
-                : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#555"><i class="fab fa-youtube"></i></div>'}
+                ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.parentNode.innerHTML='<i class=\'fab fa-youtube\' style=\'font-size:1.5rem;color:#ff4444;opacity:.5\'></i>'">`
+                : '<i class="fab fa-youtube" style="font-size:1.5rem;color:#ff4444;opacity:.5"></i>'}
             </div>
+            <!-- Info -->
             <div style="flex:1;min-width:0">
-              <div style="font-weight:600;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                ${isDefault ? '<span style="font-size:.68rem;background:#ff9800;color:#000;padding:1px 6px;border-radius:3px;margin-right:5px;font-weight:700">DEFAULT</span>' : ''}
-                ${v.title||'শিরোনাম নেই'}
+              <div style="font-weight:600;font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px">
+                ${isDefault ? '<span style="font-size:.65rem;background:#ff9800;color:#000;padding:1px 6px;border-radius:3px;margin-right:5px;font-weight:700">DEFAULT</span>' : ''}
+                ${v.title || 'শিরোনাম নেই'}
               </div>
-              <div style="font-size:.76rem;color:var(--muted);margin-top:3px">${levelBadge} ${v.level||'beginner'} · ${v.views||'0'} views</div>
-              <div style="font-size:.73rem;color:var(--muted);margin-top:1px;font-family:monospace">${ytId?'youtu.be/'+ytId:(v.chUrl||'লিংক নেই')}</div>
+              <div style="font-size:.72rem;color:var(--muted);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <span style="display:inline-flex;align-items:center;gap:3px;background:${lvlCol}22;color:${lvlCol};padding:1px 7px;border-radius:100px;font-weight:600;font-size:.68rem">${lvlLbl}</span>
+                <span><i class="fas fa-eye" style="opacity:.5"></i> ${v.views || '0'}</span>
+                <span><i class="fas fa-clock" style="opacity:.5"></i> ${v.date || ''}</span>
+                ${ytId ? `<span style="font-family:monospace;font-size:.67rem;opacity:.5">ID: ${ytId}</span>` : ''}
+              </div>
             </div>
-            <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+            <!-- Actions -->
+            <div style="display:flex;gap:6px;flex-shrink:0">
               ${isDefault
-                ? `<button class="btn btn-sm btn-ghost" style="color:var(--primary)" onclick="editDefaultVideo('${vidId}',${i})" title="এডিট/Seed করুন"><i class="fas fa-edit"></i></button>
-                   <button class="btn btn-sm btn-ghost" style="color:var(--danger)" onclick="deleteDefaultVideo(${i})" title="ডিফল্ট থেকে সরান"><i class="fas fa-trash"></i></button>`
-                : `<button class="btn btn-sm btn-ghost" onclick="editYtVideo('${vidId}')" title="এডিট"><i class="fas fa-edit"></i></button>
-                   <button class="btn btn-sm btn-ghost" style="color:var(--danger)" onclick="deleteYtVideo('${vidId}')" title="ডিলিট"><i class="fas fa-trash"></i></button>
-                   ${i>0?`<button class="btn btn-sm btn-ghost" onclick="reorderYtVideo('${vidId}',-1)" title="উপরে"><i class="fas fa-arrow-up"></i></button>`:''}`
+                ? `<button class="btn btn-sm" style="background:var(--primary-dark);color:#000;font-size:.72rem;padding:5px 10px" onclick="editDefaultVideo('${vidId}',${i})" title="এডিট ও Seed করুন"><i class="fas fa-edit"></i></button>
+                   <button class="btn btn-sm" style="background:rgba(244,67,54,.15);color:#f44336;border:1px solid rgba(244,67,54,.3);font-size:.72rem;padding:5px 10px" onclick="deleteDefaultVideo(${i})" title="সরান"><i class="fas fa-trash"></i></button>`
+                : `<button class="btn btn-sm" style="background:rgba(255,215,0,.1);color:var(--primary);border:1px solid rgba(255,215,0,.25);font-size:.72rem;padding:5px 10px" onclick="editYtVideo('${vidId}')" title="এডিট"><i class="fas fa-edit"></i></button>
+                   ${i>0?`<button class="btn btn-sm" style="background:rgba(255,255,255,.06);color:var(--muted);font-size:.72rem;padding:5px 8px" onclick="reorderYtVideo('${vidId}',-1)" title="উপরে"><i class="fas fa-arrow-up"></i></button>`:''}
+                   <button class="btn btn-sm" style="background:rgba(244,67,54,.15);color:#f44336;border:1px solid rgba(244,67,54,.3);font-size:.72rem;padding:5px 10px" onclick="deleteYtVideo('${vidId}')" title="ডিলিট"><i class="fas fa-trash"></i></button>`
               }
             </div>
-          </div>
-        </div>`;
+          </div>`;
     }).join('');
+    html += '</div>';
 
     el.innerHTML = html;
+    // Update count badge
+    const countEl = document.getElementById('ytVidCount');
+    if (countEl) countEl.textContent = vids.length + 'টি ভিডিও';
 }
 
 // Edit a DEFAULT video — populate form and seed it when saved
@@ -8082,6 +8108,15 @@ function showP(page) {
         try { loadNotifHistory(); } catch(e) {}
         try { loadSubscriberStats(); } catch(e) {}
     }
+    if (page === 'youtube') {
+        try { loadYoutubeVideos(); } catch(e) { console.warn('loadYoutubeVideos error:', e); }
+    }
+    if (page === 'tools') {
+        try { loadTools(); } catch(e) {}
+    }
+    if (page === 'dashboard') {
+        try { loadDashboard(); } catch(e) {}
+    }
     
     document.querySelectorAll('.sb-lnk').forEach(l => l.classList.remove('active'));
     document.getElementById('nav-' + page)?.classList.add('active');
@@ -8607,6 +8642,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
 });
+
 
 
 
