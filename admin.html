@@ -652,8 +652,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .topbar-title {
     font-family: var(--font-display);
-    font-size: 2rem;
-    letter-spacing: 3px;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
     background: var(--grad-primary);
     -webkit-background-clip: text;
     background-clip: text;
@@ -684,9 +684,7 @@ h1, h2, h3, h4, h5, h6 {
     animation: fadeIn 0.4s ease;
 }
 
-.pnl.active {
-    display: block;
-}
+.pnl.active { display: block !important; }
 
 /* ===== STATS GRID ===== */
 .sg {
@@ -1085,7 +1083,7 @@ input:checked + .tg-sl::before {
     color: var(--text);
     font-family: var(--font-body);
     font-size: 0.9rem;
-    width: 200px;
+    width: 140px;
 }
 
 .tw-srch input::placeholder {
@@ -1096,6 +1094,39 @@ table {
     width: 100%;
     border-collapse: collapse;
 }
+
+/* ── Responsive Tools Table ── */
+.tools-tbl { width:100%; border-collapse:collapse; min-width:600px; }
+.tools-tbl th {
+    padding: 10px 10px;
+    text-align: left;
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    background: rgba(255,215,0,.03);
+}
+.tools-tbl td {
+    padding: 10px 10px;
+    font-size: 0.82rem;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.tools-tbl tr:hover td { background: rgba(255,215,0,.02); }
+.tools-tbl .bti {
+    width: 28px; height: 28px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 6px; border: 1px solid var(--border);
+    background: var(--bg2); color: var(--text-muted);
+    cursor: pointer; font-size: .78rem; transition: .15s;
+}
+.tools-tbl .bti:hover { border-color: var(--primary); color: var(--primary); }
+.tools-tbl .bti.dn:hover { border-color: var(--danger); color: var(--danger); }
+@media(max-width:1100px){ .hide-md{ display:none!important; } }
+@media(max-width:768px){ .hide-sm{ display:none!important; } .tools-tbl{ min-width:480px; } }
 
 thead th {
     padding: 14px 16px;
@@ -3191,6 +3222,12 @@ body.offline-mode { padding-top: 44px !important; }
 .yt-list-count { font-size:.75rem; color:var(--muted); background:var(--bg2); padding:3px 10px; border-radius:100px; }
 .yt-form-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:20px; position:sticky; top:80px; }
 .yt-form-title { font-family:var(--font-heading); font-weight:700; font-size:.95rem; color:var(--primary); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+
+/* Topbar title responsive */
+.topbar-title { word-break:keep-all; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:280px; }
+@media(max-width:600px){ .topbar-title{ font-size:1.1rem!important; max-width:160px; } }
+
+@media(max-width:768px){ .pnl{ padding:16px!important; } }
 </style>
 </head>
 <body>
@@ -3597,26 +3634,28 @@ body.offline-mode { padding-top: 44px !important; }
       
       <!-- Tools Table -->
       <div style="overflow-x: auto;">
-        <table>
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <table class="tools-tbl">
           <thead>
             <tr>
-              <th width="30">
+              <th style="width:32px;padding:10px 8px">
                 <input type="checkbox" id="selectAllTools" onchange="toggleAllTools(this)">
               </th>
-              <th>থাম্বনেইল</th>
+              <th style="width:72px">থাম্ব</th>
               <th>টুলের নাম</th>
               <th>ক্যাটাগরি</th>
               <th>ভিউ</th>
-              <th>লাইক</th>
-              <th>ডাউনলোড</th>
+              <th class="hide-md">লাইক</th>
+              <th class="hide-md">ডাউনলোড</th>
               <th>কমান্ড</th>
               <th>প্রকাশিত</th>
-              <th>ফিচার্ড</th>
+              <th class="hide-sm">ফিচার্ড</th>
               <th>অ্যাকশন</th>
             </tr>
           </thead>
           <tbody id="toolsTb"></tbody>
         </table>
+        </div>
       </div>
       
       <!-- Empty State -->
@@ -4292,7 +4331,7 @@ body.offline-mode { padding-top: 44px !important; }
   </div>
 
     <!-- ══════════════════ YouTube ভিডিও ম্যানেজ ══════════════════ -->
-    <div id="pnl-youtube" class="pnl" style="display:none">
+    <div id="pnl-youtube" class="pnl">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
         <div>
           <div class="pnl-tt"><i class="fab fa-youtube" style="color:#ff0000"></i> ভিডিও টিউটোরিয়াল ম্যানেজ</div>
@@ -4481,6 +4520,7 @@ body.offline-mode { padding-top: 44px !important; }
 <!-- Toast Container -->
 <div class="tc" id="toastC"></div>
 <script>
+
 
 
 
@@ -5531,6 +5571,14 @@ const DEFAULT_YT_VIDEOS = [
 async function loadYoutubeVideos() {
     const el = document.getElementById('ytVideoList');
     if (el) el.innerHTML = '<div class="em"><i class="fas fa-spinner fa-spin"></i><div class="em-t">লোড হচ্ছে...</div></div>';
+    // Wait for Firebase to be ready (retry up to 3s)
+    if (!fbDb) {
+        let waited = 0;
+        while (!fbDb && waited < 3000) {
+            await new Promise(r => setTimeout(r, 200));
+            waited += 200;
+        }
+    }
     if (!fbDb) {
         // Offline — show defaults with note
         _ytVideos = DEFAULT_YT_VIDEOS.map((v,i) => ({...v, _isDefault:true, order:i*100}));
@@ -6287,7 +6335,7 @@ function renderToolsTable(tools) {
         <tr>
             <td><input type="checkbox" class="tool-checkbox" value="${toolId}" ${checked} onchange="updateSelectedTools(this)"></td>
             <td>
-                <div style="width:80px; height:45px; border-radius:6px; overflow:hidden; background:var(--card2)">
+                <div style="width:64px;height:38px;border-radius:5px;overflow:hidden;background:var(--bg2);flex-shrink:0">
                     ${getThumbnailHtml(tool)}
                 </div>
             </td>
@@ -6297,16 +6345,14 @@ function renderToolsTable(tools) {
             </td>
             <td><span class="bdg bdg-i">${getCategoryLabel(tool.category)}</span></td>
             <td>${tool.views || 0}</td>
-            <td>❤️ ${tool.likes || 0}</td>
-            <td>⬇️ ${tool.downloads || 0}</td>
-            <td><span class="bdg bdg-p">📦 ${cmdCount} টি</span></td>
-            <td><input type="checkbox" ${tool.published ? 'checked' : ''} onchange="toggleToolField('${toolId}', 'published', this.checked)"></td>
-            <td><input type="checkbox" ${tool.featured ? 'checked' : ''} onchange="toggleToolField('${toolId}', 'featured', this.checked)"></td>
+            <td class="hide-md">❤️ ${tool.likes || 0}</td>
+            <td class="hide-md">⬇️ ${tool.downloads || 0}</td>
+            <td><span class="bdg bdg-p" style="font-size:.72rem;padding:2px 6px">${cmdCount}টি</span></td>
+            <td><input type="checkbox" ${tool.published ? 'checked' : ''} onchange="toggleToolField('${toolId}', 'published', this.checked)" style="width:16px;height:16px"></td>
+            <td class="hide-sm"><input type="checkbox" ${tool.featured ? 'checked' : ''} onchange="toggleToolField('${toolId}', 'featured', this.checked)" style="width:16px;height:16px"></td>
             <td>
-                <div style="display:flex; gap:5px">
+                <div style="display:flex;gap:4px;flex-wrap:nowrap">
                     <button class="bti" onclick="editTool('${toolId}')" title="এডিট"><i class="fas fa-edit"></i></button>
-                    <button class="bti" onclick="shareAdminTool('${toolId}','${(tool.title||'').replace(/'/g,'')}')" title="শেয়ার"><i class="fas fa-share-alt"></i></button>
-                    <button class="bti" onclick="showVersionHistory('${toolId}')" title="ভার্সন"><i class="fas fa-history"></i></button>
                     <button class="bti dn" onclick="deleteTool('${toolId}')" title="ডিলিট"><i class="fas fa-trash"></i></button>
                 </div>
             </td>
@@ -8642,6 +8688,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
 });
+
 
 
 
