@@ -16,9 +16,35 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Bangla&family=JetBrains+Mono:wght@400;500;600;700&family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script>
+  (function() {
+    var VER = '10.7.1';
+    var CDNs = [
+      'https://www.gstatic.com/firebasejs/'+VER+'/',
+      'https://cdn.jsdelivr.net/npm/firebase@'+VER+'/'
+    ];
+    var files = ['firebase-app-compat.js','firebase-auth-compat.js','firebase-firestore-compat.js'];
+    var cdnIdx = 0, fileIdx = 0;
+    function next() {
+      if (fileIdx >= files.length) return;
+      var s = document.createElement('script');
+      s.src = CDNs[cdnIdx] + files[fileIdx];
+      s.onload = function() { fileIdx++; next(); };
+      s.onerror = function() {
+        if (cdnIdx < CDNs.length - 1) {
+          cdnIdx++; fileIdx = 0;
+          console.warn('[Firebase] Primary CDN failed, trying jsdelivr...');
+        } else {
+          console.error('[Firebase] All CDNs failed:', files[fileIdx]);
+          fileIdx++;
+        }
+        next();
+      };
+      document.head.appendChild(s);
+    }
+    next();
+  })();
+  </script>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js" defer></script>
@@ -3248,7 +3274,7 @@ body.offline-mode { padding-top: 44px !important; }
     
     <!-- Connection Status -->
     <div class="alert alert-info" id="loginConnStatus" style="margin-bottom: 20px;">
-      <i class="fas fa-sync fa-spin"></i> সার্ভার চেক হচ্ছে...
+      <i class="fas fa-sync fa-spin"></i> Firebase লোড হচ্ছে...
     </div>
     
     <!-- Error Message -->
@@ -4534,6 +4560,7 @@ body.offline-mode { padding-top: 44px !important; }
 
 
 
+
 // ===== GLOBAL ERROR BOUNDARY =====
 window.onerror = function(msg, src, line, col, err) {
   const safeMsg = 'অপ্রত্যাশিত সমস্যা হয়েছে। পেজ রিফ্রেশ করুন।';
@@ -4689,6 +4716,24 @@ const CSRF = {
 })();
 
 const IS_LOCAL_ADMIN = location.protocol === 'file:';
+(function checkFirebaseStatus() {
+    var el = document.getElementById('loginConnStatus');
+    if (!el) return;
+    var t = setInterval(function() {
+        if (window.fbAuth) {
+            el.innerHTML = '<i class="fas fa-check-circle" style="color:#4caf50"></i> সার্ভার সংযুক্ত';
+            el.className = 'alert alert-success';
+            clearInterval(t);
+        }
+    }, 300);
+    setTimeout(function() {
+        clearInterval(t);
+        if (!window.fbAuth) {
+            el.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Firebase লোড হয়নি। পেজ রিফ্রেশ করুন।';
+            el.className = 'alert alert-danger';
+        }
+    }, 12000);
+})();
 // ===== FIREBASE CONFIGURATION & INITIALIZATION =====
 const FIREBASE_CONFIG = {
     apiKey:            "AIzaSyA5_HYl2R1Sa17xBeBhyxO4lGa9lAY5ut4",
@@ -4705,7 +4750,7 @@ const ADMIN_EMAIL_MASTER = "mrbanglagggaming@gmail.com";
 // Firebase instances (loaded from CDN scripts in <head>)
 let fbApp, fbAuth, fbDb;
 (function initFirebase() {
-    const maxWait = 5000;
+    const maxWait = 10000;
     const start = Date.now();
     function tryInit() {
         if (typeof firebase !== 'undefined') {
@@ -4720,6 +4765,11 @@ let fbApp, fbAuth, fbDb;
                 fbDb   = firebase.firestore();
                 // Firebase compat SDK v10+ caches offline automatically — no enablePersistence needed
                 console.log('✅ Firebase initialized successfully');
+                if (typeof waitAndRegisterAuthListener === 'function') { try { waitAndRegisterAuthListener(); } catch(e) {} }
+                // Trigger auth listener registration now that fbAuth is ready
+                if (typeof waitAndRegisterAuthListener === 'function') {
+                    try { waitAndRegisterAuthListener(); } catch(e) {}
+                }
             } catch(e) {
                 console.error('Firebase init error:', e.message);
             }
@@ -5546,11 +5596,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Start clock
     startClock();
 
-    // Firebase Auth state listener — auto-login if session active
-    if (!fbAuth) {
-        console.error('fbAuth not initialized — Firebase SDK may have failed to load');
-        return;
-    }
+    // Firebase Auth state listener is registered via waitAndRegisterAuthListener()
+    // when fbAuth becomes available after Firebase SDK loads
     
 // ===== YOUTUBE VIDEO MANAGEMENT =====
 let _ytVideos = [];
@@ -5592,7 +5639,7 @@ async function loadYoutubeVideos() {
                 _ytVideos = result.videos;
                 renderYoutubeList(_ytVideos);
             } else {
-                // Firestore is genuinely empty (admin deleted all) — show seed option
+                // Firestore empty — show defaults + seed button
                 _ytVideos = DEFAULT_YT_VIDEOS.map((v,i) => ({...v, _isDefault:true, order:i*100}));
                 renderYoutubeList(_ytVideos, true); // true = showSeedBanner
             }
@@ -5612,8 +5659,7 @@ async function seedDefaultVideos() {
         const batch = fbDb.batch();
         DEFAULT_YT_VIDEOS.forEach((v, i) => {
             const ref = fbDb.collection(FS.youtube).doc('default_'+v.id);
-            // merge:false means overwrite completely
-            batch.set(ref, {...v, _isDefault:undefined, order: i*100, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+            batch.set(ref, {...v, order: i*100, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
         });
         await batch.commit();
         toast('✅ ৮টি ডিফল্ট ভিডিও Firestore-এ সেভ হয়েছে!', 'success');
@@ -5706,43 +5752,24 @@ function editDefaultVideo(id, idx) {
     if (!v) return;
     // Populate form
     document.getElementById('ytVidTitle').value = v.title || '';
-    document.getElementById('ytVidDesc').value  = v.desc  || '';
-    document.getElementById('ytVidId').value    = v.vid   || '';
-    document.getElementById('ytVidUrl').value   = v.chUrl || '';
+    document.getElementById('ytVidDesc').value = v.desc || '';
+    document.getElementById('ytVidId').value = v.vid || '';
+    document.getElementById('ytVidChannel').value = v.chUrl || '';
     document.getElementById('ytVidViews').value = v.views || '';
-    document.getElementById('ytVidDate').value  = v.date  || '';
+    document.getElementById('ytVidDate').value = v.date || '';
     document.getElementById('ytVidLevel').value = v.level || 'beginner';
     // Mark as new (will create in Firestore on save)
-    _editYtId = null;
-    const ft = document.getElementById('ytFormTitle');
-    if (ft) ft.textContent = '📝 ডিফল্ট ভিডিও সম্পাদনা (সেভ করলে Firestore-এ যাবে)';
-    const formCol = document.getElementById('ytVideoForm');
-    if (formCol) formCol.scrollIntoView({behavior:'smooth'});
+    document.getElementById('editYtId').value = '';
+    document.getElementById('ytFormTitle').textContent = '📝 ডিফল্ট ভিডিও সম্পাদনা (সেভ করলে Firestore-এ যাবে)';
+    document.querySelector('#pnl-youtube .yt-form-col').scrollIntoView({behavior:'smooth'});
 }
 window.editDefaultVideo = editDefaultVideo;
 
-// Remove a DEFAULT video from the local list (and from Firestore if seeded)
-async function deleteDefaultVideo(idx) {
-    if (!confirm('এই ডিফল্ট ভিডিওটি সরাবেন?')) return;
-    const v = _ytVideos[idx];
-    if (!v) return;
-    const docId = 'default_' + (v.id || v._id || '');
-    // Try to delete from Firestore too (in case it was seeded before)
-    if (fbDb) {
-        try {
-            const docRef = fbDb.collection(FS.youtube).doc(docId);
-            const snap = await docRef.get();
-            if (snap.exists) {
-                await docRef.delete();
-                toast('🗑️ Firestore থেকেও মুছে গেছে!', 'success');
-                await loadYoutubeVideos();
-                return;
-            }
-        } catch(e) { /* ignore */ }
-    }
-    // Not in Firestore — just remove from local view
+// Remove a DEFAULT video from the local list
+function deleteDefaultVideo(idx) {
+    if (!confirm('এই ডিফল্ট ভিডিওটি তালিকা থেকে সরাবেন? (Firestore-এ কোনো পরিবর্তন হবে না)')) return;
     _ytVideos.splice(idx, 1);
-    renderYoutubeList(_ytVideos, _ytVideos.length > 0 && _ytVideos.every(v=>v._isDefault));
+    renderYoutubeList(_ytVideos, _ytVideos.every(v=>v._isDefault));
     toast('ডিফল্ট ভিডিও তালিকা থেকে সরানো হয়েছে', 'info');
 }
 window.deleteDefaultVideo = deleteDefaultVideo;
@@ -5843,7 +5870,12 @@ window.editYtVideo = editYtVideo;
 window.resetYtForm = resetYtForm;
 window.reorderYtVideo = reorderYtVideo;
 
-fbAuth.onAuthStateChanged(async (user) => {
+// Wait until fbAuth is initialized, then register listener
+(function waitAndRegisterAuthListener() {
+    if (typeof fbAuth !== 'undefined' && fbAuth) {
+        (function waitAndRegisterAuthListener() {
+    if (typeof fbAuth !== 'undefined' && fbAuth) {
+        fbAuth.onAuthStateChanged(async (user) => {
         if (!user) return; // Not logged in — stay on login screen
 
         // Multi-layer admin check (same as doLogin)
@@ -5896,6 +5928,14 @@ fbAuth.onAuthStateChanged(async (user) => {
         loadSettings();
         loadTeam();
     });
+    } else {
+        setTimeout(waitAndRegisterAuthListener, 200);
+    }
+})();
+    } else {
+        setTimeout(waitAndRegisterAuthListener, 200);
+    }
+})();
 
     // Connection status
     await checkConnection();
@@ -8708,6 +8748,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
 });
+
 
 
 
