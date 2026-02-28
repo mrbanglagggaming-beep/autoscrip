@@ -5592,7 +5592,7 @@ async function loadYoutubeVideos() {
                 _ytVideos = result.videos;
                 renderYoutubeList(_ytVideos);
             } else {
-                // Firestore empty — show defaults + seed button
+                // Firestore is genuinely empty (admin deleted all) — show seed option
                 _ytVideos = DEFAULT_YT_VIDEOS.map((v,i) => ({...v, _isDefault:true, order:i*100}));
                 renderYoutubeList(_ytVideos, true); // true = showSeedBanner
             }
@@ -5612,7 +5612,8 @@ async function seedDefaultVideos() {
         const batch = fbDb.batch();
         DEFAULT_YT_VIDEOS.forEach((v, i) => {
             const ref = fbDb.collection(FS.youtube).doc('default_'+v.id);
-            batch.set(ref, {...v, order: i*100, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+            // merge:false means overwrite completely
+            batch.set(ref, {...v, _isDefault:undefined, order: i*100, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
         });
         await batch.commit();
         toast('✅ ৮টি ডিফল্ট ভিডিও Firestore-এ সেভ হয়েছে!', 'success');
@@ -5705,24 +5706,43 @@ function editDefaultVideo(id, idx) {
     if (!v) return;
     // Populate form
     document.getElementById('ytVidTitle').value = v.title || '';
-    document.getElementById('ytVidDesc').value = v.desc || '';
-    document.getElementById('ytVidId').value = v.vid || '';
-    document.getElementById('ytVidChannel').value = v.chUrl || '';
+    document.getElementById('ytVidDesc').value  = v.desc  || '';
+    document.getElementById('ytVidId').value    = v.vid   || '';
+    document.getElementById('ytVidUrl').value   = v.chUrl || '';
     document.getElementById('ytVidViews').value = v.views || '';
-    document.getElementById('ytVidDate').value = v.date || '';
+    document.getElementById('ytVidDate').value  = v.date  || '';
     document.getElementById('ytVidLevel').value = v.level || 'beginner';
     // Mark as new (will create in Firestore on save)
-    document.getElementById('editYtId').value = '';
-    document.getElementById('ytFormTitle').textContent = '📝 ডিফল্ট ভিডিও সম্পাদনা (সেভ করলে Firestore-এ যাবে)';
-    document.querySelector('#pnl-youtube .yt-form-col').scrollIntoView({behavior:'smooth'});
+    _editYtId = null;
+    const ft = document.getElementById('ytFormTitle');
+    if (ft) ft.textContent = '📝 ডিফল্ট ভিডিও সম্পাদনা (সেভ করলে Firestore-এ যাবে)';
+    const formCol = document.getElementById('ytVideoForm');
+    if (formCol) formCol.scrollIntoView({behavior:'smooth'});
 }
 window.editDefaultVideo = editDefaultVideo;
 
-// Remove a DEFAULT video from the local list
-function deleteDefaultVideo(idx) {
-    if (!confirm('এই ডিফল্ট ভিডিওটি তালিকা থেকে সরাবেন? (Firestore-এ কোনো পরিবর্তন হবে না)')) return;
+// Remove a DEFAULT video from the local list (and from Firestore if seeded)
+async function deleteDefaultVideo(idx) {
+    if (!confirm('এই ডিফল্ট ভিডিওটি সরাবেন?')) return;
+    const v = _ytVideos[idx];
+    if (!v) return;
+    const docId = 'default_' + (v.id || v._id || '');
+    // Try to delete from Firestore too (in case it was seeded before)
+    if (fbDb) {
+        try {
+            const docRef = fbDb.collection(FS.youtube).doc(docId);
+            const snap = await docRef.get();
+            if (snap.exists) {
+                await docRef.delete();
+                toast('🗑️ Firestore থেকেও মুছে গেছে!', 'success');
+                await loadYoutubeVideos();
+                return;
+            }
+        } catch(e) { /* ignore */ }
+    }
+    // Not in Firestore — just remove from local view
     _ytVideos.splice(idx, 1);
-    renderYoutubeList(_ytVideos, _ytVideos.every(v=>v._isDefault));
+    renderYoutubeList(_ytVideos, _ytVideos.length > 0 && _ytVideos.every(v=>v._isDefault));
     toast('ডিফল্ট ভিডিও তালিকা থেকে সরানো হয়েছে', 'info');
 }
 window.deleteDefaultVideo = deleteDefaultVideo;
