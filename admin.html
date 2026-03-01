@@ -4713,6 +4713,8 @@ body.offline-mode { padding-top: 44px !important; }
 
 
 
+
+
 // ===== GLOBAL ERROR BOUNDARY =====
 window.onerror = function(msg, src, line, col, err) {
   // Suppress Firestore / network errors from global handler
@@ -4722,7 +4724,14 @@ window.onerror = function(msg, src, line, col, err) {
   const safeMsg = 'অপ্রত্যাশিত সমস্যা হয়েছে। পেজ রিফ্রেশ করুন।';
   try { toast(safeMsg, 'error'); } catch(e) {}
   return true;
-};
+}
+// Suppress noisy Firestore internal errors
+(function(){
+  var _ce=console.error, _cw=console.warn;
+  var _sup=['WebChannelConnection','transport errored','Listen/channel','WebChannel','@firebase/firestore'];
+  console.error=function(){var m=Array.prototype.join.call(arguments,' ');if(_sup.some(function(s){return m.indexOf(s)>=0;}))return;_ce.apply(console,arguments);};
+  console.warn=function(){var m=Array.prototype.join.call(arguments,' ');if(_sup.some(function(s){return m.indexOf(s)>=0;}))return;_cw.apply(console,arguments);};
+})();;
 window.addEventListener('unhandledrejection', (e) => {
   e.preventDefault();
   // Suppress Firestore permission/network errors from showing as toasts
@@ -9023,6 +9032,8 @@ window.showFirestoreRulesHelp = function() {
   const modal = document.getElementById('firestoreRulesModal');
   if (modal) { modal.style.display = 'flex'; }
 };
+
+
 
 
 
