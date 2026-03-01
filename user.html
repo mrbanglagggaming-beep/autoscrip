@@ -1353,10 +1353,54 @@ Get-Date | Format-List"></textarea>
 
 
 
+
+
+
 // ===== TIMER REGISTRY (prevent leaks) =====
 window.__timers = [];
+// Suppress noisy Firestore internal errors from console
+(function(){
+  var _ce=console.error, _cw=console.warn;
+  var _sup=['WebChannelConnection','transport errored','Listen/channel','WebChannel','RPC'];
+  console.error=function(){var m=Array.prototype.join.call(arguments,' ');if(_sup.some(function(s){return m.indexOf(s)>=0;}))return;_ce.apply(console,arguments);};
+  console.warn=function(){var m=Array.prototype.join.call(arguments,' ');if(_sup.some(function(s){return m.indexOf(s)>=0;}))return;_cw.apply(console,arguments);};
+})();
+
+// Suppress noisy Firestore WebChannel/SDK warnings from console
+(function() {
+  var _origError = console.error.bind(console);
+  var _origWarn  = console.warn.bind(console);
+  var SUPPRESS = ['WebChannelConnection','transport errored','Listen/channel','WebChannel','Yn {type'];
+  console.error = function() {
+    var msg = Array.prototype.join.call(arguments, ' ');
+    if (SUPPRESS.some(function(s){ return msg.indexOf(s) >= 0; })) return;
+    _origError.apply(console, arguments);
+  };
+  console.warn = function() {
+    var msg = Array.prototype.join.call(arguments, ' ');
+    if (SUPPRESS.some(function(s){ return msg.indexOf(s) >= 0; })) return;
+    _origWarn.apply(console, arguments);
+  };
+})();
 const safeTimeout = (fn, ms) => { const id = setTimeout(fn, ms); window.__timers.push(id); return id; };
-const clearAllTimers = () => { window.__timers.forEach(clearTimeout); window.__timers = []; };
+const clearAllTimers = () => { window.__timers.forEach(clearTimeout); window.__timers = [];
+
+// Suppress noisy Firestore WebChannel/SDK warnings from console
+(function() {
+  var _origError = console.error.bind(console);
+  var _origWarn  = console.warn.bind(console);
+  var SUPPRESS = ['WebChannelConnection','transport errored','Listen/channel','WebChannel','Yn {type'];
+  console.error = function() {
+    var msg = Array.prototype.join.call(arguments, ' ');
+    if (SUPPRESS.some(function(s){ return msg.indexOf(s) >= 0; })) return;
+    _origError.apply(console, arguments);
+  };
+  console.warn = function() {
+    var msg = Array.prototype.join.call(arguments, ' ');
+    if (SUPPRESS.some(function(s){ return msg.indexOf(s) >= 0; })) return;
+    _origWarn.apply(console, arguments);
+  };
+})(); };
 
 
 // ===== GLOBAL ERROR BOUNDARY =====
@@ -2020,7 +2064,7 @@ window.openToolDetail = window.openToolWindow = function(id) {
         '<div style="font-size:.72rem;color:var(--muted);font-family:var(--font-head);letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:5px"><i class="fab fa-youtube" style="color:#ff0000"></i> টিউটোরিয়াল ভিডিও</div>'+
         '<a href="'+Security.escapeHtml(tool.youtube)+'" target="_blank" rel="noopener" class="tw-yt-link">'+
           '<div class="tw-yt-thumb-wrap">'+
-            (function(){var m=tool.youtube.match(/(?:v=|youtu\.be\/)([\w-]{11})/);return m?'<img src="https://img.youtube.com/vi/'+m[1]+'/mqdefault.jpg" class="tw-yt-thumb-img" onerror="this.style.display=\'none\'">':'';})() +
+            (function(){var m=tool.youtube.match(/(?:v=|youtu\.be\/)([\w-]{11})/);return m?'<img src="https://img.youtube.com/vi/'+m[1]+'/hqdefault.jpg" class="tw-yt-thumb-img" onerror="this.style.display=\'none\'" loading="lazy">':'';})() +
             '<div class="tw-yt-play-overlay"><i class="fab fa-youtube"></i></div>'+
           '</div>'+
           '<div class="tw-yt-link-label"><i class="fas fa-play-circle"></i> এই টুলের টিউটোরিয়াল দেখুন</div>'+
@@ -4012,6 +4056,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+
+
 
 
 
