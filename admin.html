@@ -4713,6 +4713,10 @@ body.offline-mode { padding-top: 44px !important; }
 
 
 
+
+
+
+
 // ===== GLOBAL ERROR BOUNDARY =====
 window.onerror = function(msg, src, line, col, err) {
   // Suppress Firestore / network errors from global handler
@@ -4723,6 +4727,13 @@ window.onerror = function(msg, src, line, col, err) {
   try { toast(safeMsg, 'error'); } catch(e) {}
   return true;
 };
+// Suppress noisy Firestore internal errors
+;(function(){
+  var _ce=console.error, _cw=console.warn;
+  var _sup=['WebChannelConnection','transport errored','Listen/channel','WebChannel','@firebase/firestore'];
+  console.error=function(){var m=Array.prototype.join.call(arguments,' ');if(_sup.some(function(s){return m.indexOf(s)>=0;}))return;_ce.apply(console,arguments);};
+  console.warn=function(){var m=Array.prototype.join.call(arguments,' ');if(_sup.some(function(s){return m.indexOf(s)>=0;}))return;_cw.apply(console,arguments);};
+})();
 window.addEventListener('unhandledrejection', (e) => {
   e.preventDefault();
   // Suppress Firestore permission/network errors from showing as toasts
@@ -5931,7 +5942,7 @@ function renderYoutubeList(vids, showSeedBanner=false) {
 
     html += `<div style="display:grid;grid-template-columns:1fr;gap:10px">`;
     html += vids.map((v, i) => {
-        const ytId    = v.vid || (v.chUrl||'').match(/(?:v=|youtu\.be\/)([-\w]{11})/)?.[1] || '';
+        const ytId = (function(v){ var id=v.vid||''; if(id && !/^[-\w]{11}$/.test(id)){ var m=id.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/); id=m?m[1]:''; } if(!id && v.chUrl){ var m2=v.chUrl.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/); id=m2?m2[1]:''; } return id; })(v);
         const thumb   = ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : '';
         const isDefault = !!v._isDefault;
         const vidId   = v.id || v._id || '';
@@ -9023,6 +9034,10 @@ window.showFirestoreRulesHelp = function() {
   const modal = document.getElementById('firestoreRulesModal');
   if (modal) { modal.style.display = 'flex'; }
 };
+
+
+
+
 
 
 
