@@ -1356,6 +1356,7 @@ Get-Date | Format-List"></textarea>
 
 
 
+
 // ===== TIMER REGISTRY (prevent leaks) =====
 window.__timers = [];
 // Suppress noisy Firestore internal errors from console
@@ -1675,6 +1676,17 @@ function drawThumb(canvas,tool){
 }
 
 // ===== RENDER TOOL CARD =====
+
+// ─── YouTube ID extractor (handles full URL or bare ID) ──────────
+function _ytId(val) {
+  if (!val) return '';
+  val = String(val).trim();
+  // Already an 11-char ID?
+  if (/^[-\w]{11}$/.test(val)) return val;
+  // Extract from any YouTube URL format
+  var m = val.match(/(?:v=|youtu\.be\/|embed\/|shorts\/|watch\?v=)([\w-]{11})/);
+  return m ? m[1] : '';
+}
 function renderCard(tool){
   const id=tool._id||tool.id;
   const bk=App.bookmarks.includes(id);
@@ -1691,7 +1703,7 @@ function renderCard(tool){
   el.className='yt-card';
   el.innerHTML=
     '<div class="yt-thumb">'+
-      (tool.thumbnail?('<img src="'+tool.thumbnail+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit" onerror="this.style.display=\'none\';var cv=document.createElement(\'canvas\');cv.id=\'' +cvId+'\';cv.width=560;cv.height=315;this.parentNode.insertBefore(cv,this);setTimeout(function(){drawThumb(cv,tool);},60)" loading="lazy">'):(tool.youtube&&(function(){var vid=tool.youtube.match(/(?:v=|youtu\.be\/)([\w-]{11})/)?.[1];return vid?('<img src="https://img.youtube.com/vi/'+vid+'/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:inherit" loading="lazy" onerror="this.style.display=\'none\'">'):null;})())||('<canvas id="'+cvId+'" width="560" height="315"></canvas>'))+
+      (tool.thumbnail?('<img src="'+tool.thumbnail+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit" onerror="this.style.display=\'none\';var cv=document.createElement(\'canvas\');cv.id=\'' +cvId+'\';cv.width=560;cv.height=315;this.parentNode.insertBefore(cv,this);setTimeout(function(){drawThumb(cv,tool);},60)" loading="lazy">'):(tool.youtube&&(function(){var vid=_ytId(tool.youtube||'');return vid?('<img src="https://img.youtube.com/vi/'+vid+'/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:inherit" loading="lazy" onerror="this.style.display=\'none\'">'):null;})())||('<canvas id="'+cvId+'" width="560" height="315"></canvas>'))+
       '<div class="yt-thumb-overlay"></div>'+
       '<div class="yt-play-btn"><div class="yt-play-circle"><i class="fas fa-play"></i></div></div>'+
       '<div class="yt-duration">'+(getToolCode(tool).split('\n').filter(function(l){return l.trim()&&!l.startsWith('#');}).length)+' lines</div>'+
@@ -2064,7 +2076,7 @@ window.openToolDetail = window.openToolWindow = function(id) {
         '<div style="font-size:.72rem;color:var(--muted);font-family:var(--font-head);letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:5px"><i class="fab fa-youtube" style="color:#ff0000"></i> টিউটোরিয়াল ভিডিও</div>'+
         '<a href="'+Security.escapeHtml(tool.youtube)+'" target="_blank" rel="noopener" class="tw-yt-link">'+
           '<div class="tw-yt-thumb-wrap">'+
-            (function(){var m=tool.youtube.match(/(?:v=|youtu\.be\/)([\w-]{11})/);return m?'<img src="https://img.youtube.com/vi/'+m[1]+'/hqdefault.jpg" class="tw-yt-thumb-img" onerror="this.style.display=\'none\'" loading="lazy">':'';})() +
+            (function(){var m=_ytId(tool.youtube||'');return m?'<img src="https://img.youtube.com/vi/'+m+'/hqdefault.jpg" class="tw-yt-thumb-img" onerror="this.style.display=\'none\'" loading="lazy">':'';})() +
             '<div class="tw-yt-play-overlay"><i class="fab fa-youtube"></i></div>'+
           '</div>'+
           '<div class="tw-yt-link-label"><i class="fas fa-play-circle"></i> এই টুলের টিউটোরিয়াল দেখুন</div>'+
@@ -2811,7 +2823,7 @@ function renderVideos(vids){
   const lvlName={beginner:'বিগিনার',intermediate:'ইন্টারমিডিয়েট',advanced:'অ্যাডভান্সড'};
   vids.forEach(v=>{
     const url=v.vid?('https://youtube.com/watch?v='+v.vid):(v.chUrl||'https://www.youtube.com/@autoscrip');
-    const ytId=v.vid||(v.chUrl||'').match(/(?:v=|youtu\.be\/)([-\w]{11})/)?.[1]||'';
+    const ytId=_ytId(v.vid||'')||(v.chUrl||'').match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/)?.[1]||'';
     const thumb=ytId?'https://img.youtube.com/vi/'+ytId+'/mqdefault.jpg':'';
     const lc=lvlClass[v.level]||'beg';
     const ln=lvlName[v.level]||'';
@@ -4056,6 +4068,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
 
 
 
