@@ -3509,16 +3509,6 @@ body.offline-mode { padding-top: 44px !important; }
 
 <!-- ===== SIDEBAR ===== -->
 <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
-
-<!-- Firestore connection warning banner -->
-<div id="fsWarnBanner" style="display:none;background:linear-gradient(90deg,rgba(255,61,87,.9),rgba(255,100,50,.9));color:#fff;text-align:center;padding:10px 20px;font-family:var(--font-head);font-size:.88rem;font-weight:700;position:fixed;top:0;left:0;right:0;z-index:99998;display:flex;align-items:center;justify-content:center;gap:12px">
-  <i class="fas fa-exclamation-triangle"></i>
-  <span>🔥 Firestore Database সংযুক্ত নেই — টুলস লোড হচ্ছে না!</span>
-  <a href="https://console.firebase.google.com/project/powerscript-pro-web/firestore" target="_blank"
-     style="background:rgba(255,255,255,.25);padding:4px 14px;border-radius:99px;color:#fff;text-decoration:none;font-size:.82rem;white-space:nowrap">
-    Firebase Console খুলুন →
-  </a>
-</div>
 <aside class="sb" id="sidebar">
   <div class="sb-hd">
     <div>
@@ -4510,33 +4500,6 @@ body.offline-mode { padding-top: 44px !important; }
           <button class="btn btn-ghost" onclick="loadSettings()"><i class="fas fa-sync"></i></button>
         </div>
         <p style="font-size:.75rem;color:var(--muted);text-align:center">সেটিংস সেভ করলে ইউজার সাইটে সাথে সাথে প্রযোজ্য হবে।</p>
-
-        <!-- Password Change -->
-        <div class="cd" style="margin-top:24px">
-          <div class="cd-hd"><div class="cd-tt">🔑 পাসওয়ার্ড পরিবর্তন</div></div>
-          <div class="cd-bd">
-            <div class="fg"><label class="fl">বর্তমান পাসওয়ার্ড</label><input type="password" class="fc" id="curPwd" placeholder="বর্তমান পাসওয়ার্ড"></div>
-            <div class="fg"><label class="fl">নতুন পাসওয়ার্ড</label><input type="password" class="fc" id="newPwd" placeholder="নতুন পাসওয়ার্ড"></div>
-            <div class="progress" style="margin-bottom:12px"><div class="progress-bar" id="passwordStrength" style="width:0%"></div></div>
-            <div class="fg"><label class="fl">পাসওয়ার্ড নিশ্চিত করুন</label><input type="password" class="fc" id="cfmPwd" placeholder="পাসওয়ার্ড আবার লিখুন"></div>
-            <button class="btn btn-pr" onclick="changePwd()"><i class="fas fa-key"></i> পরিবর্তন করুন</button>
-          </div>
-        </div>
-
-        <!-- 2FA -->
-        <div class="cd" style="margin-top:24px">
-          <div class="cd-hd"><div class="cd-tt">🔐 দ্বি-স্তরীয় যাচাইকরণ (2FA)</div></div>
-          <div class="cd-bd">
-            <label class="fck">
-              <div class="tg"><input type="checkbox" id="twoFactorToggle" onchange="toggle2FA()"><div class="tg-sl"></div></div>
-              2FA সক্রিয় করুন
-            </label>
-            <div id="qrCodeSetup" style="display:none;margin-top:16px">
-              <p class="text-muted" style="font-size:.85rem;margin-bottom:12px">Google Authenticator দিয়ে QR স্ক্যান করুন:</p>
-              <canvas id="qrCodeCanvas" style="background:#fff;padding:8px;border-radius:8px"></canvas>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -4562,7 +4525,6 @@ body.offline-mode { padding-top: 44px !important; }
         <!-- Add/Edit Form -->
         <div>
           <div class="yt-form-card" id="ytVideoForm">
-            <input type="hidden" id="editYtId">
             <div class="yt-form-title"><i class="fab fa-youtube" style="color:#ff4444"></i> <span id="ytFormTitle">নতুন ভিডিও যোগ করুন</span></div>
               <div class="fg"><label class="fl">শিরোনাম *</label><input type="text" class="fc" id="ytVidTitle" placeholder="PowerShell পরিচিতি..."></div>
               <div class="fg"><label class="fl">বিবরণ</label><textarea class="fc" id="ytVidDesc" rows="2" placeholder="ভিডিওর সংক্ষিপ্ত বিবরণ..."></textarea></div>
@@ -4759,7 +4721,7 @@ body.offline-mode { padding-top: 44px !important; }
 window.onerror = function(msg, src, line, col, err) {
   // Suppress Firestore / network errors from global handler
   const msgStr = String(msg || '');
-  const SILENT = ['permission-denied','Missing or insufficient','offline','network','Failed to get','ResizeObserver','Failed to load resource','404','Listen/channel','WebChannel'];
+  const SILENT = ['permission-denied','Missing or insufficient','offline','network','Failed to get','ResizeObserver'];
   if (SILENT.some(s => msgStr.includes(s))) return true;
   const safeMsg = 'অপ্রত্যাশিত সমস্যা হয়েছে। পেজ রিফ্রেশ করুন।';
   try { toast(safeMsg, 'error'); } catch(e) {}
@@ -4768,7 +4730,7 @@ window.onerror = function(msg, src, line, col, err) {
 // Suppress noisy Firestore internal errors
 ;(function(){
   var _ce=console.error, _cw=console.warn;
-  var _sup=['WebChannelConnection','transport errored','Listen/channel','WebChannel','@firebase/firestore','Firestore/Listen','Failed to load resource','404'];
+  var _sup=['WebChannelConnection','transport errored','Listen/channel','WebChannel','@firebase/firestore'];
   console.error=function(){var m=Array.prototype.join.call(arguments,' ');if(_sup.some(function(s){return m.indexOf(s)>=0;}))return;_ce.apply(console,arguments);};
   console.warn=function(){var m=Array.prototype.join.call(arguments,' ');if(_sup.some(function(s){return m.indexOf(s)>=0;}))return;_cw.apply(console,arguments);};
 })();
@@ -4778,7 +4740,7 @@ window.addEventListener('unhandledrejection', (e) => {
   const msg = e?.reason?.message || e?.reason || '';
   const code = e?.reason?.code || '';
   const SILENT = ['permission-denied','unavailable','cancelled','already-exists'];
-  const SILENT_MSG = ['Missing or insufficient','offline','network','Failed to get','Failed to load resource','Listen/channel','WebChannel','404'];
+  const SILENT_MSG = ['Missing or insufficient','offline','network','Failed to get'];
   const isSilent = SILENT.includes(code) || SILENT_MSG.some(s => String(msg).includes(s));
   if (!isSilent) {
     try { toast('নেটওয়ার্ক সমস্যা। পুনরায় চেষ্টা করুন।', 'warning'); } catch(e2) {}
@@ -4975,13 +4937,6 @@ let fbApp, fbAuth, fbDb;
                 fbApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
                 fbAuth = firebase.auth();
                 fbDb   = firebase.firestore();
-                // Use long-polling to avoid WebChannel 404 errors on some networks
-                try {
-                    fbDb.settings({
-                        experimentalForceLongPolling: true,
-                        merge: true
-                    });
-                } catch(se) { /* settings already applied */ }
                 console.log('[Firebase] Init OK');
                 if (typeof waitAndRegisterAuthListener === 'function') {
                     try { waitAndRegisterAuthListener(); } catch(_e) {}
@@ -5234,10 +5189,10 @@ const API = {
 
             // ── TOOLS ──────────────────────────────────────────────
             if (ep === 'tools' && method === 'GET') {
-                // Use simple get() first — orderBy needs composite index (causes 400 if missing)
-                const snap = await this._col(FS.tools).get()
+                const snap = await this._col(FS.tools).orderBy('createdAt','desc').get()
+                    .catch(() => this._col(FS.tools).get())
                     .catch(() => ({ docs: [], size: 0 }));
-                const tools = this._docs(snap).sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
+                const tools = this._docs(snap);
                 allTools = tools;
                 let views=0, downloads=0, likes=0;
                 tools.forEach(t => { views+=t.views||0; downloads+=t.downloads||0; likes+=t.likes||0; });
@@ -5245,15 +5200,8 @@ const API = {
             }
 
             if (ep === 'tools' && method === 'POST') {
-                const docData = {
-                    ...data,
-                    name: data.title || data.name || '',
-                    status: data.published ? 'approved' : 'pending',
-                    createdAt: this._ts(),
-                    views: 0, downloads: 0, likes: 0
-                };
-                const doc = await this._col(FS.tools).add(docData);
-                const saved = { id: doc.id, _id: doc.id, ...docData };
+                const doc = await this._col(FS.tools).add({ ...data, createdAt:this._ts(), views:0, downloads:0, likes:0 });
+                const saved = { id: doc.id, ...data };
                 allTools.unshift(saved);
                 return { success:true, tool: saved };
             }
@@ -6049,14 +5997,14 @@ function editDefaultVideo(id, idx) {
     document.getElementById('ytVidTitle').value = v.title || '';
     document.getElementById('ytVidDesc').value = v.desc || '';
     document.getElementById('ytVidId').value = v.vid || '';
-    document.getElementById('ytVidUrl').value = v.chUrl || '';
+    document.getElementById('ytVidChannel').value = v.chUrl || '';
     document.getElementById('ytVidViews').value = v.views || '';
     document.getElementById('ytVidDate').value = v.date || '';
     document.getElementById('ytVidLevel').value = v.level || 'beginner';
     // Mark as new (will create in Firestore on save)
     document.getElementById('editYtId').value = '';
     document.getElementById('ytFormTitle').textContent = '📝 ডিফল্ট ভিডিও সম্পাদনা (সেভ করলে Firestore-এ যাবে)';
-    document.getElementById('ytVideoForm').scrollIntoView({behavior:'smooth'});
+    document.querySelector('#pnl-youtube .yt-form-col').scrollIntoView({behavior:'smooth'});
 }
 window.editDefaultVideo = editDefaultVideo;
 
@@ -6180,6 +6128,8 @@ window.reorderYtVideo = reorderYtVideo;
 // Wait until fbAuth is initialized, then register listener
 (function waitAndRegisterAuthListener() {
     if (typeof fbAuth !== 'undefined' && fbAuth) {
+        (function waitAndRegisterAuthListener() {
+    if (typeof fbAuth !== 'undefined' && fbAuth) {
         fbAuth.onAuthStateChanged(async (user) => {
         if (!user) return; // Not logged in — stay on login screen
 
@@ -6233,6 +6183,10 @@ window.reorderYtVideo = reorderYtVideo;
         loadSettings();
         loadTeam();
     });
+    } else {
+        setTimeout(waitAndRegisterAuthListener, 200);
+    }
+})();
     } else {
         setTimeout(waitAndRegisterAuthListener, 200);
     }
@@ -6656,288 +6610,28 @@ function refreshCharts() {
 }
 
 // ===== TOOLS FUNCTIONS =====
-async function migrateLocalTools() {
-    let lsTools = [];
-    try {
-        // Check all possible localStorage keys where tools might be stored
-        const keys = ['autoscrip_tools', 'as7_tools', 'tools', 'autoscrip_data_tools'];
-        for (const key of keys) {
-            const raw = localStorage.getItem(key);
-            if (raw) {
-                const parsed = JSON.parse(raw);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    lsTools = [...lsTools, ...parsed];
-                    console.log(`[migrate] Found ${parsed.length} tools in key: ${key}`);
-                }
-            }
-        }
-        // Deduplicate by id/title
-        const seen = new Set();
-        lsTools = lsTools.filter(t => {
-            const key = t._id || t.id || t.title || t.name;
-            if (seen.has(key)) return false;
-            seen.add(key);
-            return true;
-        });
-    } catch(e) { console.warn('migrate read error:', e); }
-    if (!lsTools.length) { toast('কোনো টুল পাওয়া যায়নি localStorage-এ', 'warning'); return; }
-    
-    const btn = event?.target;
-    if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> আপলোড হচ্ছে...'; btn.disabled = true; }
-    
-    let success = 0, failed = 0;
-    for (const tool of lsTools) {
-        try {
-            const toolData = {
-                title:       tool.title || tool.name || 'Untitled',
-                name:        tool.title || tool.name || 'Untitled',
-                category:    tool.category || 'system',
-                description: tool.description || '',
-                author:      tool.author || 'AutoScrip Team',
-                tags:        tool.tags || [],
-                commands:    tool.commands || (tool.code ? [{ title: 'Main', code: tool.code, language: 'powershell' }] : []),
-                youtube:     tool.youtube || null,
-                thumbnail:   tool.thumbnail || null,
-                slug:        tool.slug || tool.title?.toLowerCase().replace(/\s+/g, '-') || '',
-                published:   tool.published !== false,
-                featured:    !!tool.featured,
-                verified:    !!tool.verified,
-                status:      (tool.published !== false || tool.status === 'approved') ? 'approved' : 'pending',
-                views:       tool.views || 0,
-                downloads:   tool.downloads || 0,
-                likes:       tool.likes || 0,
-                createdAt:   tool.createdAt || firebase.firestore.FieldValue.serverTimestamp(),
-                migratedAt:  new Date().toISOString(),
-            };
-            await fbDb.collection('autoscrip_tools').add(toolData);
-            success++;
-        } catch(e) {
-            console.error('Migration failed for', tool.title, e.message);
-            failed++;
-        }
-    }
-    
-    toast(`✅ ${success}টি টুল Firestore-এ আপলোড হয়েছে${failed ? ' (' + failed + 'টি ব্যর্থ)' : ''}!`, 'success');
-    await loadTools();
-    await loadDashboard();
-}
-window.migrateLocalTools = migrateLocalTools;
-
-
-function showFirestoreSetupGuide() {
-    const tb = document.getElementById('toolsTb');
-    const em = document.getElementById('toolsEm');
-    if (!tb || !em) return;
-    tb.innerHTML = '';
-    em.style.display = 'block';
-    em.innerHTML = `
-    <div style="background:rgba(255,61,87,.06);border:1px solid rgba(255,61,87,.2);border-radius:16px;padding:28px 24px;max-width:560px;margin:0 auto;text-align:left">
-      <div style="font-size:1.6rem;margin-bottom:12px">🔥 Firestore সেটআপ প্রয়োজন</div>
-      <div style="color:#ff9090;font-size:.92rem;line-height:1.7;margin-bottom:20px">
-        Firebase Console-এ Firestore Database এখনো তৈরি হয়নি বা Rules ঠিক নেই।
-        নিচের ধাপগুলো অনুসরণ করুন:
-      </div>
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <a href="https://console.firebase.google.com/project/powerscript-pro-web/firestore" target="_blank"
-           style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.25);border-radius:12px;color:#ffd700;text-decoration:none;font-weight:700;font-size:.9rem">
-          <span style="font-size:1.4rem">1️⃣</span>
-          <div>
-            <div>Firestore Database খুলুন</div>
-            <div style="font-size:.78rem;color:rgba(255,215,0,.7);font-weight:400">console.firebase.google.com → powerscript-pro-web → Firestore</div>
-          </div>
-          <i class="fas fa-external-link-alt" style="margin-left:auto;font-size:.8rem;opacity:.7"></i>
-        </a>
-        <div style="padding:14px 18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;font-size:.88rem;color:var(--muted)">
-          <span style="font-size:1.2rem">2️⃣</span>
-          <strong style="color:var(--text)"> "Create database"</strong> বাটন চাপুন →
-          <strong style="color:var(--primary)">Test mode</strong> বেছে নিন →
-          Location: <strong style="color:var(--text)">asia-south1</strong>
-        </div>
-        <div style="padding:14px 18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;font-size:.88rem;color:var(--muted)">
-          <span style="font-size:1.2rem">3️⃣</span>
-          Database তৈরির পর <strong style="color:var(--primary)">Rules</strong> tab-এ গিয়ে
-          <button onclick="openFirestoreRulesModal()" style="background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.3);color:#ffd700;padding:3px 12px;border-radius:6px;cursor:pointer;font-size:.82rem;font-family:var(--font-head);font-weight:700;margin-left:4px">
-            <i class="fas fa-shield-alt"></i> Rules দেখুন
-          </button>
-        </div>
-        <button onclick="location.reload()" style="padding:12px;background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(255,140,0,.1));border:1px solid rgba(255,215,0,.3);border-radius:12px;color:#ffd700;font-family:var(--font-head);font-weight:700;cursor:pointer;font-size:.9rem;margin-top:4px">
-          <i class="fas fa-sync-alt"></i> সেটআপের পর রিফ্রেশ করুন
-        </button>
-      </div>
-    </div>`;
-}
-
-
 async function loadTools() {
-    // Hide warning banner while loading
-    const warnBanner = document.getElementById('fsWarnBanner');
-    if (warnBanner) warnBanner.style.display = 'none';
     try {
-        // Direct Firestore read — bypass API layer entirely
-        if (!fbDb) {
-            console.error('[loadTools] fbDb not ready');
-            showFirestoreSetupGuide();
-            if (warnBanner) warnBanner.style.display = 'flex';
-            return;
-        }
-        const snap = await fbDb.collection('autoscrip_tools').get();
-        console.log('[loadTools] snap size:', snap.size, 'empty:', snap.empty);
-        
-        if (!snap.empty) {
-            allTools = snap.docs.map(d => ({ id: d.id, _id: d.id, ...d.data() }))
-                .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
-        } else {
-            allTools = [];
-        }
-        
-        renderToolsTable(allTools);
-        const tcEl = document.getElementById('toolCount');
-        if (tcEl) tcEl.textContent = allTools.length;
-        const recent = [...allTools].slice(0, 5);
-        renderRecentTools(recent);
-
-        // AUTO-MIGRATE: If Firestore empty but localStorage has tools → upload automatically
-        if (snap.empty) {
-            const lsKeys = ['autoscrip_tools', 'as7_tools', 'tools'];
-            let lsAll = [];
-            for (const k of lsKeys) {
-                try { const r = localStorage.getItem(k); if(r){ const a=JSON.parse(r); if(Array.isArray(a)) lsAll=[...lsAll,...a]; } } catch(_){}
-            }
-            const seen = new Set();
-            lsAll = lsAll.filter(t=>{ const k=t._id||t.id||t.title||t.name; if(seen.has(k)) return false; seen.add(k); return true; });
+        const result = await API.get('/tools');
+        if (result.success) {
+            allTools = result.tools || [];
+            renderToolsTable(allTools);
+            document.getElementById('toolCount').textContent = allTools.length;
             
-            if (lsAll.length > 0) {
-                console.log('[loadTools] Auto-migrating', lsAll.length, 'tools to Firestore...');
-                toast('⬆️ ' + lsAll.length + 'টি টুল Firestore-এ আপলোড হচ্ছে...', 'info');
-                let ok = 0, fail = 0;
-                for (const tool of lsAll) {
-                    try {
-                        const d = {
-                            title:       tool.title || tool.name || 'Untitled',
-                            name:        tool.title || tool.name || 'Untitled',
-                            category:    tool.category || 'system',
-                            description: tool.description || '',
-                            author:      tool.author || 'AutoScrip Team',
-                            tags:        Array.isArray(tool.tags) ? tool.tags : [],
-                            commands:    tool.commands || (tool.code ? [{title:'Main',code:tool.code,language:'powershell'}] : []),
-                            youtube:     tool.youtube || null,
-                            thumbnail:   tool.thumbnail || null,
-                            slug:        tool.slug || (tool.title||'').toLowerCase().replace(/\s+/g,'-') || '',
-                            published:   tool.published !== false,
-                            featured:    !!tool.featured,
-                            verified:    !!tool.verified,
-                            status:      (tool.published !== false || tool.status === 'approved') ? 'approved' : 'pending',
-                            views:       tool.views || 0,
-                            downloads:   tool.downloads || 0,
-                            likes:       tool.likes || 0,
-                            createdAt:   tool.createdAt || firebase.firestore.FieldValue.serverTimestamp(),
-                        };
-                        await fbDb.collection('autoscrip_tools').add(d);
-                        ok++;
-                    } catch(e) {
-                        console.error('[auto-migrate] Failed:', tool.title, '|', e.code, e.message);
-                        fail++;
-                    }
-                }
-                console.log('[auto-migrate] Done:', ok, 'success,', fail, 'failed');
-                if (ok > 0) {
-                    toast('✅ ' + ok + 'টি টুল Firestore-এ আপলোড হয়েছে!', 'success');
-                    // Reload from Firestore
-                    const snap2 = await fbDb.collection('autoscrip_tools').get();
-                    allTools = snap2.docs.map(d => ({ id: d.id, _id: d.id, ...d.data() }))
-                        .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
-                    renderToolsTable(allTools);
-                    if (tcEl) tcEl.textContent = allTools.length;
-                    renderRecentTools(allTools.slice(0,5));
-                    return; // done
-                } else {
-                    toast('❌ Firestore write ব্যর্থ — Rules চেক করুন', 'error');
-                    if (warnBanner) warnBanner.style.display = 'flex';
-                }
-            }
-        }
-
-        // Fix existing tools missing name/status fields (one-time migration)
-        const needsFix = allTools.filter(t => !t.name || !t.status);
-        if (needsFix.length > 0) {
-            try {
-                const batch = fbDb.batch();
-                needsFix.forEach(t => {
-                    const ref = fbDb.collection('autoscrip_tools').doc(t.id || t._id);
-                    const updates = {};
-                    if (!t.name) updates.name = t.title || '';
-                    if (!t.status) updates.status = t.published !== false ? 'approved' : 'pending';
-                    if (Object.keys(updates).length) batch.update(ref, updates);
-                });
-                await batch.commit();
-                console.log('[loadTools] Fixed', needsFix.length, 'tools missing name/status');
-                // Reload after fix
-                const snap2 = await fbDb.collection('autoscrip_tools').get();
-                allTools = snap2.docs.map(d => ({ id: d.id, _id: d.id, ...d.data() }))
-                    .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
-                renderToolsTable(allTools);
-                if (tcEl) tcEl.textContent = allTools.length;
-            } catch(me) { console.warn('[loadTools] Migration error:', me.message); }
-        }
-
-        if (!allTools.length) {
-            // Collection empty — show add tool prompt (not error)
-            const em = document.getElementById('toolsEm');
-            if (em) {
-                em.style.display = 'block';
-                // Check localStorage for old tools
-                let lsTools = [];
-                try {
-                    const keys = ['autoscrip_tools', 'as7_tools', 'tools'];
-                    for (const k of keys) {
-                        const raw = localStorage.getItem(k);
-                        if (raw) {
-                            const arr = JSON.parse(raw);
-                            if (Array.isArray(arr)) lsTools = [...lsTools, ...arr];
-                        }
-                    }
-                    const seen = new Set();
-                    lsTools = lsTools.filter(t => { const k=t._id||t.id||t.title; if(seen.has(k)) return false; seen.add(k); return true; });
-                } catch(e) {}
-                
-                em.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--muted)">
-                    <i class="fas fa-plus-circle" style="font-size:2.5rem;color:var(--primary);opacity:.5;margin-bottom:14px;display:block"></i>
-                    <div style="font-family:var(--font-head);font-size:1.1rem;margin-bottom:8px;color:var(--text)">Firestore-এ কোনো টুল নেই</div>
-                    ${lsTools.length ? `
-                    <div style="background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:12px;padding:16px 20px;margin:16px auto;max-width:420px;text-align:left">
-                        <div style="font-family:var(--font-head);font-weight:700;color:var(--primary);margin-bottom:8px">
-                            <i class="fas fa-database"></i> ${lsTools.length}টি পুরনো টুল পাওয়া গেছে!
-                        </div>
-                        <div style="font-size:.84rem;margin-bottom:14px;color:var(--muted)">
-                            আগের admin-এ তৈরি টুলগুলো localStorage-এ আছে। Firestore-এ migrate করুন।
-                        </div>
-                        <button class="btn btn-pr" onclick="migrateLocalTools()" style="width:100%">
-                            <i class="fas fa-upload"></i> ${lsTools.length}টি টুল Firestore-এ আপলোড করুন
-                        </button>
-                    </div>` : `<div style="font-size:.85rem;margin-bottom:18px">প্রথম টুল যুক্ত করুন</div>`}
-                    <button class="btn btn-pr" onclick="showP('add-tool');rstTool()" style="${lsTools.length ? 'background:transparent;border:1px solid rgba(255,215,0,.3)' : ''}">
-                        <i class="fas fa-plus"></i> নতুন টুল যোগ করুন
-                    </button>
-                </div>`;
-            }
+            const recent = [...allTools].sort((a,b) => (b.createdAt||0) - (a.createdAt||0)).slice(0,5);
+            renderRecentTools(recent);
         }
     } catch (error) {
-        console.error('[loadTools] Error:', error.code, error.message);
-        if (warnBanner) warnBanner.style.display = 'flex';
+        toast('সার্ভার অফলাইন - লোকাল ডেটা ব্যবহার হচ্ছে', 'warning');
         // Fallback to localStorage
         try {
             const localTools = JSON.parse(localStorage.getItem('autoscrip_tools') || '[]');
             if (localTools.length) {
                 allTools = localTools;
                 renderToolsTable(allTools);
-                const tcEl = document.getElementById('toolCount');
-                if (tcEl) tcEl.textContent = allTools.length + ' (লোকাল)';
-            } else {
-                showFirestoreSetupGuide();
+                document.getElementById('toolCount').textContent = allTools.length;
             }
-        } catch(e) {
-            showFirestoreSetupGuide();
-        }
+        } catch(e) {}
     }
 }
 
@@ -7189,7 +6883,6 @@ async function saveTool(preview = false) {
     try {
         const toolData = {
             title,
-            name: title,        // user.html uses 'name' field
             category,
             description,
             author,
@@ -7202,7 +6895,6 @@ async function saveTool(preview = false) {
             published,
             featured,
             verified,
-            status: published ? 'approved' : 'pending',  // user.html filters on status
             version: version ? parseInt(version) + 1 : 1,
             updatedAt: new Date().toISOString()
         };
@@ -8762,7 +8454,6 @@ function renderActivityLog(logs) {
     `).join('');
 }
 
-function clearActivityLog() { clearLog(); }
 async function clearLog() {
     if (!confirm('লগ মুছবেন?')) return;
     
@@ -9173,11 +8864,6 @@ window.closeCfm = closeCfm;
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.forgotPassword = forgotPassword;
-window.toggleMobileMenu = toggleMobileMenu;
-window.closeMobileMenu = closeMobileMenu;
-window.clearActivityLog = clearActivityLog;
-window.clearLog = clearLog;
-window.loadActivityLog = loadActivityLog;
 window.refreshCharts = refreshCharts;
 
 // ===== MOBILE MENU =====
@@ -9444,11 +9130,4 @@ service cloud.firestore {
       </div>
       <div style="background:rgba(0,230,118,.06);border:1px solid rgba(0,230,118,.2);border-radius:12px;padding:14px 16px;font-size:.84rem;color:#80ffb0;line-height:1.65">
         <i class="fas fa-info-circle" style="color:#00e676;margin-right:6px"></i>
-        Rules paste করে Firebase Console এ <strong>Publish</strong> বাটন চাপুন। তারপর এই পেজ রিফ্রেশ করুন — ডিলিট কাজ করবে।
-      </div>
-    </div>
-  </div>
-</div>
-
-</body>
-</html>
+        Rules paste করে Firebase Console এ <strong>Publish</strong> বাটন চাপুন। তারপর এই পেজ রিফ্�
