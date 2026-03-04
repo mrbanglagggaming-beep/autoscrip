@@ -4500,6 +4500,33 @@ body.offline-mode { padding-top: 44px !important; }
           <button class="btn btn-ghost" onclick="loadSettings()"><i class="fas fa-sync"></i></button>
         </div>
         <p style="font-size:.75rem;color:var(--muted);text-align:center">সেটিংস সেভ করলে ইউজার সাইটে সাথে সাথে প্রযোজ্য হবে।</p>
+
+        <!-- Password Change -->
+        <div class="cd" style="margin-top:24px">
+          <div class="cd-hd"><div class="cd-tt">🔑 পাসওয়ার্ড পরিবর্তন</div></div>
+          <div class="cd-bd">
+            <div class="fg"><label class="fl">বর্তমান পাসওয়ার্ড</label><input type="password" class="fc" id="curPwd" placeholder="বর্তমান পাসওয়ার্ড"></div>
+            <div class="fg"><label class="fl">নতুন পাসওয়ার্ড</label><input type="password" class="fc" id="newPwd" placeholder="নতুন পাসওয়ার্ড"></div>
+            <div class="progress" style="margin-bottom:12px"><div class="progress-bar" id="passwordStrength" style="width:0%"></div></div>
+            <div class="fg"><label class="fl">পাসওয়ার্ড নিশ্চিত করুন</label><input type="password" class="fc" id="cfmPwd" placeholder="পাসওয়ার্ড আবার লিখুন"></div>
+            <button class="btn btn-pr" onclick="changePwd()"><i class="fas fa-key"></i> পরিবর্তন করুন</button>
+          </div>
+        </div>
+
+        <!-- 2FA -->
+        <div class="cd" style="margin-top:24px">
+          <div class="cd-hd"><div class="cd-tt">🔐 দ্বি-স্তরীয় যাচাইকরণ (2FA)</div></div>
+          <div class="cd-bd">
+            <label class="fck">
+              <div class="tg"><input type="checkbox" id="twoFactorToggle" onchange="toggle2FA()"><div class="tg-sl"></div></div>
+              2FA সক্রিয় করুন
+            </label>
+            <div id="qrCodeSetup" style="display:none;margin-top:16px">
+              <p class="text-muted" style="font-size:.85rem;margin-bottom:12px">Google Authenticator দিয়ে QR স্ক্যান করুন:</p>
+              <canvas id="qrCodeCanvas" style="background:#fff;padding:8px;border-radius:8px"></canvas>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -4525,6 +4552,7 @@ body.offline-mode { padding-top: 44px !important; }
         <!-- Add/Edit Form -->
         <div>
           <div class="yt-form-card" id="ytVideoForm">
+            <input type="hidden" id="editYtId">
             <div class="yt-form-title"><i class="fab fa-youtube" style="color:#ff4444"></i> <span id="ytFormTitle">নতুন ভিডিও যোগ করুন</span></div>
               <div class="fg"><label class="fl">শিরোনাম *</label><input type="text" class="fc" id="ytVidTitle" placeholder="PowerShell পরিচিতি..."></div>
               <div class="fg"><label class="fl">বিবরণ</label><textarea class="fc" id="ytVidDesc" rows="2" placeholder="ভিডিওর সংক্ষিপ্ত বিবরণ..."></textarea></div>
@@ -5997,14 +6025,14 @@ function editDefaultVideo(id, idx) {
     document.getElementById('ytVidTitle').value = v.title || '';
     document.getElementById('ytVidDesc').value = v.desc || '';
     document.getElementById('ytVidId').value = v.vid || '';
-    document.getElementById('ytVidChannel').value = v.chUrl || '';
+    document.getElementById('ytVidUrl').value = v.chUrl || '';
     document.getElementById('ytVidViews').value = v.views || '';
     document.getElementById('ytVidDate').value = v.date || '';
     document.getElementById('ytVidLevel').value = v.level || 'beginner';
     // Mark as new (will create in Firestore on save)
     document.getElementById('editYtId').value = '';
     document.getElementById('ytFormTitle').textContent = '📝 ডিফল্ট ভিডিও সম্পাদনা (সেভ করলে Firestore-এ যাবে)';
-    document.querySelector('#pnl-youtube .yt-form-col').scrollIntoView({behavior:'smooth'});
+    document.getElementById('ytVideoForm').scrollIntoView({behavior:'smooth'});
 }
 window.editDefaultVideo = editDefaultVideo;
 
@@ -6128,8 +6156,6 @@ window.reorderYtVideo = reorderYtVideo;
 // Wait until fbAuth is initialized, then register listener
 (function waitAndRegisterAuthListener() {
     if (typeof fbAuth !== 'undefined' && fbAuth) {
-        (function waitAndRegisterAuthListener() {
-    if (typeof fbAuth !== 'undefined' && fbAuth) {
         fbAuth.onAuthStateChanged(async (user) => {
         if (!user) return; // Not logged in — stay on login screen
 
@@ -6183,10 +6209,6 @@ window.reorderYtVideo = reorderYtVideo;
         loadSettings();
         loadTeam();
     });
-    } else {
-        setTimeout(waitAndRegisterAuthListener, 200);
-    }
-})();
     } else {
         setTimeout(waitAndRegisterAuthListener, 200);
     }
@@ -8454,6 +8476,7 @@ function renderActivityLog(logs) {
     `).join('');
 }
 
+function clearActivityLog() { clearLog(); }
 async function clearLog() {
     if (!confirm('লগ মুছবেন?')) return;
     
@@ -8864,6 +8887,11 @@ window.closeCfm = closeCfm;
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.forgotPassword = forgotPassword;
+window.toggleMobileMenu = toggleMobileMenu;
+window.closeMobileMenu = closeMobileMenu;
+window.clearActivityLog = clearActivityLog;
+window.clearLog = clearLog;
+window.loadActivityLog = loadActivityLog;
 window.refreshCharts = refreshCharts;
 
 // ===== MOBILE MENU =====
@@ -9130,4 +9158,11 @@ service cloud.firestore {
       </div>
       <div style="background:rgba(0,230,118,.06);border:1px solid rgba(0,230,118,.2);border-radius:12px;padding:14px 16px;font-size:.84rem;color:#80ffb0;line-height:1.65">
         <i class="fas fa-info-circle" style="color:#00e676;margin-right:6px"></i>
-        Rules paste করে Firebase Console এ <strong>Publish</strong> বাটন চাপুন। তারপর এই পেজ রিফ্�
+        Rules paste করে Firebase Console এ <strong>Publish</strong> বাটন চাপুন। তারপর এই পেজ রিফ্রেশ করুন — ডিলিট কাজ করবে।
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
