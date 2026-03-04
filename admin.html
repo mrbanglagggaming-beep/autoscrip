@@ -4749,7 +4749,7 @@ body.offline-mode { padding-top: 44px !important; }
 window.onerror = function(msg, src, line, col, err) {
   // Suppress Firestore / network errors from global handler
   const msgStr = String(msg || '');
-  const SILENT = ['permission-denied','Missing or insufficient','offline','network','Failed to get','ResizeObserver'];
+  const SILENT = ['permission-denied','Missing or insufficient','offline','network','Failed to get','ResizeObserver','Failed to load resource','404','Listen/channel','WebChannel'];
   if (SILENT.some(s => msgStr.includes(s))) return true;
   const safeMsg = 'অপ্রত্যাশিত সমস্যা হয়েছে। পেজ রিফ্রেশ করুন।';
   try { toast(safeMsg, 'error'); } catch(e) {}
@@ -4758,7 +4758,7 @@ window.onerror = function(msg, src, line, col, err) {
 // Suppress noisy Firestore internal errors
 ;(function(){
   var _ce=console.error, _cw=console.warn;
-  var _sup=['WebChannelConnection','transport errored','Listen/channel','WebChannel','@firebase/firestore'];
+  var _sup=['WebChannelConnection','transport errored','Listen/channel','WebChannel','@firebase/firestore','Firestore/Listen','Failed to load resource','404'];
   console.error=function(){var m=Array.prototype.join.call(arguments,' ');if(_sup.some(function(s){return m.indexOf(s)>=0;}))return;_ce.apply(console,arguments);};
   console.warn=function(){var m=Array.prototype.join.call(arguments,' ');if(_sup.some(function(s){return m.indexOf(s)>=0;}))return;_cw.apply(console,arguments);};
 })();
@@ -4768,7 +4768,7 @@ window.addEventListener('unhandledrejection', (e) => {
   const msg = e?.reason?.message || e?.reason || '';
   const code = e?.reason?.code || '';
   const SILENT = ['permission-denied','unavailable','cancelled','already-exists'];
-  const SILENT_MSG = ['Missing or insufficient','offline','network','Failed to get'];
+  const SILENT_MSG = ['Missing or insufficient','offline','network','Failed to get','Failed to load resource','Listen/channel','WebChannel','404'];
   const isSilent = SILENT.includes(code) || SILENT_MSG.some(s => String(msg).includes(s));
   if (!isSilent) {
     try { toast('নেটওয়ার্ক সমস্যা। পুনরায় চেষ্টা করুন।', 'warning'); } catch(e2) {}
