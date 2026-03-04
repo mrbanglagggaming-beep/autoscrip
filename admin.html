@@ -5245,8 +5245,15 @@ const API = {
             }
 
             if (ep === 'tools' && method === 'POST') {
-                const doc = await this._col(FS.tools).add({ ...data, createdAt:this._ts(), views:0, downloads:0, likes:0 });
-                const saved = { id: doc.id, ...data };
+                const docData = {
+                    ...data,
+                    name: data.title || data.name || '',
+                    status: data.published ? 'approved' : 'pending',
+                    createdAt: this._ts(),
+                    views: 0, downloads: 0, likes: 0
+                };
+                const doc = await this._col(FS.tools).add(docData);
+                const saved = { id: doc.id, _id: doc.id, ...docData };
                 allTools.unshift(saved);
                 return { success:true, tool: saved };
             }
@@ -6694,37 +6701,88 @@ function showFirestoreSetupGuide() {
 
 
 async function loadTools() {
+    // Hide warning banner while loading
+    const warnBanner = document.getElementById('fsWarnBanner');
+    if (warnBanner) warnBanner.style.display = 'none';
     try {
-        const result = await API.get('/tools');
-        if (result.success) {
-            allTools = result.tools || [];
-            renderToolsTable(allTools);
-            document.getElementById('toolCount').textContent = allTools.length;
-            
-            const recent = [...allTools].sort((a,b) => (b.createdAt||0) - (a.createdAt||0)).slice(0,5);
-            renderRecentTools(recent);
-            
-            // If Firestore connected but empty — show helpful guide
-            if (!allTools.length) {
-                showFirestoreSetupGuide();
-                document.getElementById('fsWarnBanner').style.display='flex';
-            }
-        } else {
+        // Direct Firestore read — bypass API layer entirely
+        if (!fbDb) {
+            console.error('[loadTools] fbDb not ready');
             showFirestoreSetupGuide();
-            document.getElementById('fsWarnBanner').style.display='flex';
+            if (warnBanner) warnBanner.style.display = 'flex';
+            return;
+        }
+        const snap = await fbDb.collection('autoscrip_tools').get();
+        console.log('[loadTools] snap size:', snap.size, 'empty:', snap.empty);
+        
+        if (!snap.empty) {
+            allTools = snap.docs.map(d => ({ id: d.id, _id: d.id, ...d.data() }))
+                .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
+        } else {
+            allTools = [];
+        }
+        
+        renderToolsTable(allTools);
+        const tcEl = document.getElementById('toolCount');
+        if (tcEl) tcEl.textContent = allTools.length;
+        const recent = [...allTools].slice(0, 5);
+        renderRecentTools(recent);
+        
+        // Fix existing tools missing name/status fields (one-time migration)
+        const needsFix = allTools.filter(t => !t.name || !t.status);
+        if (needsFix.length > 0) {
+            try {
+                const batch = fbDb.batch();
+                needsFix.forEach(t => {
+                    const ref = fbDb.collection('autoscrip_tools').doc(t.id || t._id);
+                    const updates = {};
+                    if (!t.name) updates.name = t.title || '';
+                    if (!t.status) updates.status = t.published !== false ? 'approved' : 'pending';
+                    if (Object.keys(updates).length) batch.update(ref, updates);
+                });
+                await batch.commit();
+                console.log('[loadTools] Fixed', needsFix.length, 'tools missing name/status');
+                // Reload after fix
+                const snap2 = await fbDb.collection('autoscrip_tools').get();
+                allTools = snap2.docs.map(d => ({ id: d.id, _id: d.id, ...d.data() }))
+                    .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
+                renderToolsTable(allTools);
+                if (tcEl) tcEl.textContent = allTools.length;
+            } catch(me) { console.warn('[loadTools] Migration error:', me.message); }
+        }
+
+        if (!allTools.length) {
+            // Collection empty — show add tool prompt (not error)
+            const em = document.getElementById('toolsEm');
+            if (em) {
+                em.style.display = 'block';
+                em.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--muted)">
+                    <i class="fas fa-plus-circle" style="font-size:2.5rem;color:var(--primary);opacity:.5;margin-bottom:14px;display:block"></i>
+                    <div style="font-family:var(--font-head);font-size:1.1rem;margin-bottom:8px;color:var(--text)">কোনো টুল নেই</div>
+                    <div style="font-size:.85rem;margin-bottom:18px">প্রথম টুল যুক্ত করুন</div>
+                    <button class="btn btn-pr" onclick="showP('add-tool');rstTool()">
+                        <i class="fas fa-plus"></i> নতুন টুল যোগ করুন
+                    </button>
+                </div>`;
+            }
         }
     } catch (error) {
-        showFirestoreSetupGuide();
-        document.getElementById('fsWarnBanner').style.display='flex';
-        // Also try localStorage as fallback
+        console.error('[loadTools] Error:', error.code, error.message);
+        if (warnBanner) warnBanner.style.display = 'flex';
+        // Fallback to localStorage
         try {
             const localTools = JSON.parse(localStorage.getItem('autoscrip_tools') || '[]');
             if (localTools.length) {
                 allTools = localTools;
                 renderToolsTable(allTools);
-                document.getElementById('toolCount').textContent = allTools.length + ' (লোকাল)';
+                const tcEl = document.getElementById('toolCount');
+                if (tcEl) tcEl.textContent = allTools.length + ' (লোকাল)';
+            } else {
+                showFirestoreSetupGuide();
             }
-        } catch(e) {}
+        } catch(e) {
+            showFirestoreSetupGuide();
+        }
     }
 }
 
@@ -6976,6 +7034,7 @@ async function saveTool(preview = false) {
     try {
         const toolData = {
             title,
+            name: title,        // user.html uses 'name' field
             category,
             description,
             author,
@@ -6988,6 +7047,7 @@ async function saveTool(preview = false) {
             published,
             featured,
             verified,
+            status: published ? 'approved' : 'pending',  // user.html filters on status
             version: version ? parseInt(version) + 1 : 1,
             updatedAt: new Date().toISOString()
         };
