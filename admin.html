@@ -19,68 +19,44 @@
   <script>
   (function() {
     var VER = '10.7.1';
-    // CDN priority: jsdelivr first (most reliable globally), then gstatic, then unpkg
     var CDNs = [
-      'https://cdn.jsdelivr.net/npm/firebase@' + VER + '/',
-      'https://www.gstatic.com/firebasejs/' + VER + '/',
-      'https://unpkg.com/firebase@' + VER + '/'
+      'https://www.gstatic.com/firebasejs/'+VER+'/',
+      'https://cdn.jsdelivr.net/npm/firebase@'+VER+'/'
     ];
-    var files = [
-      'firebase-app-compat.js',
-      'firebase-auth-compat.js',
-      'firebase-firestore-compat.js'
-    ];
+    var files = ['firebase-app-compat.js','firebase-auth-compat.js','firebase-firestore-compat.js'];
     var cdnIdx = 0, fileIdx = 0;
-    window.__firebaseSDKReady = false;
-
-    function loadFile() {
+    function next() {
       if (fileIdx >= files.length) {
-        window.__firebaseSDKReady = true;
-        console.log('[Firebase] SDK ready via ' + CDNs[cdnIdx]);
+        // All scripts loaded — now safe to init Firebase
+        console.log('[Firebase] All SDK scripts loaded, initializing...');
+        if (typeof initFirebase === 'function') {
+          initFirebase();
+        } else {
+          // initFirebase defined later in the page — wait for it
+          document.addEventListener('DOMContentLoaded', function() {
+            if (typeof initFirebase === 'function') initFirebase();
+          });
+        }
         return;
       }
       var s = document.createElement('script');
-      var url = CDNs[cdnIdx] + files[fileIdx];
-      s.src = url;
-
-      // Timeout: if file takes > 8s, try next CDN
-      var timer = setTimeout(function() {
-        s.onload = s.onerror = null;
-        document.head.removeChild(s);
-        tryNextCDN();
-      }, 8000);
-
-      s.onload = function() {
-        clearTimeout(timer);
-        fileIdx++;
-        loadFile();
-      };
+      s.src = CDNs[cdnIdx] + files[fileIdx];
+      s.onload = function() { fileIdx++; next(); };
       s.onerror = function() {
-        clearTimeout(timer);
-        tryNextCDN();
+        if (cdnIdx < CDNs.length - 1) {
+          // Switch CDN, keep fileIdx so we retry only the failed file
+          cdnIdx++;
+          console.warn('[Firebase] Primary CDN failed for ' + files[fileIdx] + ', trying jsdelivr...');
+          next();
+        } else {
+          console.error('[Firebase] All CDNs failed for:', files[fileIdx]);
+          fileIdx++; // skip and try next file
+          next();
+        }
       };
       document.head.appendChild(s);
     }
-
-    function tryNextCDN() {
-      if (cdnIdx < CDNs.length - 1) {
-        cdnIdx++;
-        fileIdx = 0; // restart all files from new CDN
-        console.info('[Firebase] Switching CDN to: ' + CDNs[cdnIdx]);
-        loadFile();
-      } else {
-        // All CDNs failed
-        console.error('[Firebase] All CDNs failed. Check internet connection.');
-        window.__firebaseSDKReady = false;
-        var el = document.getElementById('loginConnStatus');
-        if (el) {
-          el.innerHTML = '<i class="fas fa-times-circle"></i> Firebase লোড ব্যর্থ। ইন্টারনেট চেক করুন।';
-          el.className = 'alert alert-danger';
-        }
-      }
-    }
-
-    loadFile();
+    next();
   })();
   </script>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" defer></script>
@@ -4711,8 +4687,6 @@ body.offline-mode { padding-top: 44px !important; }
 
 
 
-
-
 // ===== GLOBAL ERROR BOUNDARY =====
 window.onerror = function(msg, src, line, col, err) {
   // Suppress Firestore / network errors from global handler
@@ -4917,29 +4891,30 @@ let fbApp, fbAuth, fbDb;
     const maxWait = 10000;
     const start = Date.now();
     function tryInit() {
-        var sdkOK = window.__firebaseSDKReady === true
-            && typeof firebase !== 'undefined'
-            && typeof firebase.auth === 'function'
-            && typeof firebase.firestore === 'function';
-        if (sdkOK) {
+        if (typeof firebase !== 'undefined' && typeof firebase.auth === 'function' && typeof firebase.firestore === 'function') {
             try {
-                fbApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
+                // Prevent duplicate app
+                if (!firebase.apps.length) {
+                    fbApp = firebase.initializeApp(FIREBASE_CONFIG);
+                } else {
+                    fbApp = firebase.app();
+                }
                 fbAuth = firebase.auth();
                 fbDb   = firebase.firestore();
-                console.log('[Firebase] Init OK');
+                // Firebase compat SDK v10+ caches offline automatically — no enablePersistence needed
+                console.log('✅ Firebase initialized successfully');
+                if (typeof waitAndRegisterAuthListener === 'function') { try { waitAndRegisterAuthListener(); } catch(e) {} }
+                // Trigger auth listener registration now that fbAuth is ready
                 if (typeof waitAndRegisterAuthListener === 'function') {
-                    try { waitAndRegisterAuthListener(); } catch(_e) {}
+                    try { waitAndRegisterAuthListener(); } catch(e) {}
                 }
             } catch(e) {
-                console.error('[Firebase] Init error:', e.message);
-                if (Date.now() - start < maxWait) setTimeout(tryInit, 300);
+                console.error('Firebase init error:', e.message);
             }
         } else if (Date.now() - start < maxWait) {
-            setTimeout(tryInit, 150);
+            setTimeout(tryInit, 100);
         } else {
-            console.error('[Firebase] SDK not ready after 10s');
-            var el = document.getElementById('loginConnStatus');
-            if (el) { el.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Firebase লোড হয়নি। পেজ রিফ্রেশ করুন।'; el.className = 'alert alert-danger'; }
+            console.error('Firebase SDK not loaded after 5s — check network');
         }
     }
     tryInit();
@@ -6295,12 +6270,7 @@ async function doLogin() {
     if (errDiv) errDiv.style.display = 'none';
 
     try {
-        if (!fbAuth) {
-            if (window.__firebaseSDKReady && typeof firebase !== 'undefined' && typeof firebase.auth === 'function') {
-                try { fbAuth = firebase.auth(); fbDb = firebase.firestore(); } catch(_r) {}
-            }
-            if (!fbAuth) throw new Error('Firebase লোড হচ্ছে — অপেক্ষা করুন বা রিফ্রেশ করুন।');
-        }
+        if (!fbAuth) throw new Error('Firebase Auth লোড হয়নি। পেজ রিফ্রেশ করুন।');
 
         // Step 1: Firebase Auth sign-in
         const cred = await fbAuth.signInWithEmailAndPassword(email, password);
@@ -9024,8 +8994,6 @@ window.showFirestoreRulesHelp = function() {
   if (modal) { modal.style.display = 'flex'; }
 };
 
-
-
 </script>
 
 <!-- ===== FIRESTORE RULES HELP MODAL ===== -->
@@ -9057,7 +9025,7 @@ service cloud.firestore {
 
     function isAdmin() {
       return request.auth != null &amp;&amp; (
-        request.auth.token.email == '<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="08657a6a69666f64696f6f6f696561666f486f65696164266b6765">[email&#160;protected]</a>' ||
+        request.auth.token.email == '<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e9849b8b88878e85888e8e8e888480878ea98e84888085c78a8684">[email&#160;protected]</a>' ||
         request.auth.uid == 'E97OGEv5ZJFbHaoojCnFe25GSeY1' ||
         exists(/databases/$(database)/documents/autoscrip_admins/$(request.auth.uid))
       );
@@ -9115,4 +9083,4 @@ service cloud.firestore {
       </div>
       <div style="background:rgba(0,230,118,.06);border:1px solid rgba(0,230,118,.2);border-radius:12px;padding:14px 16px;font-size:.84rem;color:#80ffb0;line-height:1.65">
         <i class="fas fa-info-circle" style="color:#00e676;margin-right:6px"></i>
-        Rules paste করে Firebase Console এ <strong>Publish</strong> বাটন চাপুন। তারপর এই পেজ রিফ্�
+        Rules paste করে Firebase Console এ <strong>Publish</strong> বাটন চাপুন। তারপর এই পেজ রিফ্
