@@ -3520,7 +3520,19 @@ body.offline-mode { padding-top: 44px !important; }
 
   <!-- ===== NOTIFICATIONS PANEL ===== -->
   <div class="pnl" id="pnl-notifs">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    <!-- Stats row -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px">
+      <div class="cd" style="padding:20px;text-align:center">
+        <div style="font-size:.78rem;color:var(--muted);font-family:var(--font-display);letter-spacing:1px;margin-bottom:6px">মোট সাবস্ক্রাইবার</div>
+        <div id="subscriberCount" style="font-size:2rem;font-weight:700;color:var(--primary);font-family:var(--font-display)">—</div>
+      </div>
+      <div class="cd" style="padding:20px;text-align:center">
+        <div style="font-size:.78rem;color:var(--muted);font-family:var(--font-display);letter-spacing:1px;margin-bottom:6px">সক্রিয় সাবস্ক্রাইবার</div>
+        <div id="activeSubscriberCount" style="font-size:2rem;font-weight:700;color:var(--success,#00c853);font-family:var(--font-display)">—</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px">
       <!-- Send Notification -->
       <div class="cd">
         <div class="cd-hd">
@@ -3530,7 +3542,7 @@ body.offline-mode { padding-top: 44px !important; }
           <div class="fg">
             <label class="fl">প্রাপক</label>
             <select class="fc" id="ntTarget">
-              <option value="all">সকল ইউজার</option>
+              <option value="all">সকল সাবস্ক্রাইবার</option>
               <option value="site">সাইটে ব্যানার</option>
             </select>
           </div>
@@ -3545,13 +3557,19 @@ body.offline-mode { padding-top: 44px !important; }
               <option value="✅">✅ সফলতা</option>
               <option value="🎉">🎉 উৎসব</option>
               <option value="🚀">🚀 রকেট</option>
+              <option value="🛠️">🛠️ টুলস</option>
             </select>
+          </div>
+          
+          <div class="fg">
+            <label class="fl">টাইটেল (ঐচ্ছিক)</label>
+            <input type="text" class="fc" id="ntTitle" placeholder="নোটিফিকেশন টাইটেল...">
           </div>
           
           <div class="fg">
             <label class="fl">বার্তা *</label>
             <textarea class="fc" id="ntMsg" rows="4" 
-                      placeholder="নোটিফিকেশনের বার্তা..."></textarea>
+                      placeholder="নোটিফিকেশনের বার্তা লিখুন..."></textarea>
           </div>
           
           <div class="fg">
@@ -3574,7 +3592,34 @@ body.offline-mode { padding-top: 44px !important; }
             <i class="fas fa-trash"></i> সব মুছুন
           </button>
         </div>
-        <div class="cd-bd" id="notifHistory" style="max-height: 400px; overflow-y: auto;"></div>
+        <div class="cd-bd" id="notifHistory" style="max-height:420px;overflow-y:auto"></div>
+      </div>
+    </div>
+
+    <!-- Subscriber Table -->
+    <div class="cd">
+      <div class="cd-hd">
+        <div class="cd-tt">👥 সাবস্ক্রাইবার তালিকা</div>
+        <button class="btn btn-gh btn-sm" onclick="loadSubscriberStats()">
+          <i class="fas fa-sync-alt"></i> রিফ্রেশ
+        </button>
+      </div>
+      <div class="cd-bd" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr style="background:rgba(0,0,0,.2)">
+              <th style="padding:12px 16px;text-align:left;font-size:.8rem;color:var(--muted);font-weight:600">ইউজার</th>
+              <th style="padding:12px 16px;text-align:left;font-size:.8rem;color:var(--muted);font-weight:600">ইমেইল</th>
+              <th style="padding:12px 16px;text-align:left;font-size:.8rem;color:var(--muted);font-weight:600">স্ট্যাটাস</th>
+              <th style="padding:12px 16px;text-align:left;font-size:.8rem;color:var(--muted);font-weight:600">প্ল্যাটফর্ম</th>
+              <th style="padding:12px 16px;text-align:left;font-size:.8rem;color:var(--muted);font-weight:600">সাবস্ক্রাইব তারিখ</th>
+              <th style="padding:12px 16px;text-align:left;font-size:.8rem;color:var(--muted);font-weight:600">অ্যাকশন</th>
+            </tr>
+          </thead>
+          <tbody id="subscriberTableBody">
+            <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)"><i class="fas fa-spinner fa-spin" style="margin-right:8px"></i>লোড হচ্ছে...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -4009,6 +4054,9 @@ body.offline-mode { padding-top: 44px !important; }
 
 
 
+
+
+
 // ===== GLOBAL ERROR BOUNDARY =====
 window.onerror = function(msg, src, line, col, err) {
   const safeMsg = 'অপ্রত্যাশিত সমস্যা হয়েছে। পেজ রিফ্রেশ করুন।';
@@ -4174,7 +4222,8 @@ const FIREBASE_CONFIG = {
     appId:             "1:709315727810:web:abeb73172635061343c65b"
 };
 
-const ADMIN_UID_MASTER = "E97OGEv5ZJFbHaoojCnFe25GSeY1";
+const ADMIN_UID_MASTER   = "E97OGEv5ZJFbHaoojCnFe25GSeY1";
+const ADMIN_EMAIL_MASTER = "mrbanglagggaming@gmail.com";
 
 // Firebase instances (loaded from CDN scripts in <head>)
 let fbApp, fbAuth, fbDb;
@@ -4193,10 +4242,9 @@ let fbApp, fbAuth, fbDb;
                 fbAuth = firebase.auth();
                 fbDb   = firebase.firestore();
                 // Enable Firestore offline persistence
-                fbDb.enablePersistence({ synchronizeTabs: true }).catch(e => {
-                    if (e.code !== 'failed-precondition' && e.code !== 'unimplemented') {
-                        console.warn('Firestore persistence:', e.code);
-                    }
+                // Persistence (compat SDK v10 style)
+                fbDb.enablePersistence({ synchronizeTabs: true }).catch(function() {
+                    /* Persistence errors silently ignored (multiple tabs, deprecated API, etc.) */
                 });
                 console.log('✅ Firebase initialized successfully');
             } catch(e) {
@@ -4213,14 +4261,15 @@ let fbApp, fbAuth, fbDb;
 
 // Firestore collections
 const FS = {
-    tools:    'autoscrip_tools',
-    users:    'autoscrip_users',
-    requests: 'autoscrip_requests',
-    comments: 'autoscrip_comments',
-    config:   'autoscrip_config',
-    admins:   'autoscrip_admins',
-    activity: 'autoscrip_activity',
-    notifs:   'autoscrip_notifications'
+    tools:       'autoscrip_tools',
+    users:       'autoscrip_users',
+    requests:    'autoscrip_requests',
+    comments:    'autoscrip_comments',
+    config:      'autoscrip_config',
+    admins:      'autoscrip_admins',
+    activity:    'autoscrip_activity',
+    notifs:      'autoscrip_notifications',
+    subscribers: 'autoscrip_subscribers'
 };
 
 // ===== CONFIGURATION =====
@@ -4997,43 +5046,49 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
     fbAuth.onAuthStateChanged(async (user) => {
-        if (user) {
-            // User already signed in — restore session
-            let adminData = null;
-            let firestoreOk = true;
-            try {
-                const doc = await fbDb.collection(FS.admins).doc(user.uid).get();
-                if (doc.exists) adminData = doc.data();
-            } catch(e) {
-                firestoreOk = false;
-                console.warn('onAuthStateChanged Firestore read failed:', e.code);
-            }
+        if (!user) return; // Not logged in — stay on login screen
 
-            // Allow: master UID, has admin doc, or Firestore inaccessible
-            const allowed = user.uid === ADMIN_UID_MASTER || !!adminData || !firestoreOk;
-            if (allowed) {
-                currentUser = {
-                    email:    user.email,
-                    name:     adminData?.name || user.displayName || user.email.split('@')[0],
-                    role:     adminData?.role || 'super_admin',
-                    uid:      user.uid,
-                    twoFactorEnabled: adminData?.twoFactorEnabled || false
-                };
-                currentUserRole = currentUser.role;
+        // Multi-layer admin check (same as doLogin)
+        const isAdminEmail = user.email === ADMIN_EMAIL_MASTER;
+        const isMasterUID  = user.uid   === ADMIN_UID_MASTER;
+        let adminData = null;
+        let hasAdminDoc = false;
 
-                showApp();
-                loadDashboard();
-                loadTools();
-                loadUsers();
-                loadReqs();
-                loadCom();
-                loadAnalytics();
-                loadSettings();
-                loadTeam();
-            }
-            // else: stay on login screen
+        try {
+            const doc = await Promise.race([
+                fbDb.collection(FS.admins).doc(user.uid).get(),
+                new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
+            ]);
+            if (doc.exists) { adminData = doc.data(); hasAdminDoc = true; }
+        } catch(e) {
+            console.warn('[AuthState] Firestore read failed — using email/UID fallback');
         }
-        // else: show login screen (already default state)
+
+        const allowed = isAdminEmail || isMasterUID || hasAdminDoc;
+        if (!allowed) {
+            console.warn('[AuthState] User not admin — signing out');
+            fbAuth.signOut();
+            return;
+        }
+
+        currentUser = {
+            uid:              user.uid,
+            email:            user.email,
+            name:             adminData?.name || user.displayName || user.email.split('@')[0],
+            role:             adminData?.role || 'super_admin',
+            twoFactorEnabled: adminData?.twoFactorEnabled || false
+        };
+        currentUserRole = currentUser.role;
+
+        showApp();
+        loadDashboard();
+        loadTools();
+        loadUsers();
+        loadReqs();
+        loadCom();
+        loadAnalytics();
+        loadSettings();
+        loadTeam();
     });
 
     // Connection status
@@ -5139,63 +5194,68 @@ async function toggle2FA() {
 
 // ===== LOGIN FUNCTION (Firebase Auth) =====
 async function doLogin() {
-    const email    = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPwd').value;
+    const email    = document.getElementById('loginEmail')?.value.trim() || '';
+    const password = document.getElementById('loginPwd')?.value || '';
     const btn      = document.getElementById('loginBtn');
     const errDiv   = document.getElementById('loginErr');
-    const errMsg   = document.getElementById('loginErrMsg');
 
     if (!email || !password) { showLoginError('ইমেইল ও পাসওয়ার্ড দিন'); return; }
-    if (!Security.validateEmail(email)) { showLoginError('সঠিক ইমেইল ঠিকানা দিন'); return; }
 
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> লগইন হচ্ছে...';
-    btn.disabled  = true;
-    errDiv.style.display = 'none';
+    if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> লগইন হচ্ছে...'; btn.disabled = true; }
+    if (errDiv) errDiv.style.display = 'none';
 
     try {
-        // Ensure Firebase is ready
-        if (!fbAuth) {
-            showLoginError('Firebase লোড হয়নি। পেজ রিফ্রেশ করুন।');
-            return;
-        }
-        console.log('[Login] Attempting Firebase Auth...');
+        if (!fbAuth) throw new Error('Firebase Auth লোড হয়নি। পেজ রিফ্রেশ করুন।');
+
+        // Step 1: Firebase Auth sign-in
         const cred = await fbAuth.signInWithEmailAndPassword(email, password);
         const user = cred.user;
+        console.log('[Login] Auth OK. UID:', user.uid, '| Email:', user.email);
 
-        // Check admin status — if Firestore read fails (rules), fallback to UID check
+        // Step 2: Admin check — multiple fallback layers
+        // Layer A: Admin email match (most reliable — no Firestore needed)
+        const isAdminEmail   = user.email === ADMIN_EMAIL_MASTER;
+        // Layer B: UID match (hardcoded)
+        const isMasterUID    = user.uid === ADMIN_UID_MASTER;
+        // Layer C: Firestore autoscrip_admins doc
         let adminData = null;
-        let firestoreAccessible = true;
+        let hasAdminDoc = false;
         try {
-            const doc = await fbDb.collection(FS.admins).doc(user.uid).get();
-            if (doc.exists) adminData = doc.data();
+            const doc = await Promise.race([
+                fbDb.collection(FS.admins).doc(user.uid).get(),
+                new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
+            ]);
+            if (doc.exists) { adminData = doc.data(); hasAdminDoc = true; }
+            console.log('[Login] Firestore admin doc:', hasAdminDoc ? 'FOUND' : 'NOT FOUND');
         } catch(e) {
-            firestoreAccessible = false;
-            console.warn('Firestore admins read failed:', e.code, '— using UID fallback');
+            console.warn('[Login] Firestore read failed:', e.message, '— using email/UID fallback');
         }
 
-        // Allow: master UID, OR has admin doc, OR Firestore was inaccessible (rules not set yet)
-        const isMasterAdmin = user.uid === ADMIN_UID_MASTER;
-        const hasAdminDoc = !!adminData;
-        const firestoreBlocked = !firestoreAccessible;
+        // Allow if ANY of the layers pass
+        const allowed = isAdminEmail || isMasterUID || hasAdminDoc;
+        console.log('[Login] Access check →', { isAdminEmail, isMasterUID, hasAdminDoc, allowed });
 
-        if (!isMasterAdmin && !hasAdminDoc && !firestoreBlocked) {
+        if (!allowed) {
             await fbAuth.signOut();
-            showLoginError('আপনি অ্যাডমিন নন। Firebase Console-এ autoscrip_admins collection-এ আপনার UID দিয়ে doc তৈরি করুন।');
+            showLoginError('অ্যাক্সেস নিষিদ্ধ। শুধু অ্যাডমিনরা লগইন করতে পারবেন।');
             return;
         }
 
+        // Step 3: Set current user
         currentUser = {
-            email:    user.email,
-            name:     adminData?.name || user.displayName || user.email.split('@')[0],
-            role:     adminData?.role || 'super_admin',
-            uid:      user.uid,
+            uid:              user.uid,
+            email:            user.email,
+            name:             adminData?.name || user.displayName || user.email.split('@')[0],
+            role:             adminData?.role || 'super_admin',
             twoFactorEnabled: adminData?.twoFactorEnabled || false
         };
         currentUserRole = currentUser.role;
 
-        // Save minimal token reference
+        // Save session reference
         try { localStorage.setItem('adminToken', 'firebase_' + user.uid); } catch(e) {}
+        try { localStorage.setItem('adminEmail', user.email); } catch(e) {}
 
+        // Step 4: Load dashboard
         showApp();
         loadDashboard();
         loadTools();
@@ -5206,20 +5266,25 @@ async function doLogin() {
         loadSettings();
         loadTeam();
 
+        toast('✅ স্বাগতম, ' + currentUser.name + '!', 'success');
+
     } catch(e) {
+        // Firebase Auth error codes
         const MSGS = {
-            'auth/user-not-found':         'ইমেইল পাওয়া যায়নি।',
-            'auth/wrong-password':         'পাসওয়ার্ড ভুল।',
+            'auth/user-not-found':         'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট নেই।',
+            'auth/wrong-password':         'পাসওয়ার্ড ভুল। আবার চেষ্টা করুন।',
             'auth/invalid-credential':     'ইমেইল বা পাসওয়ার্ড ভুল।',
-            'auth/invalid-email':          'ইমেইল ফরম্যাট ভুল।',
+            'auth/invalid-email':          'ইমেইল ফরম্যাট সঠিক নয়।',
             'auth/too-many-requests':      'অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে চেষ্টা করুন।',
             'auth/network-request-failed': 'ইন্টারনেট সংযোগ নেই।',
-            'auth/user-disabled':          'এই অ্যাকাউন্ট নিষ্ক্রিয় করা হয়েছে।'
+            'auth/user-disabled':          'এই অ্যাকাউন্ট বন্ধ করা হয়েছে।',
+            'auth/operation-not-allowed':  'Email/Password login বন্ধ আছে। Firebase Console চেক করুন।',
         };
-        showLoginError(MSGS[e.code] || e.message);
+        const errMsg = MSGS[e.code] || e.message || 'অজানা সমস্যা। Console চেক করুন।';
+        console.error('[Login] Error:', e.code, e.message);
+        showLoginError(errMsg);
     } finally {
-        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> লগইন করুন';
-        btn.disabled  = false;
+        if (btn) { btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> লগইন করুন'; btn.disabled = false; }
     }
 }
 
@@ -6382,78 +6447,186 @@ async function deleteCom(id) {
     }
 }
 
-// ===== NOTIFICATION FUNCTIONS =====
+// ===== NOTIFICATION FUNCTIONS (Firebase-powered, replaces old REST API calls) =====
 async function sendNotif() {
-    const target = document.getElementById('ntTarget').value;
-    const icon = document.getElementById('ntIcon').value;
-    const msg = document.getElementById('ntMsg').value.trim();
-    const link = document.getElementById('ntLink').value.trim();
-    
-    if (!msg) {
-        toast('বার্তা লিখুন!', 'error');
-        return;
-    }
-    
+    const target = document.getElementById('ntTarget')?.value || 'all';
+    const icon   = document.getElementById('ntIcon')?.value   || '🔔';
+    const title  = document.getElementById('ntTitle')?.value?.trim() || '';
+    const msg    = document.getElementById('ntMsg')?.value?.trim()   || '';
+    const link   = document.getElementById('ntLink')?.value?.trim()  || '';
+    if (!msg) { toast('বার্তা লিখুন!', 'error'); return; }
+    if (!fbDb) { toast('অফলাইন — ইন্টারনেট চালু করুন', 'error'); return; }
+    const btn = document.querySelector('[onclick="sendNotif()"]');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> পাঠানো হচ্ছে...'; }
     try {
-        const result = await API.post('/notifications', {
-            target,
-            icon,
-            message: msg,
-            link: link || null
+        await fbDb.collection(FS.notifs).add({
+            target, icon, title: title || null, message: msg,
+            link: link || null,
+            sentBy: currentUser ? (currentUser.email || 'admin') : 'admin',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        
-        if (result.success) {
-            toast('✅ নোটিফিকেশন পাঠানো হয়েছে!', 'success');
-            document.getElementById('ntMsg').value = '';
-            document.getElementById('ntLink').value = '';
-            loadNotifHistory();
-        }
-    } catch (error) {
-        toast('এরর: ' + error.message, 'error');
+        toast('✅ নোটিফিকেশন পাঠানো হয়েছে!', 'success');
+        if (document.getElementById('ntMsg'))   document.getElementById('ntMsg').value   = '';
+        if (document.getElementById('ntLink'))  document.getElementById('ntLink').value  = '';
+        if (document.getElementById('ntTitle')) document.getElementById('ntTitle').value = '';
+        loadNotifHistory();
+        setTimeout(() => { try { loadSubscriberStats(); } catch(e){} }, 600);
+    } catch(e) {
+        toast(e.message?.includes('offline') ? 'অফলাইন — ইন্টারনেট চালু করুন' : 'এরর: ' + e.message, 'error');
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> পাঠান'; }
     }
 }
 
 async function loadNotifHistory() {
+    const el = document.getElementById('notifHistory');
+    if (el) el.innerHTML = '<div class="em"><i class="fas fa-spinner fa-spin"></i><div class="em-t">লোড হচ্ছে...</div></div>';
+    if (!fbDb) {
+        if (el) el.innerHTML = '<div class="em"><i class="fas fa-wifi" style="opacity:.4"></i><div class="em-t">ইন্টারনেট সংযোগ নেই</div></div>';
+        return;
+    }
     try {
-        const result = await API.get('/notifications/history');
-        if (result.success) {
-            renderNotifHistory(result.notifications || []);
-        }
-    } catch (error) {
-            }
+        const snap = await fbDb.collection(FS.notifs)
+            .orderBy('createdAt', 'desc').limit(50).get()
+            .catch(() => fbDb.collection(FS.notifs).limit(30).get());
+        renderNotifHistory(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    } catch(e) {
+        if (el) el.innerHTML = e.message && e.message.includes('offline')
+            ? '<div class="em"><i class="fas fa-wifi" style="opacity:.4"></i><div class="em-t">অফলাইন — ইন্টারনেট চালু করুন</div></div>'
+            : '<div class="em"><i class="fas fa-bell-slash" style="opacity:.4"></i><div class="em-t">কোনো নোটিফিকেশন নেই</div></div>';
+    }
 }
 
 function renderNotifHistory(notifs) {
     const el = document.getElementById('notifHistory');
     if (!el) return;
-    
     if (!notifs.length) {
         el.innerHTML = '<div class="em"><i class="fas fa-bell-slash"></i><div class="em-t">কোনো নোটিফিকেশন নেই</div></div>';
         return;
     }
-    
     el.innerHTML = notifs.map(n => `
-        <div class="act-item">
-            <div style="font-size:1.5rem">${n.icon || '🔔'}</div>
-            <div class="act-txt">${Security.sanitizeInput(n.message)}</div>
-            <div class="act-time">${formatDate(n.sentAt || n.createdAt)}</div>
+        <div class="act-item" style="display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)">
+            <div style="font-size:1.6rem;line-height:1">${n.icon || '🔔'}</div>
+            <div style="flex:1;min-width:0">
+                <div class="act-txt">${Security.sanitizeInput(n.message || '')}</div>
+                <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap">
+                    <span class="act-time">${formatDate(n.createdAt)}</span>
+                    <span style="font-size:.75rem;color:var(--muted)">প্রাপক: <b style="color:var(--primary)">${n.target === 'all' ? 'সবাই' : (n.target || 'সবাই')}</b></span>
+                    ${n.link ? `<a href="${Security.sanitizeInput(n.link)}" target="_blank" style="font-size:.75rem;color:var(--accent)"><i class="fas fa-link"></i> লিংক</a>` : ''}
+                </div>
+            </div>
+            <button onclick="deleteNotif('${n.id}')" title="মুছুন" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:4px;flex-shrink:0"><i class="fas fa-trash"></i></button>
         </div>
     `).join('');
 }
 
+async function deleteNotif(id) {
+    if (!confirm('এই নোটিফিকেশন মুছবেন?')) return;
+    try {
+        await fbDb.collection(FS.notifs).doc(id).delete();
+        toast('✅ মুছে গেছে', 'success');
+        loadNotifHistory();
+    } catch(e) { toast('মুছতে সমস্যা', 'error'); }
+}
+
 async function clearNotifs() {
     if (!confirm('সব নোটিফিকেশন মুছবেন?')) return;
-    
+    if (!fbDb) { toast('অফলাইনে মুছা সম্ভব নয়', 'error'); return; }
     try {
-        const result = await API.delete('/notifications/all');
-        if (result.success) {
-            toast('✅ নোটিফিকেশন মুছে গেছে!', 'success');
-            loadNotifHistory();
-        }
-    } catch (error) {
-        toast('এরর: ' + error.message, 'error');
+        const snap = await fbDb.collection(FS.notifs).get();
+        if (!snap.docs.length) { toast('মুছার কিছু নেই', 'info'); return; }
+        const batch = fbDb.batch();
+        snap.docs.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        toast('✅ সব নোটিফিকেশন মুছে গেছে!', 'success');
+        loadNotifHistory();
+    } catch(e) {
+        toast(e.message?.includes('offline') ? 'অফলাইন — ইন্টারনেট চালু করুন' : 'এরর: ' + e.message, 'error');
     }
 }
+
+// ── Subscriber management (new functions) ─────────────────────
+async function loadSubscriberStats() {
+    const tbody = document.getElementById('subscriberTableBody');
+    const cntEl = document.getElementById('subscriberCount');
+    const actEl = document.getElementById('activeSubscriberCount');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)"><i class="fas fa-spinner fa-spin" style="margin-right:8px"></i>লোড হচ্ছে...</td></tr>';
+    if (!fbDb) {
+        if (cntEl) cntEl.textContent = '—';
+        if (actEl) actEl.textContent = '—';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)"><i class="fas fa-wifi" style="margin-right:8px;opacity:.4"></i>অফলাইন</td></tr>';
+        return;
+    }
+    try {
+        const snap = await fbDb.collection('autoscrip_subscribers')
+            .where('active', '==', true).get()
+            .catch(() => fbDb.collection('autoscrip_subscribers').get());
+        const subs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (cntEl) cntEl.textContent = subs.length;
+        if (actEl) actEl.textContent = subs.filter(s => s.active !== false).length;
+        renderSubscriberTable(subs);
+    } catch(e) {
+        if (cntEl) cntEl.textContent = '—';
+        if (actEl) actEl.textContent = '—';
+        if (tbody) tbody.innerHTML = e.message && e.message.includes('offline')
+            ? '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)"><i class="fas fa-wifi" style="margin-right:8px;opacity:.4"></i>অফলাইন — ডেটা দেখা যাচ্ছে না</td></tr>'
+            : '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)"><i class="fas fa-users-slash" style="margin-right:8px"></i>কোনো সাবস্ক্রাইবার নেই</td></tr>';
+    }
+}
+
+function renderSubscriberTable(subs) {
+    const tbody = document.getElementById('subscriberTableBody');
+    if (!tbody) return;
+    if (!subs.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)"><i class="fas fa-users-slash" style="margin-right:8px"></i>কোনো সাবস্ক্রাইবার নেই</td></tr>';
+        return;
+    }
+    tbody.innerHTML = subs.map(s => {
+        const subDate = s.subscribedAt ? formatDate(s.subscribedAt) : '—';
+        const lastAct = s.lastActive   ? formatDate(s.lastActive)   : '—';
+        const statusCls = s.active !== false ? 'success' : 'danger';
+        const statusTxt = s.active !== false ? 'সক্রিয়' : 'নিষ্ক্রিয়';
+        return `<tr>
+            <td><div style="font-weight:600;color:var(--text)">${Security.sanitizeInput(s.name || 'Unknown')}</div><div style="font-size:.75rem;color:var(--muted)">${Security.sanitizeInput(s.userId || s.id || '').substring(0,12)}...</div></td>
+            <td style="font-size:.82rem">${Security.sanitizeInput(s.email || '—')}</td>
+            <td><span class="badge badge-${statusCls === 'success' ? 'active' : 'banned'}">${statusTxt}</span></td>
+            <td style="font-size:.78rem;color:var(--muted)">${s.platform || '—'}</td>
+            <td style="font-size:.78rem;color:var(--muted)">${subDate}</td>
+            <td>
+                <button class="btn btn-gh btn-xs" onclick="sendTestNotif('${s.id}')" title="টেস্ট নোটিফিকেশন পাঠান"><i class="fas fa-paper-plane"></i></button>
+                <button class="btn btn-da btn-xs" onclick="removeSubscriber('${s.id}')" title="মুছুন"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+async function sendTestNotif(subscriberId) {
+    if (!fbDb) { toast('অফলাইনে পাঠানো সম্ভব নয়', 'error'); return; }
+    if (!subscriberId) return;
+    try {
+        await fbDb.collection('autoscrip_notifications').add({
+            target: subscriberId, icon: '🔔',
+            message: 'টেস্ট নোটিফিকেশন — AutoScrip Admin থেকে পাঠানো',
+            link: null,
+            sentBy: currentUser ? (currentUser.email || 'admin') : 'admin',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        toast('✅ টেস্ট নোটিফিকেশন পাঠানো হয়েছে', 'success');
+    } catch(e) {
+        toast(e.message?.includes('offline') ? 'অফলাইন — ইন্টারনেট চালু করুন' : 'পাঠাতে সমস্যা', 'error');
+    }
+}
+
+async function removeSubscriber(subscriberId) {
+    if (!confirm('এই সাবস্ক্রাইবার রিমুভ করবেন?')) return;
+    try {
+        await fbDb.collection('autoscrip_subscribers').doc(subscriberId).delete();
+        toast('✅ সাবস্ক্রাইবার রিমুভ হয়েছে', 'success');
+        loadSubscriberStats();
+    } catch(e) { toast('সমস্যা: ' + e.message, 'error'); }
+}
+
+
 
 // ===== ANALYTICS FUNCTIONS =====
 async function loadAnalytics() {
@@ -7138,6 +7311,11 @@ async function clearLog() {
 function showP(page) {
     document.querySelectorAll('.pnl').forEach(p => p.classList.remove('active'));
     document.getElementById('pnl-' + page)?.classList.add('active');
+    // Load data for specific panels
+    if (page === 'notifs') {
+        try { loadNotifHistory(); } catch(e) {}
+        try { loadSubscriberStats(); } catch(e) {}
+    }
     
     document.querySelectorAll('.sb-lnk').forEach(l => l.classList.remove('active'));
     document.getElementById('nav-' + page)?.classList.add('active');
@@ -7481,6 +7659,11 @@ window.rejectReq = rejectReq;
 window.deleteReq = deleteReq;
 window.sendNotif = sendNotif;
 window.clearNotifs = clearNotifs;
+window.loadNotifHistory = loadNotifHistory;
+window.loadSubscriberStats = loadSubscriberStats;
+window.sendTestNotif = sendTestNotif;
+window.removeSubscriber = removeSubscriber;
+window.deleteNotif = deleteNotif;
 window.exportReport = exportReport;
 window.exportAllData = exportAllData;
 window.importData = importData;
@@ -7642,6 +7825,11 @@ document.addEventListener('DOMContentLoaded', function() {
   try { GDPR.init(); } catch(e) {}
   try { Announcer.init(); } catch(e) {}
   try { TabSync.init(); } catch(e) {}
+  // Load notification history on startup
+  setTimeout(function() {
+    try { loadNotifHistory(); } catch(e) {}
+    try { loadSubscriberStats(); } catch(e) {}
+  }, 2000);
   // Broadcast tools changes to user tab
   var _origSave = window.saveTool;
   if (typeof _origSave === 'function') {
@@ -7652,6 +7840,9 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
 });
+
+
+
 
 
 
