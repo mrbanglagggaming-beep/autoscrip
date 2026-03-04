@@ -945,7 +945,14 @@ select.form-control option{background:var(--card);color:var(--text)}
           <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(7)');filterTools('automation',chip);},200)">
             <div style="display:flex;align-items:center;gap:10px">
               <div class="cat-hl-icon" style="background:linear-gradient(135deg,#c2185b,#880e4f);margin:0;width:34px;height:34px;flex-shrink:0"><i class="fas fa-robot" style="font-size:.9rem"></i></div>
-              <div style="text-align:left"><div class="cat-hl-name">অটোমেশন</div><div class="cat-hl-count" id="catCount_automation">—</div></div>
+              <div style="text-align:left"><div class="cat-hl-name">অটোমেশন</div>
+          <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(8)');filterTools('download',chip);},200)">
+            <div class="ch-ico">⬇️</div>
+            <div class="ch-info">
+              <div class="ch-name">ডাউনলোড</div>
+              <div class="ch-count" id="catCount-download">0 টুলস</div>
+            </div>
+          </div><div class="cat-hl-count" id="catCount_automation">—</div></div>
             </div>
           </div>
           <button class="btn btn-outline w-100 mt-3" style="justify-content:center" onclick="showPage('tools')"><i class="fas fa-th-large"></i> সব টুলস</button>
@@ -974,6 +981,7 @@ select.form-control option{background:var(--card);color:var(--text)}
       <button class="chip" onclick="filterTools('backup',this)">💾 ব্যাকআপ</button>
       <button class="chip" onclick="filterTools('monitoring',this)">📊 মনিটরিং</button>
       <button class="chip" onclick="filterTools('automation',this)">🤖 অটোমেশন</button>
+      <button class="chip" onclick="filterTools('download',this)">⬇️ ডাউনলোড</button>
     </div>
     <!-- View Toggle Bar -->
     <div class="view-filter-bar card mb-4">
@@ -1027,6 +1035,7 @@ select.form-control option{background:var(--card);color:var(--text)}
             <option value="backup">💾 ব্যাকআপ</option>
             <option value="monitoring">📊 মনিটরিং</option>
             <option value="automation">🤖 অটোমেশন</option>
+            <option value="download">⬇️ ডাউনলোড</option>
           </select>
           <select id="scriptTemplate" class="form-control w-auto" onchange="loadTemplate()">
             <option value="">📋 টেমপ্লেট বেছে নিন</option>
@@ -1831,8 +1840,8 @@ const API = {
 };
 
 // ===== HELPERS =====
-const CAT_LABEL={system:'⚙️ সিস্টেম',network:'🌐 নেটওয়ার্ক',security:'🔒 সিকিউরিটি',backup:'💾 ব্যাকআপ',monitoring:'📊 মনিটরিং',automation:'🤖 অটোমেশন'};
-const CAT_COLORS={system:['#1565c0','#1a237e'],network:['#00838f','#004d40'],security:['#7b1fa2','#4a148c'],backup:['#f4511e','#bf360c'],monitoring:['#388e3c','#1b5e20'],automation:['#c2185b','#880e4f']};
+const CAT_LABEL={system:'⚙️ সিস্টেম',network:'🌐 নেটওয়ার্ক',security:'🔒 সিকিউরিটি',backup:'💾 ব্যাকআপ',monitoring:'📊 মনিটরিং',automation:'🤖 অটোমেশন',download:'⬇️ ডাউনলোড'};
+const CAT_COLORS={system:['#1565c0','#1a237e'],network:['#00838f','#004d40'],security:['#7b1fa2','#4a148c'],backup:['#f4511e','#bf360c'],monitoring:['#388e3c','#1b5e20'],automation:['#c2185b','#880e4f'],download:['#e65100','#bf360c']};
 function getCatIcon(c){return{system:'fa-cogs',network:'fa-network-wired',security:'fa-shield-alt',backup:'fa-hdd',monitoring:'fa-chart-line',automation:'fa-robot'}[c]||'fa-tools';}
 function getCatName(c){return{system:'সিস্টেম',network:'নেটওয়ার্ক',security:'সিকিউরিটি',backup:'ব্যাকআপ',monitoring:'মনিটরিং',automation:'অটোমেশন'}[c]||c;}
 function getTools(){return App.tools.length?App.tools:DEFAULT_TOOLS;}
@@ -2226,6 +2235,7 @@ const CAT_COLORS_WIN = {
   backup:     {bg:'linear-gradient(135deg,#f4511e,#bf360c)', text:'#ff8a65'},
   monitoring: {bg:'linear-gradient(135deg,#388e3c,#1b5e20)', text:'#a5d6a7'},
   automation: {bg:'linear-gradient(135deg,#c2185b,#880e4f)', text:'#f48fb1'},
+  download:   {bg:'linear-gradient(135deg,#e65100,#bf360c)', text:'#ffcc02'},
 };
 
 window.openToolDetail = window.openToolWindow = function(id) {
@@ -2802,6 +2812,7 @@ async function loadHome(){
   ['system','network','security','backup','monitoring','automation'].forEach(cat=>{
     const el=document.getElementById('catCount_'+cat);
     if(el){const n=approved.filter(t=>t.category===cat).length;el.textContent=n+' টুলস';}
+    const dlEl=document.getElementById('catCount-download');if(dlEl){const n=approved.filter(t=>t.category==='download').length;dlEl.textContent=n+' টুলস';}
   });
   animateCounter('hStTools',tools.length+500);
   animateCounter('hStUsers',1247);
