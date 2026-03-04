@@ -3509,6 +3509,16 @@ body.offline-mode { padding-top: 44px !important; }
 
 <!-- ===== SIDEBAR ===== -->
 <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+
+<!-- Firestore connection warning banner -->
+<div id="fsWarnBanner" style="display:none;background:linear-gradient(90deg,rgba(255,61,87,.9),rgba(255,100,50,.9));color:#fff;text-align:center;padding:10px 20px;font-family:var(--font-head);font-size:.88rem;font-weight:700;position:fixed;top:0;left:0;right:0;z-index:99998;display:flex;align-items:center;justify-content:center;gap:12px">
+  <i class="fas fa-exclamation-triangle"></i>
+  <span>🔥 Firestore Database সংযুক্ত নেই — টুলস লোড হচ্ছে না!</span>
+  <a href="https://console.firebase.google.com/project/powerscript-pro-web/firestore" target="_blank"
+     style="background:rgba(255,255,255,.25);padding:4px 14px;border-radius:99px;color:#fff;text-decoration:none;font-size:.82rem;white-space:nowrap">
+    Firebase Console খুলুন →
+  </a>
+</div>
 <aside class="sb" id="sidebar">
   <div class="sb-hd">
     <div>
@@ -4965,6 +4975,13 @@ let fbApp, fbAuth, fbDb;
                 fbApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
                 fbAuth = firebase.auth();
                 fbDb   = firebase.firestore();
+                // Use long-polling to avoid WebChannel 404 errors on some networks
+                try {
+                    fbDb.settings({
+                        experimentalForceLongPolling: true,
+                        merge: true
+                    });
+                } catch(se) { /* settings already applied */ }
                 console.log('[Firebase] Init OK');
                 if (typeof waitAndRegisterAuthListener === 'function') {
                     try { waitAndRegisterAuthListener(); } catch(_e) {}
@@ -5217,10 +5234,10 @@ const API = {
 
             // ── TOOLS ──────────────────────────────────────────────
             if (ep === 'tools' && method === 'GET') {
-                const snap = await this._col(FS.tools).orderBy('createdAt','desc').get()
-                    .catch(() => this._col(FS.tools).get())
+                // Use simple get() first — orderBy needs composite index (causes 400 if missing)
+                const snap = await this._col(FS.tools).get()
                     .catch(() => ({ docs: [], size: 0 }));
-                const tools = this._docs(snap);
+                const tools = this._docs(snap).sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
                 allTools = tools;
                 let views=0, downloads=0, likes=0;
                 tools.forEach(t => { views+=t.views||0; downloads+=t.downloads||0; likes+=t.likes||0; });
@@ -6632,6 +6649,50 @@ function refreshCharts() {
 }
 
 // ===== TOOLS FUNCTIONS =====
+function showFirestoreSetupGuide() {
+    const tb = document.getElementById('toolsTb');
+    const em = document.getElementById('toolsEm');
+    if (!tb || !em) return;
+    tb.innerHTML = '';
+    em.style.display = 'block';
+    em.innerHTML = `
+    <div style="background:rgba(255,61,87,.06);border:1px solid rgba(255,61,87,.2);border-radius:16px;padding:28px 24px;max-width:560px;margin:0 auto;text-align:left">
+      <div style="font-size:1.6rem;margin-bottom:12px">🔥 Firestore সেটআপ প্রয়োজন</div>
+      <div style="color:#ff9090;font-size:.92rem;line-height:1.7;margin-bottom:20px">
+        Firebase Console-এ Firestore Database এখনো তৈরি হয়নি বা Rules ঠিক নেই।
+        নিচের ধাপগুলো অনুসরণ করুন:
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <a href="https://console.firebase.google.com/project/powerscript-pro-web/firestore" target="_blank"
+           style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.25);border-radius:12px;color:#ffd700;text-decoration:none;font-weight:700;font-size:.9rem">
+          <span style="font-size:1.4rem">1️⃣</span>
+          <div>
+            <div>Firestore Database খুলুন</div>
+            <div style="font-size:.78rem;color:rgba(255,215,0,.7);font-weight:400">console.firebase.google.com → powerscript-pro-web → Firestore</div>
+          </div>
+          <i class="fas fa-external-link-alt" style="margin-left:auto;font-size:.8rem;opacity:.7"></i>
+        </a>
+        <div style="padding:14px 18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;font-size:.88rem;color:var(--muted)">
+          <span style="font-size:1.2rem">2️⃣</span>
+          <strong style="color:var(--text)"> "Create database"</strong> বাটন চাপুন →
+          <strong style="color:var(--primary)">Test mode</strong> বেছে নিন →
+          Location: <strong style="color:var(--text)">asia-south1</strong>
+        </div>
+        <div style="padding:14px 18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;font-size:.88rem;color:var(--muted)">
+          <span style="font-size:1.2rem">3️⃣</span>
+          Database তৈরির পর <strong style="color:var(--primary)">Rules</strong> tab-এ গিয়ে
+          <button onclick="openFirestoreRulesModal()" style="background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.3);color:#ffd700;padding:3px 12px;border-radius:6px;cursor:pointer;font-size:.82rem;font-family:var(--font-head);font-weight:700;margin-left:4px">
+            <i class="fas fa-shield-alt"></i> Rules দেখুন
+          </button>
+        </div>
+        <button onclick="location.reload()" style="padding:12px;background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(255,140,0,.1));border:1px solid rgba(255,215,0,.3);border-radius:12px;color:#ffd700;font-family:var(--font-head);font-weight:700;cursor:pointer;font-size:.9rem;margin-top:4px">
+          <i class="fas fa-sync-alt"></i> সেটআপের পর রিফ্রেশ করুন
+        </button>
+      </div>
+    </div>`;
+}
+
+
 async function loadTools() {
     try {
         const result = await API.get('/tools');
@@ -6642,16 +6703,26 @@ async function loadTools() {
             
             const recent = [...allTools].sort((a,b) => (b.createdAt||0) - (a.createdAt||0)).slice(0,5);
             renderRecentTools(recent);
+            
+            // If Firestore connected but empty — show helpful guide
+            if (!allTools.length) {
+                showFirestoreSetupGuide();
+                document.getElementById('fsWarnBanner').style.display='flex';
+            }
+        } else {
+            showFirestoreSetupGuide();
+            document.getElementById('fsWarnBanner').style.display='flex';
         }
     } catch (error) {
-        toast('সার্ভার অফলাইন - লোকাল ডেটা ব্যবহার হচ্ছে', 'warning');
-        // Fallback to localStorage
+        showFirestoreSetupGuide();
+        document.getElementById('fsWarnBanner').style.display='flex';
+        // Also try localStorage as fallback
         try {
             const localTools = JSON.parse(localStorage.getItem('autoscrip_tools') || '[]');
             if (localTools.length) {
                 allTools = localTools;
                 renderToolsTable(allTools);
-                document.getElementById('toolCount').textContent = allTools.length;
+                document.getElementById('toolCount').textContent = allTools.length + ' (লোকাল)';
             }
         } catch(e) {}
     }
