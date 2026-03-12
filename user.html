@@ -2749,7 +2749,86 @@ async function applyFirestoreSettings(){
   } catch(e){ /* silent - offline or no settings doc yet */ }
 }
 
-// Cache to prevent duplicate Firestore reads when loadHome + loadTools both call fetchToolsFromAPI
+// ===== DYNAMIC CATEGORY LOADER =====
+// Loads custom categories from Firestore and merges with built-in ones
+let _customCatsCache = null;
+
+async function loadDynamicCategories() {
+  if (!window._fbDb) return;
+  try {
+    const snap = await window._fbDb.collection('autoscrip_categories').get();
+    const customCats = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    _customCatsCache = customCats;
+    if (!customCats.length) return;
+
+    // 1. Update CAT_LABEL with custom categories
+    customCats.forEach(c => {
+      if (c.key && c.name) {
+        CAT_LABEL[c.key] = (c.emoji || '📦') + ' ' + c.name;
+        CAT_COLORS[c.key] = c.color ? [c.color, c.color] : ['#ffd700', '#ff6a00'];
+      }
+    });
+
+    // 2. Update filter chips in tools page
+    const chipsEl = document.getElementById('catChips');
+    if (chipsEl) {
+      customCats.forEach(c => {
+        if (!c.key || !c.name) return;
+        // Avoid duplicate chips
+        if (chipsEl.querySelector(`[data-cat="${c.key}"]`)) return;
+        const btn = document.createElement('button');
+        btn.className = 'chip';
+        btn.setAttribute('data-cat', c.key);
+        btn.textContent = (c.emoji || '📦') + ' ' + c.name;
+        if (c.color) { btn.style.setProperty('--chip-active-color', c.color); }
+        btn.onclick = function() { filterTools(c.key, this); };
+        chipsEl.appendChild(btn);
+      });
+    }
+
+    // 3. Update category highlight section on home page
+    const catGrid = document.querySelector('.cat-grid');
+    if (catGrid) {
+      customCats.forEach(c => {
+        if (!c.key || !c.name) return;
+        const color = c.color || '#ffd700';
+        const div = document.createElement('div');
+        div.className = 'cat-highlight';
+        div.style.cssText = `cursor:pointer`;
+        div.innerHTML = `
+          <div class="ch-icon" style="color:${color}">${c.emoji || '📦'}</div>
+          <div style="text-align:left">
+            <div class="cat-hl-name">${c.name}</div>
+            <div class="cat-hl-count" id="catCount_${c.key}">—</div>
+          </div>`;
+        div.onclick = function() {
+          showPage('tools');
+          setTimeout(() => {
+            const chip = document.querySelector(`#catChips [data-cat="${c.key}"]`);
+            if (chip) filterTools(c.key, chip);
+          }, 200);
+        };
+        catGrid.appendChild(div);
+      });
+    }
+
+    // 4. Update script category select in user script editor (if exists)
+    const scriptCatSel = document.getElementById('scriptCategory');
+    if (scriptCatSel) {
+      customCats.forEach(c => {
+        if (!c.key || !c.name) return;
+        if (scriptCatSel.querySelector(`option[value="${c.key}"]`)) return;
+        const opt = document.createElement('option');
+        opt.value = c.key;
+        opt.textContent = (c.emoji || '') + ' ' + c.name;
+        scriptCatSel.appendChild(opt);
+      });
+    }
+
+  } catch(e) { /* silent - no custom categories or offline */ }
+}
+
+
 let _toolsCache = null;
 let _toolsCacheTs = 0;
 const _TOOLS_CACHE_TTL = 30000; // 30 seconds
@@ -2809,12 +2888,19 @@ async function loadHome(){
   const latest=[...approved].sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0)).slice(0,8);
   if(fg){fg.innerHTML='';(featured.length?featured:DEFAULT_TOOLS.filter(t=>t.featured)).forEach(t=>fg.appendChild(renderCard(t)));}
   if(lg){lg.innerHTML='';latest.forEach(t=>lg.appendChild(renderCard(t)));}
-  // Category counts
+  // Category counts (built-in + custom)
   ['system','network','security','backup','monitoring','automation'].forEach(cat=>{
     const el=document.getElementById('catCount_'+cat);
     if(el){const n=approved.filter(t=>t.category===cat).length;el.textContent=n+' টুলস';}
     const dlEl=document.getElementById('catCount-download');if(dlEl){dlEl.textContent=approved.filter(t=>t.category==='download').length+' টুলস';}
   });
+  // Count for dynamic custom categories
+  if (_customCatsCache) {
+    _customCatsCache.forEach(c => {
+      const el = document.getElementById('catCount_' + c.key);
+      if (el) { el.textContent = approved.filter(t => t.category === c.key).length + ' টুলস'; }
+    });
+  }
   animateCounter('hStTools',tools.length+500);
   animateCounter('hStUsers',1247);
   animateCounter('hStOnline',Math.floor(Math.random()*18)+7);
@@ -4259,6 +4345,8 @@ document.addEventListener('DOMContentLoaded', function() {
   try { NotifSystem.init(); } catch(e) {}
   // Apply Firestore settings to user site
   setTimeout(function(){ try { applyFirestoreSettings(); } catch(e){} }, 1500);
+  // Load dynamic categories from Firestore
+  setTimeout(function(){ try { loadDynamicCategories(); } catch(e){} }, 2000);
   try { startLoading(); } catch(e) {
     var ls = document.getElementById('loadingScreen');
     if (ls) { ls.classList.add('hidden'); ls.style.display = 'none'; }
