@@ -2748,6 +2748,27 @@ async function applyFirestoreSettings(){
 
   } catch(e){ /* silent - offline or no settings doc yet */ }
 }
+
+function _renderSubBar(bar, subs, cat) {
+  var html = '<span style="font-size:.74rem;color:var(--muted);margin-right:4px">'+(cat.emoji||'')+' বিভাগ:</span>';
+  for (var i = 0; i < subs.length; i++) {
+    var s = subs[i];
+    var col = cat.color ? 'border-color:'+cat.color+';color:'+cat.color : '';
+    html += '<button class="chip sub-chip" style="font-size:.78rem;padding:3px 12px;'+col+'" data-subkey="'+s.key+'">'+
+            (s.emoji||'')+(s.emoji?' ':'')+s.name+'</button>';
+  }
+  bar.innerHTML = html;
+  bar.querySelectorAll('.sub-chip').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      bar.querySelectorAll('.sub-chip').forEach(function(b){ b.classList.remove('active'); });
+      this.classList.add('active');
+      curCat = this.getAttribute('data-subkey');
+      applyFilters();
+    });
+  });
+}
+
 // ===== DYNAMIC CATEGORY + SUB-CATEGORY LOADER =====
 let _customCatsCache = null;
 
@@ -2802,13 +2823,7 @@ async function loadDynamicCategories() {
 
           if (subs.length) {
             // Show sub-chip bar
-            subBar.innerHTML =
-              '<span style="font-size:.74rem;color:var(--muted);align-self:center;margin-right:2px">'+(c.emoji||'')+'  বিভাগ:</span>'+
-              subs.map(s =>
-                '<button class="chip" style="font-size:.78rem;padding:3px 12px;'+(c.color?'border-color:'+c.color+';color:'+c.color:'')+'" '+
-                'onclick="event.stopPropagation();document.querySelectorAll('#subCatBar .chip').forEach(b=>b.classList.remove('active'));this.classList.add('active');curCat=''+s.key+'';applyFilters();">'+
-                (s.emoji||'📌')+' '+s.name+'</button>'
-              ).join('');
+            _renderSubBar(subBar, subs, c);
             subBar.style.display = 'flex';
             // Parent = show all tools from all sub-cats
             curCat = c.key;
