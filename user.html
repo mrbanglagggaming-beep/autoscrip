@@ -2749,18 +2749,28 @@ async function applyFirestoreSettings(){
 }
 
 function _renderSubBar(bar, subs, cat) {
-  var html = '<span style="font-size:.74rem;color:var(--muted);margin-right:4px">'+(cat.emoji||'')+' বিভাগ:</span>';
+  // Header row
+  var col = cat.color || '#ffd700';
+  var html =
+    '<div style="display:flex;align-items:center;gap:8px;width:100%;flex-wrap:wrap">'+
+    '<span style="font-size:.75rem;color:var(--muted);white-space:nowrap">'+
+      (cat.emoji||'')+'&nbsp;<b style="color:'+col+'">'+cat.name+'</b> &rsaquo; বিভাগ:'+
+    '</span>';
+
   for (var i = 0; i < subs.length; i++) {
     var s = subs[i];
-    var col = cat.color ? 'border-color:'+cat.color+';color:'+cat.color : '';
-    html += '<button class="chip sub-chip" style="font-size:.78rem;padding:3px 12px;'+col+'" data-subkey="'+s.key+'">'+
-            (s.emoji||'')+(s.emoji?' ':'')+s.name+'</button>';
+    html += '<button class="chip sub-chip" '+
+            'style="font-size:.8rem;padding:4px 14px;border-color:'+col+';color:'+col+'" '+
+            'data-subkey="'+s.key+'" data-subname="'+s.name+'">'+(s.emoji||'📌')+' '+s.name+'</button>';
   }
+  html += '</div>';
   bar.innerHTML = html;
+
+  // Click events
   bar.querySelectorAll('.sub-chip').forEach(function(btn) {
     btn.addEventListener('click', function(e) {
       e.stopPropagation();
-      bar.querySelectorAll('.sub-chip').forEach(function(b){ b.classList.remove('active'); });
+      bar.querySelectorAll('.sub-chip').forEach(function(b) { b.classList.remove('active'); });
       this.classList.add('active');
       curCat = this.getAttribute('data-subkey');
       applyFilters();
@@ -2830,7 +2840,7 @@ function _applyCustomCats(customCats) {
     if (!subBar) {
       subBar = document.createElement('div');
       subBar.id = 'subCatBar';
-      subBar.style.cssText = 'display:none;flex-wrap:wrap;gap:6px;padding:8px 14px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.12);border-radius:10px;margin-bottom:12px';
+      subBar.style.cssText = 'display:none;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 16px;background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.15);border-radius:12px;margin-bottom:14px;animation:fadeIn .2s ease';
       chipsEl.parentNode.insertBefore(subBar, chipsEl.nextSibling);
     }
 
@@ -2854,10 +2864,14 @@ function _applyCustomCats(customCats) {
         if (subs.length) {
           _renderSubBar(subBar, subs, c);
           subBar.style.display = 'flex';
+          // Parent chip: show ALL tools from this category + all sub-cats
+          curCat = c.key;
+          applyFilters();
         } else {
           subBar.style.display = 'none';
+          curCat = c.key;
+          applyFilters();
         }
-        curCat = c.key; applyFilters();
       };
       chipsEl.appendChild(btn);
     });
@@ -3023,9 +3037,16 @@ window.applyFilters=()=>{
   const sort=document.getElementById('toolsSort')?.value||'newest';
   let tools=getTools().filter(t=>t.status==='approved'||t.published!==false);
   if(curCat){
-    const _pc=_customCatsCache&&_customCatsCache.find(c=>c.key===curCat);
-    const _sk=_pc?(_pc.subCategories||[]).map(s=>s.key):[];
-    tools=tools.filter(t=>t.category===curCat||(_sk.length&&_sk.includes(t.category)));
+    // Check if curCat is a parent category → show all its sub-cat tools too
+    const _pc = _customCatsCache && _customCatsCache.find(c => c.key === curCat);
+    if (_pc && (_pc.subCategories||[]).length) {
+      // Parent selected: show tools of parent + all sub-categories
+      const _sk = _pc.subCategories.map(s => s.key);
+      tools = tools.filter(t => t.category === curCat || _sk.includes(t.category));
+    } else {
+      // Sub-category or built-in: exact match only
+      tools = tools.filter(t => t.category === curCat);
+    }
   }
   if(q)tools=tools.filter(t=>(t.name||t.title||'').toLowerCase().includes(q)||(t.description||'').toLowerCase().includes(q)||(t.tags||[]).some(tag=>tag.toLowerCase().includes(q)));
   const sortFns={newest:(a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0),popular:(a,b)=>(b.views||0)-(a.views||0),name:(a,b)=>(a.name||a.title||'').localeCompare(b.name||b.title||'','bn'),downloads:(a,b)=>(b.downloads||0)-(a.downloads||0),likes:(a,b)=>(Array.isArray(b.likes)?b.likes.length:(b.likes||0))-(Array.isArray(a.likes)?a.likes.length:(a.likes||0))};
