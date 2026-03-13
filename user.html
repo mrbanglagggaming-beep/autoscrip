@@ -699,6 +699,7 @@ select.form-control option{background:var(--card);color:var(--text)}
 }
 </style>
 </head>
+  <script defer src="https://va.vercel-scripts.com/v1/analytics.js"></script>
 <body>
 <div id="offlineBanner"><i class="fas fa-wifi-slash"></i> অফলাইন — লোকাল ডেটা দেখাচ্ছে</div>
 <div id="bgGlow"></div>
@@ -2748,155 +2749,135 @@ async function applyFirestoreSettings(){
   } catch(e){ /* silent - offline or no settings doc yet */ }
 }
 
-function _renderSubBar(bar, subs, cat) {
-  // Header row
-  var col = cat.color || '#ffd700';
-  var html =
-    '<div style="display:flex;align-items:center;gap:8px;width:100%;flex-wrap:wrap">'+
-    '<span style="font-size:.75rem;color:var(--muted);white-space:nowrap">'+
-      (cat.emoji||'')+'&nbsp;<b style="color:'+col+'">'+cat.name+'</b> &rsaquo; বিভাগ:'+
-    '</span>';
+// ═══════════════════════════════════════════════════════
+// DYNAMIC CATEGORY + SUB-CATEGORY SYSTEM
+// ═══════════════════════════════════════════════════════
+window._customCatsCache = null;
+var _CAT_LS_KEY = 'asc_custom_cats_v2';
 
+// Sub-bar render helper
+function _renderSubBar(bar, subs, cat) {
+  var col = cat.color || '#ffd700';
+  var html = '<span style="font-size:.74rem;color:var(--muted);padding-right:8px;border-right:1px solid rgba(255,215,0,.25);margin-right:4px;white-space:nowrap">'
+    + (cat.emoji||'') + ' <b style="color:' + col + '">' + cat.name + '</b></span>';
   for (var i = 0; i < subs.length; i++) {
     var s = subs[i];
-    html += '<button class="chip sub-chip" '+
-            'style="font-size:.8rem;padding:4px 14px;border-color:'+col+';color:'+col+'" '+
-            'data-subkey="'+s.key+'" data-subname="'+s.name+'">'+(s.emoji||'📌')+' '+s.name+'</button>';
+    html += '<button class="chip sub-chip" '
+          + 'style="font-size:.79rem;padding:4px 13px;border-color:' + col + '60;color:' + col + ';transition:.15s" '
+          + 'data-subkey="' + s.key + '">' + (s.emoji||'📌') + ' ' + s.name + '</button>';
   }
-  html += '</div>';
   bar.innerHTML = html;
-
-  // Click events
   bar.querySelectorAll('.sub-chip').forEach(function(btn) {
     btn.addEventListener('click', function(e) {
       e.stopPropagation();
-      bar.querySelectorAll('.sub-chip').forEach(function(b) { b.classList.remove('active'); });
+      // Sub chip active style
+      bar.querySelectorAll('.sub-chip').forEach(function(b) {
+        b.style.background=''; b.style.color=col; b.style.borderColor=col+'60';
+        b.classList.remove('active');
+      });
       this.classList.add('active');
+      this.style.background = col;
+      this.style.color = '#111';
+      this.style.borderColor = col;
       curCat = this.getAttribute('data-subkey');
       applyFilters();
     });
   });
 }
 
-// ===== DYNAMIC CATEGORY + SUB-CATEGORY LOADER =====
-let _customCatsCache = null;
-
-async function loadDynamicCategories() {
-  // ── Step 1: Load from localStorage cache immediately (works offline too) ──
-  const LS_KEY = 'asc_custom_cats';
-  try {
-    const cached = localStorage.getItem(LS_KEY);
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      if (parsed && parsed.length) {
-        _customCatsCache = parsed;
-        _applyCustomCats(parsed); // render immediately from cache
-      }
-    }
-  } catch(e) {}
-
-  // ── Step 2: Try Firestore (update cache if available) ──
-  const _tryFirestore = async (attempts) => {
-    if (!window._fbDb) {
-      if (attempts > 0) setTimeout(() => _tryFirestore(attempts-1), 1500);
-      return;
-    }
-    try {
-      const snap = await window._fbDb.collection('autoscrip_categories').get();
-      const customCats = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      if (!customCats.length) return;
-      // Save to localStorage for offline use
-      try { localStorage.setItem(LS_KEY, JSON.stringify(customCats)); } catch(e) {}
-      _customCatsCache = customCats;
-      _applyCustomCats(customCats); // re-render with fresh data
-
-    } catch(e) { /* Firestore offline - using cache */ }
-  };
-  _tryFirestore(5); // retry up to 5 times
-}
-
-// ── Separate function: apply categories to the UI ──
+// Apply custom categories to UI
 function _applyCustomCats(customCats) {
   if (!customCats || !customCats.length) return;
 
-  // 1. CAT_LABEL / CAT_COLORS আপডেট
-  customCats.forEach(c => {
+  // Update labels/colors
+  customCats.forEach(function(c) {
     if (c.key && c.name) {
-      CAT_LABEL[c.key] = (c.emoji||'📦')+' '+c.name;
-      CAT_COLORS[c.key] = c.color ? [c.color, c.color] : ['#ffd700','#ff6a00'];
+      if(window.CAT_LABEL) CAT_LABEL[c.key] = (c.emoji||'📦')+' '+c.name;
+      if(window.CAT_COLORS) CAT_COLORS[c.key] = c.color ? [c.color,c.color] : ['#ffd700','#ff6a00'];
     }
-    (c.subCategories||[]).forEach(s => {
+    (c.subCategories||[]).forEach(function(s) {
       if (s.key && s.name) {
-        CAT_LABEL[s.key] = (s.emoji||'📌')+' '+s.name;
-        CAT_COLORS[s.key] = c.color ? [c.color, c.color] : ['#ffd700','#ff6a00'];
+        if(window.CAT_LABEL) CAT_LABEL[s.key] = (s.emoji||'📌')+' '+s.name;
+        if(window.CAT_COLORS) CAT_COLORS[s.key] = c.color ? [c.color,c.color] : ['#ffd700','#ff6a00'];
       }
     });
   });
 
-  // 2. catChips-এ chip যোগ + sub-cat bar
-  const chipsEl = document.getElementById('catChips');
-  if (chipsEl) {
-    let subBar = document.getElementById('subCatBar');
-    if (!subBar) {
-      subBar = document.createElement('div');
-      subBar.id = 'subCatBar';
-      subBar.style.cssText = 'display:none;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 16px;background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.15);border-radius:12px;margin-bottom:14px;animation:fadeIn .2s ease';
-      chipsEl.parentNode.insertBefore(subBar, chipsEl.nextSibling);
-    }
+  // Build sub-bar container
+  var chipsEl = document.getElementById('catChips');
+  if (!chipsEl) return;
 
-    customCats.forEach(c => {
-      if (!c.key || !c.name) return;
-      // Remove old chip if exists (re-render)
-      const existing = chipsEl.querySelector('[data-cat="'+c.key+'"]');
-      if (existing) existing.remove();
-
-      const subs = c.subCategories || [];
-      const btn  = document.createElement('button');
-      btn.className = 'chip';
-      btn.setAttribute('data-cat', c.key);
-      if (c.color) { btn.style.borderColor = c.color; btn.style.color = c.color; }
-      btn.innerHTML = (c.emoji||'📦')+' '+c.name +
-        (subs.length ? ' <i class="fas fa-chevron-down" style="font-size:.6rem;margin-left:3px;opacity:.6"></i>' : '');
-
-      btn.onclick = function() {
-        chipsEl.querySelectorAll('.chip').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        if (subs.length) {
-          _renderSubBar(subBar, subs, c);
-          subBar.style.display = 'flex';
-          // Parent chip: show ALL tools from this category + all sub-cats
-          curCat = c.key;
-          applyFilters();
-        } else {
-          subBar.style.display = 'none';
-          curCat = c.key;
-          applyFilters();
-        }
-      };
-      chipsEl.appendChild(btn);
-    });
-
-    // "সবগুলো" chip-এ sub-bar hide
-    const allBtn = chipsEl.querySelector('.chip:first-child');
-    if (allBtn && !allBtn._subBarPatched) {
-      allBtn._subBarPatched = true;
-      allBtn.addEventListener('click', function() {
-        const sb = document.getElementById('subCatBar');
-        if (sb) sb.style.display = 'none';
-      });
-    }
+  var subBar = document.getElementById('subCatBar');
+  if (!subBar) {
+    subBar = document.createElement('div');
+    subBar.id = 'subCatBar';
+    subBar.style.cssText = 'display:none;flex-wrap:wrap;align-items:center;gap:8px;'
+      + 'padding:10px 16px;margin-bottom:14px;'
+      + 'background:rgba(255,215,0,.04);'
+      + 'border:1px solid rgba(255,215,0,.18);'
+      + 'border-left:3px solid #ffd700;'
+      + 'border-radius:0 12px 12px 0;';
+    chipsEl.parentNode.insertBefore(subBar, chipsEl.nextSibling);
   }
 
-  // 3. হোম পেজ ক্যাটাগরি কার্ড
-  const catGrid = document.querySelector('.cat-grid');
+  // Remove old custom chips, re-add fresh
+  chipsEl.querySelectorAll('[data-custom-cat]').forEach(function(b){ b.remove(); });
+
+  customCats.forEach(function(c) {
+    if (!c.key || !c.name) return;
+    var subs = c.subCategories || [];
+    var col  = c.color || '#ffd700';
+
+    var btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.setAttribute('data-custom-cat', c.key);
+    btn.setAttribute('data-cat', c.key);
+    btn.style.borderColor = col;
+    btn.style.color = col;
+    btn.innerHTML = (c.emoji||'📦') + ' ' + c.name
+      + (subs.length ? ' <i class="fas fa-chevron-down" style="font-size:.58rem;margin-left:3px;opacity:.5"></i>' : '');
+
+    btn.addEventListener('click', (function(cat, subList, color) {
+      return function() {
+        // Deactivate all chips
+        chipsEl.querySelectorAll('.chip').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+
+        if (subList.length) {
+          _renderSubBar(subBar, subList, cat);
+          subBar.style.display = 'flex';
+        } else {
+          subBar.style.display = 'none';
+        }
+        // Parent → সব sub-এর টুলসও দেখাবে
+        curCat = cat.key;
+        applyFilters();
+      };
+    })(c, subs, col));
+
+    chipsEl.appendChild(btn);
+  });
+
+  // "সবগুলো" button — sub-bar লুকাবে
+  var allBtn = chipsEl.querySelector('.chip:first-child');
+  if (allBtn && !allBtn._patched) {
+    allBtn._patched = true;
+    allBtn.addEventListener('click', function() {
+      var sb = document.getElementById('subCatBar');
+      if (sb) sb.style.display = 'none';
+      curCat = '';
+      applyFilters();
+    });
+  }
+
+  // Home page category cards
+  var catGrid = document.querySelector('.cat-grid');
   if (catGrid) {
-    customCats.forEach(c => {
-      if (!c.key || !c.name) return;
-      let card = document.getElementById('catCount_'+c.key);
-      if (card) return; // already exists
-      const color = c.color || '#ffd700';
-      const subs  = c.subCategories || [];
-      const div   = document.createElement('div');
+    customCats.forEach(function(c) {
+      if (!c.key || !c.name || document.getElementById('catCount_'+c.key)) return;
+      var color = c.color || '#ffd700';
+      var subs  = c.subCategories || [];
+      var div   = document.createElement('div');
       div.className = 'cat-highlight';
       div.style.cursor = 'pointer';
       div.innerHTML =
@@ -2906,33 +2887,65 @@ function _applyCustomCats(customCats) {
           (subs.length ? '<div style="font-size:.7rem;color:var(--muted)">'+subs.length+' বিভাগ</div>' : '')+
           '<div class="cat-hl-count" id="catCount_'+c.key+'">— টুলস</div>'+
         '</div>';
-      div.onclick = () => {
+      div.addEventListener('click', function() {
         showPage('tools');
-        setTimeout(() => {
-          const chip = document.querySelector('#catChips [data-cat="'+c.key+'"]');
+        setTimeout(function() {
+          var chip = document.querySelector('#catChips [data-cat="'+c.key+'"]');
           if (chip) chip.click();
         }, 200);
-      };
+      });
       catGrid.appendChild(div);
     });
   }
 
-  // 4. Script editor category select
-  const sel = document.getElementById('scriptCategory');
+  // Script editor select
+  var sel = document.getElementById('scriptCategory');
   if (sel) {
-    customCats.forEach(c => {
+    customCats.forEach(function(c) {
       if (!c.key || !c.name || sel.querySelector('option[value="'+c.key+'"]')) return;
-      const o = document.createElement('option');
-      o.value = c.key; o.textContent = (c.emoji||'')+' '+c.name;
+      var o = document.createElement('option');
+      o.value = c.key; o.textContent = (c.emoji||'') + ' ' + c.name;
       sel.appendChild(o);
-      (c.subCategories||[]).forEach(s => {
+      (c.subCategories||[]).forEach(function(s) {
         if (!s.key || sel.querySelector('option[value="'+s.key+'"]')) return;
-        const os = document.createElement('option');
-        os.value = s.key; os.textContent = '  └ '+(s.emoji||'')+' '+s.name;
+        var os = document.createElement('option');
+        os.value = s.key; os.textContent = '  └ ' + (s.emoji||'') + ' ' + s.name;
         sel.appendChild(os);
       });
     });
   }
+}
+
+// Main loader
+async function loadDynamicCategories() {
+  // Step 1: localStorage cache — তাৎক্ষণিক render (offline-এও কাজ করবে)
+  try {
+    var cached = localStorage.getItem(_CAT_LS_KEY);
+    if (cached) {
+      var parsed = JSON.parse(cached);
+      if (parsed && parsed.length) {
+        window._customCatsCache = parsed;
+        _applyCustomCats(parsed);
+      }
+    }
+  } catch(e) {}
+
+  // Step 2: Firestore থেকে আপডেট (৫ বার retry)
+  var _tryFS = async function(tries) {
+    if (!window._fbDb) {
+      if (tries > 0) setTimeout(function(){ _tryFS(tries-1); }, 1800);
+      return;
+    }
+    try {
+      var snap = await window._fbDb.collection('autoscrip_categories').get();
+      var cats = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      if (!cats.length) return;
+      try { localStorage.setItem(_CAT_LS_KEY, JSON.stringify(cats)); } catch(e){}
+      window._customCatsCache = cats;
+      _applyCustomCats(cats);
+    } catch(e) { /* offline */ }
+  };
+  _tryFS(5);
 }
 
 // Cache to prevent duplicate Firestore reads when loadHome + loadTools both call fetchToolsFromAPI
@@ -3001,7 +3014,12 @@ async function loadHome(){
     if(el){const n=approved.filter(t=>t.category===cat).length;el.textContent=n+' টুলস';}
     const dlEl=document.getElementById('catCount-download');if(dlEl){dlEl.textContent=approved.filter(t=>t.category==='download').length+' টুলস';}
   });
-  if(_customCatsCache){_customCatsCache.forEach(c=>{const el=document.getElementById('catCount_'+c.key);if(!el)return;const sk=(c.subCategories||[]).map(s=>s.key);el.textContent=approved.filter(t=>t.category===c.key||sk.includes(t.category)).length+' টুলস';});}
+  if(window._customCatsCache){window._customCatsCache.forEach(function(c){
+    var el=document.getElementById('catCount_'+c.key);
+    if(!el)return;
+    var sk=(c.subCategories||[]).map(function(s){return s.key;});
+    el.textContent=approved.filter(function(t){return t.category===c.key||sk.indexOf(t.category)!==-1;}).length+' টুলস';
+  });}
   animateCounter('hStTools',tools.length+500);
   animateCounter('hStUsers',1247);
   animateCounter('hStOnline',Math.floor(Math.random()*18)+7);
@@ -3037,15 +3055,12 @@ window.applyFilters=()=>{
   const sort=document.getElementById('toolsSort')?.value||'newest';
   let tools=getTools().filter(t=>t.status==='approved'||t.published!==false);
   if(curCat){
-    // Check if curCat is a parent category → show all its sub-cat tools too
-    const _pc = _customCatsCache && _customCatsCache.find(c => c.key === curCat);
-    if (_pc && (_pc.subCategories||[]).length) {
-      // Parent selected: show tools of parent + all sub-categories
-      const _sk = _pc.subCategories.map(s => s.key);
-      tools = tools.filter(t => t.category === curCat || _sk.includes(t.category));
+    var _pc=window._customCatsCache&&window._customCatsCache.find(function(c){return c.key===curCat;});
+    if(_pc&&(_pc.subCategories||[]).length){
+      var _sk=_pc.subCategories.map(function(s){return s.key;});
+      tools=tools.filter(function(t){return t.category===curCat||_sk.indexOf(t.category)!==-1;});
     } else {
-      // Sub-category or built-in: exact match only
-      tools = tools.filter(t => t.category === curCat);
+      tools=tools.filter(function(t){return t.category===curCat;});
     }
   }
   if(q)tools=tools.filter(t=>(t.name||t.title||'').toLowerCase().includes(q)||(t.description||'').toLowerCase().includes(q)||(t.tags||[]).some(tag=>tag.toLowerCase().includes(q)));
