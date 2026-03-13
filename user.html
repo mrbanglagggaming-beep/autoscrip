@@ -2772,132 +2772,153 @@ function _renderSubBar(bar, subs, cat) {
 let _customCatsCache = null;
 
 async function loadDynamicCategories() {
-  if (!window._fbDb) return;
+  // ── Step 1: Load from localStorage cache immediately (works offline too) ──
+  const LS_KEY = 'asc_custom_cats';
   try {
-    const snap = await window._fbDb.collection('autoscrip_categories').get();
-    if (snap.empty) return;
-    const customCats = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    _customCatsCache = customCats;
-
-    // ── 1. CAT_LABEL / CAT_COLORS আপডেট ──
-    customCats.forEach(c => {
-      if (c.key && c.name) {
-        CAT_LABEL[c.key] = (c.emoji||'📦')+' '+c.name;
-        CAT_COLORS[c.key] = c.color ? [c.color, c.color] : ['#ffd700','#ff6a00'];
+    const cached = localStorage.getItem(LS_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (parsed && parsed.length) {
+        _customCatsCache = parsed;
+        _applyCustomCats(parsed); // render immediately from cache
       }
-      (c.subCategories||[]).forEach(s => {
-        if (s.key && s.name) {
-          CAT_LABEL[s.key] = (s.emoji||'📌')+' '+s.name;
-          CAT_COLORS[s.key] = c.color ? [c.color, c.color] : ['#ffd700','#ff6a00'];
+    }
+  } catch(e) {}
+
+  // ── Step 2: Try Firestore (update cache if available) ──
+  const _tryFirestore = async (attempts) => {
+    if (!window._fbDb) {
+      if (attempts > 0) setTimeout(() => _tryFirestore(attempts-1), 1500);
+      return;
+    }
+    try {
+      const snap = await window._fbDb.collection('autoscrip_categories').get();
+      const customCats = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (!customCats.length) return;
+      // Save to localStorage for offline use
+      try { localStorage.setItem(LS_KEY, JSON.stringify(customCats)); } catch(e) {}
+      _customCatsCache = customCats;
+      _applyCustomCats(customCats); // re-render with fresh data
+
+    } catch(e) { /* Firestore offline - using cache */ }
+  };
+  _tryFirestore(5); // retry up to 5 times
+}
+
+// ── Separate function: apply categories to the UI ──
+function _applyCustomCats(customCats) {
+  if (!customCats || !customCats.length) return;
+
+  // 1. CAT_LABEL / CAT_COLORS আপডেট
+  customCats.forEach(c => {
+    if (c.key && c.name) {
+      CAT_LABEL[c.key] = (c.emoji||'📦')+' '+c.name;
+      CAT_COLORS[c.key] = c.color ? [c.color, c.color] : ['#ffd700','#ff6a00'];
+    }
+    (c.subCategories||[]).forEach(s => {
+      if (s.key && s.name) {
+        CAT_LABEL[s.key] = (s.emoji||'📌')+' '+s.name;
+        CAT_COLORS[s.key] = c.color ? [c.color, c.color] : ['#ffd700','#ff6a00'];
+      }
+    });
+  });
+
+  // 2. catChips-এ chip যোগ + sub-cat bar
+  const chipsEl = document.getElementById('catChips');
+  if (chipsEl) {
+    let subBar = document.getElementById('subCatBar');
+    if (!subBar) {
+      subBar = document.createElement('div');
+      subBar.id = 'subCatBar';
+      subBar.style.cssText = 'display:none;flex-wrap:wrap;gap:6px;padding:8px 14px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.12);border-radius:10px;margin-bottom:12px';
+      chipsEl.parentNode.insertBefore(subBar, chipsEl.nextSibling);
+    }
+
+    customCats.forEach(c => {
+      if (!c.key || !c.name) return;
+      // Remove old chip if exists (re-render)
+      const existing = chipsEl.querySelector('[data-cat="'+c.key+'"]');
+      if (existing) existing.remove();
+
+      const subs = c.subCategories || [];
+      const btn  = document.createElement('button');
+      btn.className = 'chip';
+      btn.setAttribute('data-cat', c.key);
+      if (c.color) { btn.style.borderColor = c.color; btn.style.color = c.color; }
+      btn.innerHTML = (c.emoji||'📦')+' '+c.name +
+        (subs.length ? ' <i class="fas fa-chevron-down" style="font-size:.6rem;margin-left:3px;opacity:.6"></i>' : '');
+
+      btn.onclick = function() {
+        chipsEl.querySelectorAll('.chip').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        if (subs.length) {
+          _renderSubBar(subBar, subs, c);
+          subBar.style.display = 'flex';
+        } else {
+          subBar.style.display = 'none';
         }
-      });
+        curCat = c.key; applyFilters();
+      };
+      chipsEl.appendChild(btn);
     });
 
-    // ── 2. catChips-এ নতুন chip যোগ + sub-cat bar ──
-    const chipsEl = document.getElementById('catChips');
-    if (chipsEl) {
-      // Sub-chip bar তৈরি (একবারই)
-      let subBar = document.getElementById('subCatBar');
-      if (!subBar) {
-        subBar = document.createElement('div');
-        subBar.id = 'subCatBar';
-        subBar.style.cssText = 'display:none;flex-wrap:wrap;gap:6px;padding:8px 14px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.12);border-radius:10px;margin-bottom:12px;transition:.2s';
-        chipsEl.parentNode.insertBefore(subBar, chipsEl.nextSibling);
-      }
-
-      customCats.forEach(c => {
-        if (!c.key || !c.name) return;
-        if (chipsEl.querySelector('[data-cat="'+c.key+'"]')) return;
-        const subs = c.subCategories || [];
-        const btn  = document.createElement('button');
-        btn.className = 'chip';
-        btn.setAttribute('data-cat', c.key);
-        if (c.color) btn.style.cssText = '--chip-border:'+c.color;
-        btn.innerHTML = (c.emoji||'📦')+' '+c.name+(subs.length?' <i class="fas fa-chevron-down" style="font-size:.6rem;margin-left:2px;opacity:.6"></i>':'');
-
-        btn.onclick = function() {
-          // Remove active from all chips
-          chipsEl.querySelectorAll('.chip').forEach(b => b.classList.remove('active'));
-          this.classList.add('active');
-
-          if (subs.length) {
-            // Show sub-chip bar
-            _renderSubBar(subBar, subs, c);
-            subBar.style.display = 'flex';
-            // Parent = show all tools from all sub-cats
-            curCat = c.key;
-            applyFilters();
-          } else {
-            subBar.style.display = 'none';
-            curCat = c.key;
-            applyFilters();
-          }
-        };
-        chipsEl.appendChild(btn);
-      });
-
-      // "সবগুলো" chip এ sub-bar hide
-      const allBtn = chipsEl.querySelector('.chip:first-child');
-      if (allBtn) {
-        const origClick = allBtn.onclick;
-        allBtn.onclick = function() {
-          const sb = document.getElementById('subCatBar');
-          if (sb) sb.style.display = 'none';
-          if (origClick) origClick.call(this);
-          else { chipsEl.querySelectorAll('.chip').forEach(b=>b.classList.remove('active')); this.classList.add('active'); curCat=''; applyFilters(); }
-        };
-      }
-    }
-
-    // ── 3. হোম পেজ ক্যাটাগরি কার্ড ──
-    const catGrid = document.querySelector('.cat-grid');
-    if (catGrid) {
-      customCats.forEach(c => {
-        if (!c.key || !c.name) return;
-        if (document.getElementById('catCount_'+c.key)) return;
-        const color = c.color || '#ffd700';
-        const subs  = c.subCategories || [];
-        const div   = document.createElement('div');
-        div.className = 'cat-highlight';
-        div.style.cursor = 'pointer';
-        div.innerHTML =
-          '<div class="ch-icon" style="color:'+color+'">'+(c.emoji||'📦')+'</div>'+
-          '<div style="text-align:left">'+
-            '<div class="cat-hl-name">'+c.name+'</div>'+
-            (subs.length ? '<div style="font-size:.7rem;color:var(--muted);margin-top:1px">'+subs.length+' বিভাগ</div>' : '')+
-            '<div class="cat-hl-count" id="catCount_'+c.key+'">—</div>'+
-          '</div>';
-        div.onclick = () => {
-          showPage('tools');
-          setTimeout(() => {
-            const chip = document.querySelector('#catChips [data-cat="'+c.key+'"]');
-            if (chip) chip.click();
-          }, 200);
-        };
-        catGrid.appendChild(div);
+    // "সবগুলো" chip-এ sub-bar hide
+    const allBtn = chipsEl.querySelector('.chip:first-child');
+    if (allBtn && !allBtn._subBarPatched) {
+      allBtn._subBarPatched = true;
+      allBtn.addEventListener('click', function() {
+        const sb = document.getElementById('subCatBar');
+        if (sb) sb.style.display = 'none';
       });
     }
+  }
 
-    // ── 4. Script editor category select ──
-    const scriptCatSel = document.getElementById('scriptCategory');
-    if (scriptCatSel) {
-      customCats.forEach(c => {
-        if (!c.key || !c.name) return;
-        if (!scriptCatSel.querySelector('option[value="'+c.key+'"]')) {
-          const o = document.createElement('option');
-          o.value = c.key; o.textContent = (c.emoji||'')+' '+c.name;
-          scriptCatSel.appendChild(o);
-        }
-        (c.subCategories||[]).forEach(s => {
-          if (!s.key || scriptCatSel.querySelector('option[value="'+s.key+'"]')) return;
-          const o = document.createElement('option');
-          o.value = s.key; o.textContent = '  └ '+(s.emoji||'')+' '+s.name;
-          scriptCatSel.appendChild(o);
-        });
+  // 3. হোম পেজ ক্যাটাগরি কার্ড
+  const catGrid = document.querySelector('.cat-grid');
+  if (catGrid) {
+    customCats.forEach(c => {
+      if (!c.key || !c.name) return;
+      let card = document.getElementById('catCount_'+c.key);
+      if (card) return; // already exists
+      const color = c.color || '#ffd700';
+      const subs  = c.subCategories || [];
+      const div   = document.createElement('div');
+      div.className = 'cat-highlight';
+      div.style.cursor = 'pointer';
+      div.innerHTML =
+        '<div class="ch-icon" style="color:'+color+'">'+(c.emoji||'📦')+'</div>'+
+        '<div style="text-align:left">'+
+          '<div class="cat-hl-name">'+c.name+'</div>'+
+          (subs.length ? '<div style="font-size:.7rem;color:var(--muted)">'+subs.length+' বিভাগ</div>' : '')+
+          '<div class="cat-hl-count" id="catCount_'+c.key+'">— টুলস</div>'+
+        '</div>';
+      div.onclick = () => {
+        showPage('tools');
+        setTimeout(() => {
+          const chip = document.querySelector('#catChips [data-cat="'+c.key+'"]');
+          if (chip) chip.click();
+        }, 200);
+      };
+      catGrid.appendChild(div);
+    });
+  }
+
+  // 4. Script editor category select
+  const sel = document.getElementById('scriptCategory');
+  if (sel) {
+    customCats.forEach(c => {
+      if (!c.key || !c.name || sel.querySelector('option[value="'+c.key+'"]')) return;
+      const o = document.createElement('option');
+      o.value = c.key; o.textContent = (c.emoji||'')+' '+c.name;
+      sel.appendChild(o);
+      (c.subCategories||[]).forEach(s => {
+        if (!s.key || sel.querySelector('option[value="'+s.key+'"]')) return;
+        const os = document.createElement('option');
+        os.value = s.key; os.textContent = '  └ '+(s.emoji||'')+' '+s.name;
+        sel.appendChild(os);
       });
-    }
-
-  } catch(e) { /* offline / no categories yet */ }
+    });
+  }
 }
 
 // Cache to prevent duplicate Firestore reads when loadHome + loadTools both call fetchToolsFromAPI
