@@ -9047,7 +9047,7 @@ function renderCats() {
                 <div style="flex:1"><div style="font-weight:600;font-size:.88rem">${c.name||''}</div><div style="font-size:.7rem;color:var(--muted)">key: ${c.key||''}</div></div>
                 <div style="display:flex;gap:4px">
                     <button class="bti" onclick="openCatModal('${c.id}')" title="সম্পাদনা"><i class="fas fa-edit"></i></button>
-                    <button class="bti dn" onclick="deleteCat('${c.id}','${(c.name||'').replace(/'/g,'\\'')+''}')" title="মুছুন"><i class="fas fa-trash"></i></button>
+                    <button class="bti dn" onclick="deleteCat('${c.id}','${(c.name||'').replace(/['"]/g,'')}')" title="মুছুন"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
             ${subs.length?'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">'+subs.map(s=>`<span style="font-size:.7rem;background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.15);border-radius:20px;padding:2px 8px;color:var(--muted)">${s.emoji||'📌'} ${s.name}</span>`).join('')+'</div>':''}
