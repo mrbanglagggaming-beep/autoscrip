@@ -3549,7 +3549,7 @@ body.offline-mode { padding-top: 44px !important; }
       <span class="sb-lnk-txt">নতুন টুল</span>
     </button>
     <button class="sb-lnk" id="nav-categories" onclick="showP('categories');loadCategories()">
-      <i class="fas fa-tags"></i>
+      <i class="fas fa-layer-group"></i>
       <span class="sb-lnk-txt">ক্যাটাগরি ম্যানেজ</span>
     </button>
     <button class="sb-lnk" id="nav-community" onclick="showP('community');loadCom()">
@@ -4547,179 +4547,103 @@ body.offline-mode { padding-top: 44px !important; }
     </div>
   </div>
 
-    <!-- ══════════════════ ক্যাটাগরি ম্যানেজ ══════════════════ -->
+  <!-- ══ ক্যাটাগরি ম্যানেজ ══ -->
   <div class="pnl" id="pnl-categories">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
       <div>
-        <div class="pnl-tt"><i class="fas fa-tags" style="color:var(--primary)"></i> ক্যাটাগরি ম্যানেজ</div>
-        <p style="color:var(--muted);font-size:.85rem;margin-top:4px">টুলস সেকশনের ক্যাটাগরি যোগ, সম্পাদনা ও মুছুন। ইউজার সাইটে স্বয়ংক্রিয়ভাবে প্রযোজ্য হবে।</p>
+        <div class="pnl-tt"><i class="fas fa-layer-group" style="color:var(--primary)"></i> ক্যাটাগরি ও সাব-ক্যাটাগরি ম্যানেজ</div>
+        <p style="color:var(--muted);font-size:.82rem;margin-top:4px">ক্যাটাগরির ভেতরে Playlist / Section যোগ করুন। ইউজার সাইটে স্বয়ংক্রিয়ভাবে দেখাবে।</p>
       </div>
-      <button class="btn btn-pr btn-sm" onclick="openCatModal()">
-        <i class="fas fa-plus"></i> নতুন ক্যাটাগরি
-      </button>
+      <button class="btn btn-pr btn-sm" onclick="openCatModal()"><i class="fas fa-plus"></i> নতুন ক্যাটাগরি</button>
     </div>
-
-    <!-- Default Categories Notice -->
-    <div class="cd" style="margin-bottom:20px;border-left:3px solid var(--primary)">
-      <div class="cd-bd" style="padding:12px 16px">
-        <p style="font-size:.82rem;color:var(--muted);margin:0">
-          <i class="fas fa-info-circle" style="color:var(--primary)"></i>
-          &nbsp;<strong style="color:var(--text)">ডিফল্ট ক্যাটাগরি:</strong> নিচের হার্ডকোডেড ক্যাটাগরিগুলো সবসময় দেখাবে। আপনি Firestore থেকে অতিরিক্ত কাস্টম ক্যাটাগরি যোগ করতে পারবেন।
-        </p>
-      </div>
+    <div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.15);border-radius:10px;padding:10px 14px;margin-bottom:18px;font-size:.8rem;color:var(--muted)">
+      <i class="fas fa-info-circle" style="color:var(--primary)"></i>
+      &nbsp;<b style="color:var(--text)">ক্যাটাগরি</b> = বড় গ্রুপ &nbsp;|&nbsp;
+      <b style="color:var(--text)">সাব-ক্যাটাগরি</b> = ভেতরের বিভাগ (Playlist, Section ইত্যাদি)
     </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
-      <!-- Built-in categories -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
       <div class="cd">
-        <div class="cd-hd"><div class="cd-tt">🔒 বিল্ট-ইন ক্যাটাগরি (স্থায়ী)</div></div>
-        <div class="cd-bd" id="builtinCatList">
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <div class="cat-mgr-item" style="background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.1);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px">
-              <span style="font-size:1.4rem">⚙️</span>
-              <div style="flex:1"><div style="font-weight:600;color:var(--text)">সিস্টেম</div><div style="font-size:.75rem;color:var(--muted)">Key: system</div></div>
-              <span class="bdg bdg-i">বিল্ট-ইন</span>
-            </div>
-            <div class="cat-mgr-item" style="background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.1);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px">
-              <span style="font-size:1.4rem">🌐</span>
-              <div style="flex:1"><div style="font-weight:600;color:var(--text)">নেটওয়ার্ক</div><div style="font-size:.75rem;color:var(--muted)">Key: network</div></div>
-              <span class="bdg bdg-i">বিল্ট-ইন</span>
-            </div>
-            <div class="cat-mgr-item" style="background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.1);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px">
-              <span style="font-size:1.4rem">🔒</span>
-              <div style="flex:1"><div style="font-weight:600;color:var(--text)">সিকিউরিটি</div><div style="font-size:.75rem;color:var(--muted)">Key: security</div></div>
-              <span class="bdg bdg-i">বিল্ট-ইন</span>
-            </div>
-            <div class="cat-mgr-item" style="background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.1);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px">
-              <span style="font-size:1.4rem">💾</span>
-              <div style="flex:1"><div style="font-weight:600;color:var(--text)">ব্যাকআপ</div><div style="font-size:.75rem;color:var(--muted)">Key: backup</div></div>
-              <span class="bdg bdg-i">বিল্ট-ইন</span>
-            </div>
-            <div class="cat-mgr-item" style="background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.1);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px">
-              <span style="font-size:1.4rem">📊</span>
-              <div style="flex:1"><div style="font-weight:600;color:var(--text)">মনিটরিং</div><div style="font-size:.75rem;color:var(--muted)">Key: monitoring</div></div>
-              <span class="bdg bdg-i">বিল্ট-ইন</span>
-            </div>
-            <div class="cat-mgr-item" style="background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.1);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px">
-              <span style="font-size:1.4rem">🤖</span>
-              <div style="flex:1"><div style="font-weight:600;color:var(--text)">অটোমেশন</div><div style="font-size:.75rem;color:var(--muted)">Key: automation</div></div>
-              <span class="bdg bdg-i">বিল্ট-ইন</span>
-            </div>
-            <div class="cat-mgr-item" style="background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.1);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px">
-              <span style="font-size:1.4rem">⬇️</span>
-              <div style="flex:1"><div style="font-weight:600;color:var(--text)">ডাউনলোড</div><div style="font-size:.75rem;color:var(--muted)">Key: download</div></div>
-              <span class="bdg bdg-i">বিল্ট-ইন</span>
-            </div>
-          </div>
+        <div class="cd-hd"><div class="cd-tt">🔒 বিল্ট-ইন ক্যাটাগরি</div></div>
+        <div class="cd-bd" style="display:flex;flex-direction:column;gap:6px">
+          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:8px"><span>⚙️</span><div style="flex:1"><b style="font-size:.85rem">সিস্টেম</b><div style="font-size:.7rem;color:var(--muted)">system</div></div><span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span></div>
+          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:8px"><span>🌐</span><div style="flex:1"><b style="font-size:.85rem">নেটওয়ার্ক</b><div style="font-size:.7rem;color:var(--muted)">network</div></div><span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span></div>
+          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:8px"><span>🔒</span><div style="flex:1"><b style="font-size:.85rem">সিকিউরিটি</b><div style="font-size:.7rem;color:var(--muted)">security</div></div><span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span></div>
+          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:8px"><span>💾</span><div style="flex:1"><b style="font-size:.85rem">ব্যাকআপ</b><div style="font-size:.7rem;color:var(--muted)">backup</div></div><span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span></div>
+          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:8px"><span>📊</span><div style="flex:1"><b style="font-size:.85rem">মনিটরিং</b><div style="font-size:.7rem;color:var(--muted)">monitoring</div></div><span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span></div>
+          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:8px"><span>🤖</span><div style="flex:1"><b style="font-size:.85rem">অটোমেশন</b><div style="font-size:.7rem;color:var(--muted)">automation</div></div><span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span></div>
+          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:8px"><span>⬇️</span><div style="flex:1"><b style="font-size:.85rem">ডাউনলোড</b><div style="font-size:.7rem;color:var(--muted)">download</div></div><span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span></div>
         </div>
       </div>
-
-      <!-- Custom categories from Firestore -->
       <div class="cd">
         <div class="cd-hd">
-          <div class="cd-tt">✨ কাস্টম ক্যাটাগরি (Firestore)</div>
+          <div class="cd-tt">✨ কাস্টম ক্যাটাগরি</div>
           <button class="btn btn-ghost btn-sm" onclick="loadCategories()"><i class="fas fa-sync"></i></button>
         </div>
         <div class="cd-bd">
-          <div id="customCatList">
-            <div style="text-align:center;padding:40px 20px;color:var(--muted)">
-              <i class="fas fa-spinner fa-spin" style="font-size:2rem;margin-bottom:12px;display:block"></i>
-              লোড হচ্ছে...
-            </div>
-          </div>
-          <button class="btn btn-pr w-100 mt-3" onclick="openCatModal()" style="margin-top:16px">
-            <i class="fas fa-plus"></i> নতুন ক্যাটাগরি যোগ করুন
-          </button>
+          <div id="customCatList"><div style="text-align:center;padding:20px;color:var(--muted)"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</div></div>
+          <button class="btn btn-pr w-100" onclick="openCatModal()" style="margin-top:10px"><i class="fas fa-plus"></i> নতুন ক্যাটাগরি</button>
         </div>
       </div>
     </div>
-
-    <!-- Preview Section -->
-    <div class="cd" style="margin-top:24px">
-      <div class="cd-hd"><div class="cd-tt">👁️ ইউজার সাইটে প্রিভিউ (সব ক্যাটাগরি)</div></div>
-      <div class="cd-bd">
-        <div id="catPreviewChips" style="display:flex;flex-wrap:wrap;gap:8px;padding:8px 0">
-          <div style="color:var(--muted);font-size:.85rem">ক্যাটাগরি লোড হলে এখানে প্রিভিউ দেখাবে...</div>
-        </div>
-      </div>
+    <div class="cd" style="margin-top:18px">
+      <div class="cd-hd"><div class="cd-tt">👁️ ইউজার সাইটে প্রিভিউ</div></div>
+      <div class="cd-bd"><div id="catPreviewArea" style="display:flex;flex-wrap:wrap;gap:8px"><span style="color:var(--muted);font-size:.82rem">লোড হলে দেখাবে...</span></div></div>
     </div>
   </div>
 
-  <!-- Category Add/Edit Modal -->
-  <div id="catModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(16px);z-index:9999;align-items:center;justify-content:center">
-    <div style="background:var(--card);border:1px solid rgba(255,215,0,.2);border-radius:16px;padding:28px;width:100%;max-width:480px;margin:20px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-        <h3 style="margin:0;font-size:1.1rem" id="catModalTitle">✨ নতুন ক্যাটাগরি</h3>
+  <!-- ══ Category Modal ══ -->
+  <div id="catModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(16px);z-index:9999;align-items:center;justify-content:center">
+    <div style="background:var(--card);border:1px solid rgba(255,215,0,.2);border-radius:16px;padding:26px;width:100%;max-width:560px;margin:16px;max-height:90vh;overflow-y:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+        <h3 style="margin:0;font-size:1.05rem" id="catModalTitle">✨ নতুন ক্যাটাগরি</h3>
         <button onclick="closeCatModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem"><i class="fas fa-times"></i></button>
       </div>
-
       <input type="hidden" id="editCatId">
-
-      <div class="fg" style="margin-bottom:16px">
-        <label class="fl">ইমোজি আইকন *</label>
-        <div style="display:flex;align-items:center;gap:10px">
-          <input type="text" class="fc" id="catEmoji" placeholder="🎯" style="width:80px;text-align:center;font-size:1.5rem" maxlength="4">
-          <div style="display:flex;flex-wrap:wrap;gap:6px;flex:1">
-            <span onclick="document.getElementById('catEmoji').value=this.textContent" style="cursor:pointer;font-size:1.3rem;padding:4px;border-radius:6px;transition:.2s" onmouseover="this.style.background='rgba(255,215,0,.1)'" onmouseout="this.style.background='none'">🎯</span>
-            <span onclick="document.getElementById('catEmoji').value=this.textContent" style="cursor:pointer;font-size:1.3rem;padding:4px;border-radius:6px;transition:.2s" onmouseover="this.style.background='rgba(255,215,0,.1)'" onmouseout="this.style.background='none'">🎮</span>
-            <span onclick="document.getElementById('catEmoji').value=this.textContent" style="cursor:pointer;font-size:1.3rem;padding:4px;border-radius:6px;transition:.2s" onmouseover="this.style.background='rgba(255,215,0,.1)'" onmouseout="this.style.background='none'">🔧</span>
-            <span onclick="document.getElementById('catEmoji').value=this.textContent" style="cursor:pointer;font-size:1.3rem;padding:4px;border-radius:6px;transition:.2s" onmouseover="this.style.background='rgba(255,215,0,.1)'" onmouseout="this.style.background='none'">🚀</span>
-            <span onclick="document.getElementById('catEmoji').value=this.textContent" style="cursor:pointer;font-size:1.3rem;padding:4px;border-radius:6px;transition:.2s" onmouseover="this.style.background='rgba(255,215,0,.1)'" onmouseout="this.style.background='none'">📱</span>
-            <span onclick="document.getElementById('catEmoji').value=this.textContent" style="cursor:pointer;font-size:1.3rem;padding:4px;border-radius:6px;transition:.2s" onmouseover="this.style.background='rgba(255,215,0,.1)'" onmouseout="this.style.background='none'">🏆</span>
-            <span onclick="document.getElementById('catEmoji').value=this.textContent" style="cursor:pointer;font-size:1.3rem;padding:4px;border-radius:6px;transition:.2s" onmouseover="this.style.background='rgba(255,215,0,.1)'" onmouseout="this.style.background='none'">🔐</span>
-            <span onclick="document.getElementById('catEmoji').value=this.textContent" style="cursor:pointer;font-size:1.3rem;padding:4px;border-radius:6px;transition:.2s" onmouseover="this.style.background='rgba(255,215,0,.1)'" onmouseout="this.style.background='none'">🎵</span>
-            <span onclick="document.getElementById('catEmoji').value=this.textContent" style="cursor:pointer;font-size:1.3rem;padding:4px;border-radius:6px;transition:.2s" onmouseover="this.style.background='rgba(255,215,0,.1)'" onmouseout="this.style.background='none'">💡</span>
-            <span onclick="document.getElementById('catEmoji').value=this.textContent" style="cursor:pointer;font-size:1.3rem;padding:4px;border-radius:6px;transition:.2s" onmouseover="this.style.background='rgba(255,215,0,.1)'" onmouseout="this.style.background='none'">🗂️</span>
-            <span onclick="document.getElementById('catEmoji').value=this.textContent" style="cursor:pointer;font-size:1.3rem;padding:4px;border-radius:6px;transition:.2s" onmouseover="this.style.background='rgba(255,215,0,.1)'" onmouseout="this.style.background='none'">🧪</span>
-            <span onclick="document.getElementById('catEmoji').value=this.textContent" style="cursor:pointer;font-size:1.3rem;padding:4px;border-radius:6px;transition:.2s" onmouseover="this.style.background='rgba(255,215,0,.1)'" onmouseout="this.style.background='none'">📡</span>
+      <div style="display:grid;grid-template-columns:72px 1fr;gap:10px;margin-bottom:10px">
+        <div class="fg" style="margin:0"><label class="fl">ইমোজি *</label><input type="text" class="fc" id="catEmoji" placeholder="🎯" style="text-align:center;font-size:1.4rem" maxlength="4" oninput="updateCatChip()"></div>
+        <div class="fg" style="margin:0"><label class="fl">ক্যাটাগরির নাম *</label><input type="text" class="fc" id="catName" placeholder="Gaming, Playlist, মিডিয়া..." oninput="updateCatChip()"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 56px;gap:10px;margin-bottom:10px">
+        <div class="fg" style="margin:0"><label class="fl">Unique Key * <small style="color:var(--muted)">(a-z, 0-9, _)</small></label><input type="text" class="fc" id="catKey" placeholder="gaming, playlist, media" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')"></div>
+        <div class="fg" style="margin:0"><label class="fl">রঙ</label><input type="color" id="catColor" value="#ffd700" style="width:100%;height:38px;border:1px solid var(--border);border-radius:8px;cursor:pointer" oninput="updateCatChip()"></div>
+      </div>
+      <div class="fg" style="margin-bottom:10px"><label class="fl">বিবরণ (ঐচ্ছিক)</label><input type="text" class="fc" id="catDesc" placeholder="এই ক্যাটাগরিতে কী ধরনের টুলস..."></div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;padding:8px;background:rgba(255,255,255,.03);border-radius:8px">
+        <span style="font-size:.7rem;color:var(--muted);width:100%;margin-bottom:2px">দ্রুত ইমোজি:</span>
+        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🎯</span>
+        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🎮</span>
+        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🎵</span>
+        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">📺</span>
+        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🚀</span>
+        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🔧</span>
+        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">💡</span>
+        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🏆</span>
+        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🎬</span>
+        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🌟</span>
+        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🔥</span>
+        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">💎</span>
+        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">📱</span>
+        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🗂️</span>
+      </div>
+      <div style="background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.12);border-radius:8px;padding:8px 12px;margin-bottom:14px">
+        <div style="font-size:.7rem;color:var(--muted);margin-bottom:5px">প্রিভিউ:</div>
+        <button class="chip" id="catChipPreview" style="pointer-events:none">🎯 নতুন ক্যাটাগরি</button>
+      </div>
+      <!-- Sub-categories -->
+      <div style="border:1px solid rgba(255,215,0,.15);border-radius:10px;padding:12px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div>
+            <div style="font-weight:600;font-size:.88rem"><i class="fas fa-sitemap" style="color:var(--primary)"></i> সাব-ক্যাটাগরি / Playlist / Section</div>
+            <div style="font-size:.72rem;color:var(--muted);margin-top:2px">এই ক্যাটাগরির ভেতরের বিভাগ যোগ করুন</div>
           </div>
+          <button class="btn btn-ghost btn-sm" onclick="addSubRow()"><i class="fas fa-plus"></i> যোগ</button>
+        </div>
+        <div id="subRows" style="display:flex;flex-direction:column;gap:7px">
+          <div id="subRowsEmpty" style="text-align:center;padding:10px;color:var(--muted);font-size:.8rem">সাব-ক্যাটাগরি নেই। যোগ করুন →</div>
         </div>
       </div>
-
-      <div class="fg" style="margin-bottom:16px">
-        <label class="fl">ক্যাটাগরির নাম (বাংলা/ইংরেজি) *</label>
-        <input type="text" class="fc" id="catName" placeholder="যেমন: ভিডিও টুলস, Gaming, মিডিয়া...">
-      </div>
-
-      <div class="fg" style="margin-bottom:16px">
-        <label class="fl">Unique Key (ইংরেজি, lowercase, underscore) *</label>
-        <input type="text" class="fc" id="catKey" placeholder="যেমন: video_tools, gaming, media" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')">
-        <small style="color:var(--muted);font-size:.75rem">শুধু a-z, 0-9, _ চিহ্ন ব্যবহার করুন। টুল যোগ করার সময় এই key ব্যবহার হবে।</small>
-      </div>
-
-      <div class="fg" style="margin-bottom:16px">
-        <label class="fl">রঙ (ঐচ্ছিক)</label>
-        <div style="display:flex;align-items:center;gap:10px">
-          <input type="color" id="catColor" value="#ffd700" style="width:50px;height:38px;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:none">
-          <div style="display:flex;flex-wrap:wrap;gap:6px">
-            <span onclick="document.getElementById('catColor').value='#ffd700'" style="width:24px;height:24px;background:#ffd700;border-radius:50%;cursor:pointer;display:inline-block"></span>
-            <span onclick="document.getElementById('catColor').value='#00b4d8'" style="width:24px;height:24px;background:#00b4d8;border-radius:50%;cursor:pointer;display:inline-block"></span>
-            <span onclick="document.getElementById('catColor').value='#7c3aed'" style="width:24px;height:24px;background:#7c3aed;border-radius:50%;cursor:pointer;display:inline-block"></span>
-            <span onclick="document.getElementById('catColor').value='#ef4444'" style="width:24px;height:24px;background:#ef4444;border-radius:50%;cursor:pointer;display:inline-block"></span>
-            <span onclick="document.getElementById('catColor').value='#22c55e'" style="width:24px;height:24px;background:#22c55e;border-radius:50%;cursor:pointer;display:inline-block"></span>
-            <span onclick="document.getElementById('catColor').value='#f97316'" style="width:24px;height:24px;background:#f97316;border-radius:50%;cursor:pointer;display:inline-block"></span>
-            <span onclick="document.getElementById('catColor').value='#ec4899'" style="width:24px;height:24px;background:#ec4899;border-radius:50%;cursor:pointer;display:inline-block"></span>
-          </div>
-        </div>
-      </div>
-
-      <div class="fg" style="margin-bottom:20px">
-        <label class="fl">বিবরণ (ঐচ্ছিক)</label>
-        <input type="text" class="fc" id="catDesc" placeholder="এই ক্যাটাগরিতে কী ধরনের টুলস থাকবে...">
-      </div>
-
-      <!-- Live Preview -->
-      <div style="background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.1);border-radius:10px;padding:12px;margin-bottom:20px">
-        <div style="font-size:.75rem;color:var(--muted);margin-bottom:8px">প্রিভিউ:</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="chip" id="catPreviewChip" style="pointer-events:none">🎯 নতুন ক্যাটাগরি</button>
-        </div>
-      </div>
-
       <div style="display:flex;gap:10px">
-        <button class="btn btn-pr" style="flex:1" onclick="saveCat()">
-          <i class="fas fa-save"></i> <span id="catSaveBtnTxt">সেভ করুন</span>
-        </button>
+        <button class="btn btn-pr" style="flex:1" onclick="saveCat()"><i class="fas fa-save"></i> <span id="catSaveTxt">সেভ করুন</span></button>
         <button class="btn btn-ghost" onclick="closeCatModal()">বাতিল</button>
       </div>
     </div>
@@ -9091,223 +9015,179 @@ function getYouTubeId(url) {
 
 // ===== CATEGORY MANAGER =====
 let allCustomCategories = [];
-
-const BUILTIN_CATS = {
-    system: { emoji: '⚙️', name: 'সিস্টেম', key: 'system', builtin: true },
-    network: { emoji: '🌐', name: 'নেটওয়ার্ক', key: 'network', builtin: true },
-    security: { emoji: '🔒', name: 'সিকিউরিটি', key: 'security', builtin: true },
-    backup: { emoji: '💾', name: 'ব্যাকআপ', key: 'backup', builtin: true },
-    monitoring: { emoji: '📊', name: 'মনিটরিং', key: 'monitoring', builtin: true },
-    automation: { emoji: '🤖', name: 'অটোমেশন', key: 'automation', builtin: true },
-    download: { emoji: '⬇️', name: 'ডাউনলোড', key: 'download', builtin: true },
-    files: { emoji: '📁', name: 'ফাইল', key: 'files', builtin: true },
-    windows: { emoji: '🪟', name: 'উইন্ডোজ', key: 'windows', builtin: true },
-    other: { emoji: '📜', name: 'অন্যান্য', key: 'other', builtin: true }
-};
+const _BUILTIN = ['system','network','security','backup','monitoring','automation','download','files','windows','other'];
+let _subRowIdx = 0;
 
 async function loadCategories() {
-    const listEl = document.getElementById('customCatList');
-    if (!listEl) return;
-    listEl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem"></i><br><br>লোড হচ্ছে...</div>';
+    const el = document.getElementById('customCatList');
+    if(el) el.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</div>';
     try {
-        const snap = await fbDb.collection(FS.categories).orderBy('order', 'asc').get().catch(() => fbDb.collection(FS.categories).get());
-        allCustomCategories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderCustomCats();
-        renderCatPreview();
-        updateAllCatSelects();
-    } catch (e) {
-        listEl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><i class="fas fa-exclamation-triangle" style="color:#ef4444;font-size:1.5rem"></i><br><br>Firestore সংযুক্ত নেই বা কোনো কাস্টম ক্যাটাগরি নেই।<br><button class="btn btn-ghost btn-sm mt-2" onclick="loadCategories()">পুনরায় চেষ্টা</button></div>';
+        let snap;
+        try { snap = await fbDb.collection(FS.categories).orderBy('order','asc').get(); }
+        catch(e) { snap = await fbDb.collection(FS.categories).get(); }
+        allCustomCategories = snap.docs.map(d=>({id:d.id,...d.data()}));
+        renderCats(); renderPreview(); updateSelects();
+    } catch(e) {
+        if(el) el.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)"><i class="fas fa-exclamation-triangle" style="color:#ef4444"></i><br>লোড করা যায়নি.<br><button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="loadCategories()"><i class="fas fa-sync"></i> পুনরায়</button></div>';
     }
 }
 
-function renderCustomCats() {
-    const listEl = document.getElementById('customCatList');
-    if (!listEl) return;
-    if (!allCustomCategories.length) {
-        listEl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><i class="fas fa-tags" style="font-size:2rem;margin-bottom:10px;display:block"></i>এখনো কোনো কাস্টম ক্যাটাগরি নেই।<br><small>নিচের বাটনে ক্লিক করে যোগ করুন।</small></div>';
+function renderCats() {
+    const el = document.getElementById('customCatList');
+    if(!el) return;
+    if(!allCustomCategories.length) {
+        el.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:.85rem"><i class="fas fa-layer-group" style="font-size:1.8rem;opacity:.3;display:block;margin-bottom:8px"></i>কোনো কাস্টম ক্যাটাগরি নেই।</div>';
         return;
     }
-    listEl.innerHTML = allCustomCategories.map(c => `
-        <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px" id="catItem_${c.id}">
-            <span style="font-size:1.4rem">${c.emoji || '📦'}</span>
-            <div style="flex:1">
-                <div style="font-weight:600;color:var(--text)">${c.name || ''}</div>
-                <div style="font-size:.75rem;color:var(--muted)">Key: ${c.key || ''} ${c.description ? '· ' + c.description : ''}</div>
+    el.innerHTML = allCustomCategories.map(c => {
+        const subs = c.subCategories||[];
+        return `<div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:7px">
+            <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-size:1.2rem">${c.emoji||'📦'}</span>
+                <div style="flex:1"><div style="font-weight:600;font-size:.88rem">${c.name||''}</div><div style="font-size:.7rem;color:var(--muted)">key: ${c.key||''}</div></div>
+                <div style="display:flex;gap:4px">
+                    <button class="bti" onclick="openCatModal('${c.id}')" title="সম্পাদনা"><i class="fas fa-edit"></i></button>
+                    <button class="bti dn" onclick="deleteCat('${c.id}','${(c.name||'').replace(/'/g,'\\'')+''}')" title="মুছুন"><i class="fas fa-trash"></i></button>
+                </div>
             </div>
-            <div style="display:flex;gap:6px">
-                <button class="bti" onclick="openCatModal('${c.id}')" title="সম্পাদনা"><i class="fas fa-edit"></i></button>
-                <button class="bti dn" onclick="deleteCat('${c.id}','${c.name}')" title="মুছুন"><i class="fas fa-trash"></i></button>
-            </div>
-        </div>
-    `).join('');
+            ${subs.length?'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">'+subs.map(s=>`<span style="font-size:.7rem;background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.15);border-radius:20px;padding:2px 8px;color:var(--muted)">${s.emoji||'📌'} ${s.name}</span>`).join('')+'</div>':''}
+        </div>`;
+    }).join('');
 }
 
-function renderCatPreview() {
-    const el = document.getElementById('catPreviewChips');
-    if (!el) return;
-    const all = [
-        ...Object.values(BUILTIN_CATS),
-        ...allCustomCategories
-    ];
-    el.innerHTML = '<button class="chip active" style="pointer-events:none">🏠 সবগুলো</button>' +
-        all.map(c => `<button class="chip" style="pointer-events:none;${c.color?'border-color:'+c.color+';color:'+c.color:''}">${c.emoji || '📦'} ${c.name}</button>`).join('');
+function renderPreview() {
+    const el = document.getElementById('catPreviewArea');
+    if(!el) return;
+    const bi=[{e:'⚙️',n:'সিস্টেম'},{e:'🌐',n:'নেটওয়ার্ক'},{e:'🔒',n:'সিকিউরিটি'},{e:'💾',n:'ব্যাকআপ'},{e:'📊',n:'মনিটরিং'},{e:'🤖',n:'অটোমেশন'},{e:'⬇️',n:'ডাউনলোড'}];
+    el.innerHTML='<button class="chip active" style="pointer-events:none">🏠 সবগুলো</button>'+
+        bi.map(c=>`<button class="chip" style="pointer-events:none">${c.e} ${c.n}</button>`).join('')+
+        allCustomCategories.map(c=>`<button class="chip" style="pointer-events:none;${c.color?'border-color:'+c.color+';color:'+c.color:''}">${c.emoji||'📦'} ${c.name}${(c.subCategories||[]).length?' <small style="opacity:.5">('+c.subCategories.length+')</small>':''}</button>`).join('');
 }
 
-function updateAllCatSelects() {
-    const customOpts = allCustomCategories.map(c => `<option value="${c.key}">${c.emoji || ''} ${c.name}</option>`).join('');
-    // Update filter dropdown in tools list
-    const filterSel = document.getElementById('toolCatFilter');
-    if (filterSel) {
-        const existing = filterSel.innerHTML.split('<option value="">')[0];
-        const defOpts = `<option value="">সব ক্যাটাগরি</option>
-            <option value="system">⚙️ সিস্টেম</option>
-            <option value="network">🌐 নেটওয়ার্ক</option>
-            <option value="security">🔒 সিকিউরিটি</option>
-            <option value="backup">💾 ব্যাকআপ</option>
-            <option value="monitoring">📊 মনিটরিং</option>
-            <option value="automation">🤖 অটোমেশন</option>
-            <option value="download">⬇️ ডাউনলোড</option>
-            <option value="files">📁 ফাইল ম্যানেজমেন্ট</option>
-            <option value="windows">🪟 উইন্ডোজ</option>
-            <option value="other">📜 অন্যান্য</option>`;
-        filterSel.innerHTML = defOpts + customOpts;
-    }
-    // Update add/edit tool category dropdown
-    const toolCatSel = document.getElementById('toolCat');
-    if (toolCatSel) {
-        const defToolOpts = `<option value="system">⚙️ সিস্টেম</option>
-            <option value="network">🌐 নেটওয়ার্ক</option>
-            <option value="security">🔒 সিকিউরিটি</option>
-            <option value="backup">💾 ব্যাকআপ</option>
-            <option value="monitoring">📊 মনিটরিং</option>
-            <option value="automation">🤖 অটোমেশন</option>
-            <option value="download">⬇️ ডাউনলোড</option>
-            <option value="files">📁 ফাইল ম্যানেজমেন্ট</option>
-            <option value="windows">🪟 উইন্ডোজ</option>
-            <option value="other">📜 অন্যান্য</option>`;
-        toolCatSel.innerHTML = defToolOpts + customOpts;
-    }
-}
-
-function openCatModal(editId = null) {
-    document.getElementById('catModal').style.display = 'flex';
-    document.getElementById('editCatId').value = editId || '';
-    document.getElementById('catModalTitle').textContent = editId ? '✏️ ক্যাটাগরি সম্পাদনা' : '✨ নতুন ক্যাটাগরি';
-    document.getElementById('catSaveBtnTxt').textContent = editId ? 'আপডেট করুন' : 'সেভ করুন';
-    if (editId) {
-        const cat = allCustomCategories.find(c => c.id === editId);
-        if (cat) {
-            document.getElementById('catEmoji').value = cat.emoji || '';
-            document.getElementById('catName').value = cat.name || '';
-            document.getElementById('catKey').value = cat.key || '';
-            document.getElementById('catColor').value = cat.color || '#ffd700';
-            document.getElementById('catDesc').value = cat.description || '';
-            updateCatPreviewChip();
-        }
-    } else {
-        document.getElementById('catEmoji').value = '';
-        document.getElementById('catName').value = '';
-        document.getElementById('catKey').value = '';
-        document.getElementById('catColor').value = '#ffd700';
-        document.getElementById('catDesc').value = '';
-        document.getElementById('catPreviewChip').textContent = '🎯 নতুন ক্যাটাগরি';
-    }
-    ['catEmoji','catName','catColor'].forEach(id => {
-        document.getElementById(id).addEventListener('input', updateCatPreviewChip);
+function updateSelects() {
+    if(!allCustomCategories.length) return;
+    ['toolCatFilter','toolCat'].forEach(sid=>{
+        const sel=document.getElementById(sid);
+        if(!sel) return;
+        sel.querySelectorAll('[data-custom]').forEach(o=>o.remove());
+        allCustomCategories.forEach(c=>{
+            if(!c.key||sel.querySelector('option[value="'+c.key+'"]')) return;
+            const o=document.createElement('option');o.value=c.key;o.textContent=(c.emoji||'')+'  '+c.name;o.setAttribute('data-custom','1');sel.appendChild(o);
+            (c.subCategories||[]).forEach(s=>{
+                if(!s.key||sel.querySelector('option[value="'+s.key+'"]')) return;
+                const os=document.createElement('option');os.value=s.key;os.textContent='  └ '+(s.emoji||'')+' '+s.name;os.setAttribute('data-custom','1');sel.appendChild(os);
+            });
+        });
     });
 }
 
-function updateCatPreviewChip() {
-    const emoji = document.getElementById('catEmoji').value || '📦';
-    const name  = document.getElementById('catName').value  || 'ক্যাটাগরি';
-    const color = document.getElementById('catColor').value || '#ffd700';
-    const chip  = document.getElementById('catPreviewChip');
-    chip.textContent = emoji + ' ' + name;
-    chip.style.borderColor = color;
-    chip.style.color = color;
-}
-
-function closeCatModal() {
-    document.getElementById('catModal').style.display = 'none';
-}
-
-async function saveCat() {
-    const editId  = document.getElementById('editCatId').value;
-    const emoji   = document.getElementById('catEmoji').value.trim();
-    const name    = document.getElementById('catName').value.trim();
-    const key     = document.getElementById('catKey').value.trim();
-    const color   = document.getElementById('catColor').value;
-    const desc    = document.getElementById('catDesc').value.trim();
-
-    if (!emoji) { showToast('ইমোজি দিন!', 'error'); return; }
-    if (!name)  { showToast('নাম দিন!', 'error'); return; }
-    if (!key)   { showToast('Unique key দিন!', 'error'); return; }
-    if (BUILTIN_CATS[key]) { showToast('এই key বিল্ট-ইন ক্যাটাগরিতে আছে। অন্য key ব্যবহার করুন।', 'error'); return; }
-    if (!editId && allCustomCategories.find(c => c.key === key)) { showToast('এই key ইতিমধ্যে ব্যবহৃত হয়েছে।', 'error'); return; }
-
-    const data = { emoji, name, key, color, description: desc, order: allCustomCategories.length, updatedAt: new Date().toISOString() };
-    try {
-        if (editId) {
-            await fbDb.collection(FS.categories).doc(editId).update(data);
-            showToast('ক্যাটাগরি আপডেট হয়েছে!', 'success');
-        } else {
-            data.createdAt = new Date().toISOString();
-            await fbDb.collection(FS.categories).add(data);
-            showToast('নতুন ক্যাটাগরি যোগ হয়েছে! ইউজার সাইটে দেখা যাবে।', 'success');
+function openCatModal(editId) {
+    editId=editId||null;
+    document.getElementById('catModal').style.display='flex';
+    document.getElementById('editCatId').value=editId||'';
+    document.getElementById('catModalTitle').textContent=editId?'✏️ সম্পাদনা':'✨ নতুন ক্যাটাগরি';
+    document.getElementById('catSaveTxt').textContent=editId?'আপডেট':'সেভ করুন';
+    _subRowIdx=0;
+    const rowsEl=document.getElementById('subRows');
+    rowsEl.innerHTML='<div id="subRowsEmpty" style="text-align:center;padding:10px;color:var(--muted);font-size:.8rem">সাব-ক্যাটাগরি নেই। যোগ করুন →</div>';
+    if(editId){
+        const c=allCustomCategories.find(x=>x.id===editId);
+        if(c){
+            document.getElementById('catEmoji').value=c.emoji||'';
+            document.getElementById('catName').value=c.name||'';
+            document.getElementById('catKey').value=c.key||'';
+            document.getElementById('catColor').value=c.color||'#ffd700';
+            document.getElementById('catDesc').value=c.description||'';
+            (c.subCategories||[]).forEach(s=>addSubRow(s));
+            updateCatChip();
         }
-        closeCatModal();
-        loadCategories();
-    } catch (e) {
-        showToast('সেভ করতে সমস্যা: ' + e.message, 'error');
+    } else {
+        ['catEmoji','catName','catKey','catDesc'].forEach(id=>{document.getElementById(id).value='';});
+        document.getElementById('catColor').value='#ffd700';
+        const p=document.getElementById('catChipPreview');
+        p.textContent='🎯 নতুন ক্যাটাগরি';p.style.borderColor='';p.style.color='';
     }
 }
 
-async function deleteCat(id, name) {
-    if (!confirm(`"${name}" ক্যাটাগরি মুছবেন? এই ক্যাটাগরির টুলসগুলো অন্যান্য ক্যাটাগরিতে চলে যাবে না — টুলস ঠিকই থাকবে, শুধু ফিল্টার চিপটি সরে যাবে।`)) return;
-    try {
-        await fbDb.collection(FS.categories).doc(id).delete();
-        showToast('ক্যাটাগরি মুছে ফেলা হয়েছে।', 'success');
-        loadCategories();
-    } catch (e) {
-        showToast('মুছতে সমস্যা: ' + e.message, 'error');
-    }
+function updateCatChip(){
+    const e=document.getElementById('catEmoji').value||'📦';
+    const n=document.getElementById('catName').value||'ক্যাটাগরি';
+    const col=document.getElementById('catColor').value||'#ffd700';
+    const p=document.getElementById('catChipPreview');
+    p.textContent=e+' '+n;p.style.borderColor=col;p.style.color=col;
+}
+
+function closeCatModal(){document.getElementById('catModal').style.display='none';}
+
+function addSubRow(data){
+    data=data||{};
+    const e=document.getElementById('subRowsEmpty');if(e)e.remove();
+    const id='sr'+(++_subRowIdx);
+    const div=document.createElement('div');div.id=id;
+    div.style.cssText='display:grid;grid-template-columns:50px 1fr 1fr 34px;gap:7px;align-items:end;background:rgba(255,215,0,.03);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:7px 9px';
+    div.innerHTML=`
+        <div><label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:3px">ইমোজি</label>
+        <input type="text" class="fc" placeholder="📌" maxlength="4" value="${data.emoji||''}" style="text-align:center;font-size:1.1rem;padding:5px" data-se></div>
+        <div><label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:3px">নাম *</label>
+        <input type="text" class="fc" placeholder="Playlist-1, Action..." value="${data.name||''}" style="padding:5px 9px;font-size:.83rem" data-sn></div>
+        <div><label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:3px">Key * (a-z, _)</label>
+        <input type="text" class="fc" placeholder="playlist_1, action" value="${data.key||''}" style="padding:5px 9px;font-size:.83rem" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')" data-sk></div>
+        <div><label style="font-size:.7rem;color:transparent;display:block;margin-bottom:3px">.</label>
+        <button onclick="document.getElementById('${id}').remove()" class="bti dn" style="width:34px;height:34px"><i class="fas fa-times"></i></button></div>`;
+    document.getElementById('subRows').appendChild(div);
+}
+
+function getSubRows(){
+    const rows=document.querySelectorAll('#subRows > div[id^="sr"]');
+    const res=[];
+    rows.forEach(r=>{
+        const name=(r.querySelector('[data-sn]')||{}).value||'';
+        const key=(r.querySelector('[data-sk]')||{}).value||'';
+        const emoji=(r.querySelector('[data-se]')||{}).value||'📌';
+        if(name&&key)res.push({emoji,name,key});
+    });
+    return res;
+}
+
+async function saveCat(){
+    const editId=document.getElementById('editCatId').value;
+    const emoji=document.getElementById('catEmoji').value.trim();
+    const name=document.getElementById('catName').value.trim();
+    const key=document.getElementById('catKey').value.trim();
+    const color=document.getElementById('catColor').value;
+    const desc=document.getElementById('catDesc').value.trim();
+    const subs=getSubRows();
+    if(!emoji){toast('ইমোজি দিন!','error');return;}
+    if(!name){toast('নাম দিন!','error');return;}
+    if(!key){toast('Unique key দিন!','error');return;}
+    if(_BUILTIN.includes(key)){toast('এই key বিল্ট-ইন। অন্য key দিন।','error');return;}
+    if(!editId&&allCustomCategories.find(c=>c.key===key)){toast('এই key ইতিমধ্যে আছে।','error');return;}
+    const subKeys=subs.map(s=>s.key);
+    if(new Set(subKeys).size!==subKeys.length){toast('সাব-ক্যাটাগরিতে একই key দুইবার!','error');return;}
+    const data={emoji,name,key,color,description:desc,subCategories:subs,order:allCustomCategories.length,updatedAt:new Date().toISOString()};
+    try{
+        if(editId){await fbDb.collection(FS.categories).doc(editId).update(data);toast('আপডেট হয়েছে!','success');}
+        else{data.createdAt=new Date().toISOString();await fbDb.collection(FS.categories).add(data);toast('"'+name+'" যোগ হয়েছে!'+(subs.length?' ('+subs.length+'টি সাব-ক্যাটাগরি সহ)':''),'success');}
+        closeCatModal();loadCategories();
+    }catch(e){toast('সেভ করতে সমস্যা: '+e.message,'error');}
+}
+
+async function deleteCat(id,name){
+    if(!confirm('"'+name+'" মুছবেন?\nটুলসগুলো ঠিকই থাকবে।'))return;
+    try{await fbDb.collection(FS.categories).doc(id).delete();toast('মুছে ফেলা হয়েছে।','success');loadCategories();}
+    catch(e){toast('সমস্যা: '+e.message,'error');}
 }
 
 function getCategoryLabel(cat) {
-    // Check custom categories first
-    const custom = allCustomCategories.find(c => c.key === cat);
-    if (custom) return (custom.emoji || '📦') + ' ' + custom.name;
-    const labels = {
-        system: '⚙️ সিস্টেম',
-        network: '🌐 নেটওয়ার্ক',
-        security: '🔒 সিকিউরিটি',
-        backup: '💾 ব্যাকআপ',
-        monitoring: '📊 মনিটরিং',
-        automation: '🤖 অটোমেশন',
-        download: '⬇️ ডাউনলোড',
-        files: '📁 ফাইল',
-        windows: '🪟 উইন্ডোজ',
-        other: '📜 অন্যান্য'
-    };
-    return labels[cat] || cat || '📜 অন্যান্য';
+    for(const c of allCustomCategories){if(c.key===cat)return(c.emoji||'📦')+' '+c.name;for(const s of(c.subCategories||[])){if(s.key===cat)return(s.emoji||'📌')+' '+s.name;}}
+    const labels={system:'⚙️ সিস্টেম',network:'🌐 নেটওয়ার্ক',security:'🔒 সিকিউরিটি',backup:'💾 ব্যাকআপ',monitoring:'📊 মনিটরিং',automation:'🤖 অটোমেশন',download:'⬇️ ডাউনলোড',files:'📁 ফাইল',windows:'🪟 উইন্ডোজ',other:'📜 অন্যান্য'};
+    return labels[cat]||cat||'📜 অন্যান্য';
 }
 
 function getCategoryIcon(cat) {
-    // Check custom categories first
-    const custom = allCustomCategories.find(c => c.key === cat);
-    if (custom) return custom.emoji || '📦';
-    const icons = {
-        system: '⚙️',
-        network: '🌐',
-        security: '🔒',
-        backup: '💾',
-        monitoring: '📊',
-        automation: '🤖',
-        files: '📁',
-        windows: '🪟',
-        other: '📜'
-    };
-    return icons[cat] || '📜';
+    for(const c of allCustomCategories){if(c.key===cat)return c.emoji||'📦';for(const s of(c.subCategories||[])){if(s.key===cat)return s.emoji||'📌';}}
+    const icons={system:'⚙️',network:'🌐',security:'🔒',backup:'💾',monitoring:'📊',automation:'🤖',files:'📁',windows:'🪟',other:'📜'};
+    return icons[cat]||'📜';
 }
 
 function formatDate(date) {
