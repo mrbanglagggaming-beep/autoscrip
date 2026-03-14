@@ -3548,7 +3548,7 @@ body.offline-mode { padding-top: 44px !important; }
       <i class="fas fa-plus-circle"></i>
       <span class="sb-lnk-txt">নতুন টুল</span>
     </button>
-    <button class="sb-lnk" id="nav-categories" onclick="showP('categories');loadCategories()">
+    <button class="sb-lnk" id="nav-categories" onclick="showP('categories');loadCategories();loadBuiltinSubBadges()">
       <i class="fas fa-layer-group"></i>
       <span class="sb-lnk-txt">ক্যাটাগরি ম্যানেজ</span>
     </button>
@@ -4568,13 +4568,69 @@ body.offline-mode { padding-top: 44px !important; }
       <div class="cd">
         <div class="cd-hd"><div class="cd-tt">🔒 বিল্ট-ইন ক্যাটাগরি</div></div>
         <div class="cd-bd" style="display:flex;flex-direction:column;gap:6px">
-          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:8px"><span>⚙️</span><div style="flex:1"><b style="font-size:.85rem">সিস্টেম</b><div style="font-size:.7rem;color:var(--muted)">system</div></div><span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span></div>
-          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:8px"><span>🌐</span><div style="flex:1"><b style="font-size:.85rem">নেটওয়ার্ক</b><div style="font-size:.7rem;color:var(--muted)">network</div></div><span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span></div>
-          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:8px"><span>🔒</span><div style="flex:1"><b style="font-size:.85rem">সিকিউরিটি</b><div style="font-size:.7rem;color:var(--muted)">security</div></div><span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span></div>
-          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:8px"><span>💾</span><div style="flex:1"><b style="font-size:.85rem">ব্যাকআপ</b><div style="font-size:.7rem;color:var(--muted)">backup</div></div><span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span></div>
-          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:8px"><span>📊</span><div style="flex:1"><b style="font-size:.85rem">মনিটরিং</b><div style="font-size:.7rem;color:var(--muted)">monitoring</div></div><span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span></div>
-          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:8px"><span>🤖</span><div style="flex:1"><b style="font-size:.85rem">অটোমেশন</b><div style="font-size:.7rem;color:var(--muted)">automation</div></div><span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span></div>
-          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:8px"><span>⬇️</span><div style="flex:1"><b style="font-size:.85rem">ডাউনলোড</b><div style="font-size:.7rem;color:var(--muted)">download</div></div><span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span></div>
+          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span>⚙️</span>
+              <div style="flex:1"><b style="font-size:.85rem">সিস্টেম</b><div style="font-size:.7rem;color:var(--muted)">system</div></div>
+              <span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span>
+              <button class="bti" onclick="openBuiltinSubModal('system','সিস্টেম','⚙️')" title="সাব-ক্যাটাগরি যোগ করুন" style="color:var(--primary)"><i class="fas fa-plus"></i></button>
+            </div>
+            <div id="biSubs_system" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
+          </div>
+          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span>🌐</span>
+              <div style="flex:1"><b style="font-size:.85rem">নেটওয়ার্ক</b><div style="font-size:.7rem;color:var(--muted)">network</div></div>
+              <span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span>
+              <button class="bti" onclick="openBuiltinSubModal('network','নেটওয়ার্ক','🌐')" title="সাব-ক্যাটাগরি যোগ করুন" style="color:var(--primary)"><i class="fas fa-plus"></i></button>
+            </div>
+            <div id="biSubs_network" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
+          </div>
+          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span>🔒</span>
+              <div style="flex:1"><b style="font-size:.85rem">সিকিউরিটি</b><div style="font-size:.7rem;color:var(--muted)">security</div></div>
+              <span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span>
+              <button class="bti" onclick="openBuiltinSubModal('security','সিকিউরিটি','🔒')" title="সাব-ক্যাটাগরি যোগ করুন" style="color:var(--primary)"><i class="fas fa-plus"></i></button>
+            </div>
+            <div id="biSubs_security" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
+          </div>
+          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span>💾</span>
+              <div style="flex:1"><b style="font-size:.85rem">ব্যাকআপ</b><div style="font-size:.7rem;color:var(--muted)">backup</div></div>
+              <span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span>
+              <button class="bti" onclick="openBuiltinSubModal('backup','ব্যাকআপ','💾')" title="সাব-ক্যাটাগরি যোগ করুন" style="color:var(--primary)"><i class="fas fa-plus"></i></button>
+            </div>
+            <div id="biSubs_backup" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
+          </div>
+          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span>📊</span>
+              <div style="flex:1"><b style="font-size:.85rem">মনিটরিং</b><div style="font-size:.7rem;color:var(--muted)">monitoring</div></div>
+              <span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span>
+              <button class="bti" onclick="openBuiltinSubModal('monitoring','মনিটরিং','📊')" title="সাব-ক্যাটাগরি যোগ করুন" style="color:var(--primary)"><i class="fas fa-plus"></i></button>
+            </div>
+            <div id="biSubs_monitoring" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
+          </div>
+          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span>🤖</span>
+              <div style="flex:1"><b style="font-size:.85rem">অটোমেশন</b><div style="font-size:.7rem;color:var(--muted)">automation</div></div>
+              <span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span>
+              <button class="bti" onclick="openBuiltinSubModal('automation','অটোমেশন','🤖')" title="সাব-ক্যাটাগরি যোগ করুন" style="color:var(--primary)"><i class="fas fa-plus"></i></button>
+            </div>
+            <div id="biSubs_automation" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
+          </div>
+          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span>⬇️</span>
+              <div style="flex:1"><b style="font-size:.85rem">ডাউনলোড</b><div style="font-size:.7rem;color:var(--muted)">download</div></div>
+              <span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span>
+              <button class="bti" onclick="openBuiltinSubModal('download','ডাউনলোড','⬇️')" title="সাব-ক্যাটাগরি যোগ করুন" style="color:var(--primary)"><i class="fas fa-plus"></i></button>
+            </div>
+            <div id="biSubs_download" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
+          </div>
         </div>
       </div>
       <div class="cd">
@@ -4591,6 +4647,40 @@ body.offline-mode { padding-top: 44px !important; }
     <div class="cd" style="margin-top:18px">
       <div class="cd-hd"><div class="cd-tt">👁️ ইউজার সাইটে প্রিভিউ</div></div>
       <div class="cd-bd"><div id="catPreviewArea" style="display:flex;flex-wrap:wrap;gap:8px"><span style="color:var(--muted);font-size:.82rem">লোড হলে দেখাবে...</span></div></div>
+    </div>
+  </div>
+
+
+  <!-- ══ Builtin Sub-Cat Modal ══ -->
+  <div id="biSubModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(16px);z-index:9999;align-items:center;justify-content:center">
+    <div style="background:var(--card);border:1px solid rgba(255,215,0,.2);border-radius:16px;padding:26px;width:100%;max-width:500px;margin:16px;max-height:85vh;overflow-y:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+        <h3 style="margin:0;font-size:1rem" id="biSubModalTitle">সাব-ক্যাটাগরি যোগ করুন</h3>
+        <button onclick="document.getElementById('biSubModal').style.display='none'" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem"><i class="fas fa-times"></i></button>
+      </div>
+      <input type="hidden" id="biSubParentKey">
+      <div style="background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.12);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:.82rem;color:var(--muted)">
+        <i class="fas fa-info-circle" style="color:var(--primary)"></i>
+        বিল্ট-ইন ক্যাটাগরির ভেতরে সাব-বিভাগ তৈরি করুন
+      </div>
+      <!-- Existing subs -->
+      <div id="biSubExisting" style="margin-bottom:14px"></div>
+      <!-- New sub row -->
+      <div style="border:1px solid rgba(255,215,0,.15);border-radius:10px;padding:12px;margin-bottom:14px">
+        <div style="font-size:.82rem;font-weight:600;margin-bottom:10px"><i class="fas fa-plus" style="color:var(--primary)"></i> নতুন সাব-ক্যাটাগরি</div>
+        <div style="display:grid;grid-template-columns:52px 1fr 1fr;gap:8px">
+          <div><label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:3px">ইমোজি</label>
+            <input type="text" class="fc" id="biSubEmoji" placeholder="📌" maxlength="4" style="text-align:center;font-size:1.1rem;padding:5px"></div>
+          <div><label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:3px">নাম *</label>
+            <input type="text" class="fc" id="biSubName" placeholder="যেমন: হার্ডওয়্যার" style="padding:5px 9px;font-size:.83rem"></div>
+          <div><label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:3px">Key * (a-z_)</label>
+            <input type="text" class="fc" id="biSubKey" placeholder="hardware" style="padding:5px 9px;font-size:.83rem" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-pr" style="flex:1" onclick="saveBuiltinSub()"><i class="fas fa-save"></i> সেভ করুন</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('biSubModal').style.display='none'">বাতিল</button>
+      </div>
     </div>
   </div>
 
@@ -9085,6 +9175,139 @@ async function seedDefaultCats() {
 
     toast(`✅ ${added}টি ক্যাটাগরি যোগ হয়েছে${skipped ? ' · ' + skipped + 'টি আগে থেকে ছিল' : ''}`, 'success');
     loadCategories();
+}
+
+
+// ===== BUILTIN SUB-CATEGORY MANAGER =====
+let _biSubData = {}; // cache: key → {docId, subCategories[]}
+
+async function openBuiltinSubModal(key, name, emoji) {
+  document.getElementById('biSubModal').style.display = 'flex';
+  document.getElementById('biSubModalTitle').textContent = emoji + ' ' + name + ' — সাব-ক্যাটাগরি';
+  document.getElementById('biSubParentKey').value = key;
+  document.getElementById('biSubEmoji').value = '';
+  document.getElementById('biSubName').value = '';
+  document.getElementById('biSubKey').value = '';
+
+  // Load existing subs from Firestore
+  const existing = document.getElementById('biSubExisting');
+  existing.innerHTML = '<div style="text-align:center;padding:12px;color:var(--muted)"><i class="fas fa-spinner fa-spin"></i></div>';
+  try {
+    const snap = await fbDb.collection(FS.categories).where('key','==',key).get();
+    if (!snap.empty) {
+      const doc = snap.docs[0];
+      _biSubData[key] = { docId: doc.id, subs: doc.data().subCategories || [] };
+    } else {
+      _biSubData[key] = { docId: null, subs: [] };
+    }
+    renderBiSubExisting(key, existing);
+  } catch(e) {
+    existing.innerHTML = '<div style="color:var(--muted);font-size:.8rem">লোড করা যায়নি।</div>';
+  }
+}
+
+function renderBiSubExisting(key, container) {
+  const data = _biSubData[key];
+  if (!data || !data.subs.length) {
+    container.innerHTML = '<div style="text-align:center;padding:8px;color:var(--muted);font-size:.8rem">এখনো কোনো সাব-ক্যাটাগরি নেই।</div>';
+    return;
+  }
+  container.innerHTML =
+    '<div style="font-size:.78rem;color:var(--muted);margin-bottom:6px">বিদ্যমান সাব-ক্যাটাগরি:</div>' +
+    data.subs.map((s,i) =>
+      '<div style="display:flex;align-items:center;gap:8px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:7px 10px;margin-bottom:5px">' +
+      '<span>' + (s.emoji||'📌') + '</span>' +
+      '<div style="flex:1"><b style="font-size:.83rem">' + s.name + '</b><div style="font-size:.68rem;color:var(--muted)">' + s.key + '</div></div>' +
+      '<button class="bti dn" onclick="deleteBuiltinSub(\'' + key + '\',' + i + ')" title="মুছুন"><i class="fas fa-trash"></i></button>' +
+      '</div>'
+    ).join('');
+}
+
+async function saveBuiltinSub() {
+  const key   = document.getElementById('biSubParentKey').value;
+  const emoji = document.getElementById('biSubEmoji').value.trim() || '📌';
+  const name  = document.getElementById('biSubName').value.trim();
+  const skey  = document.getElementById('biSubKey').value.trim();
+
+  if (!name) { toast('নাম দিন!', 'error'); return; }
+  if (!skey) { toast('Key দিন!', 'error'); return; }
+
+  const data = _biSubData[key] || { docId: null, subs: [] };
+  if (data.subs.find(s => s.key === skey)) { toast('এই key ইতিমধ্যে আছে!', 'error'); return; }
+
+  const newSubs = [...data.subs, { emoji, name, key: skey }];
+  const builtinMeta = {
+    system:     { name:'সিস্টেম',   emoji:'⚙️', color:'#1565c0' },
+    network:    { name:'নেটওয়ার্ক', emoji:'🌐', color:'#00838f' },
+    security:   { name:'সিকিউরিটি', emoji:'🔒', color:'#7b1fa2' },
+    backup:     { name:'ব্যাকআপ',   emoji:'💾', color:'#f4511e' },
+    monitoring: { name:'মনিটরিং',   emoji:'📊', color:'#388e3c' },
+    automation: { name:'অটোমেশন',  emoji:'🤖', color:'#c2185b' },
+    download:   { name:'ডাউনলোড',  emoji:'⬇️', color:'#0277bd' },
+  };
+
+  try {
+    if (data.docId) {
+      await fbDb.collection(FS.categories).doc(data.docId).update({
+        subCategories: newSubs, updatedAt: new Date().toISOString()
+      });
+    } else {
+      const meta = builtinMeta[key] || { name: key, emoji: '📦', color: '#ffd700' };
+      const ref = await fbDb.collection(FS.categories).add({
+        key, name: meta.name, emoji: meta.emoji, color: meta.color,
+        isBuiltin: true, subCategories: newSubs,
+        createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+      });
+      _biSubData[key].docId = ref.id;
+    }
+    _biSubData[key].subs = newSubs;
+    toast('"' + name + '" যোগ হয়েছে!', 'success');
+    document.getElementById('biSubEmoji').value = '';
+    document.getElementById('biSubName').value = '';
+    document.getElementById('biSubKey').value = '';
+    renderBiSubExisting(key, document.getElementById('biSubExisting'));
+    // Update badge in builtin list
+    renderBuiltinSubBadges(key, newSubs);
+    loadCategories();
+  } catch(e) { toast('সমস্যা: ' + e.message, 'error'); }
+}
+
+async function deleteBuiltinSub(key, idx) {
+  if (!confirm('এই সাব-ক্যাটাগরি মুছবেন?')) return;
+  const data = _biSubData[key];
+  if (!data || !data.docId) return;
+  const newSubs = data.subs.filter((_,i) => i !== idx);
+  try {
+    await fbDb.collection(FS.categories).doc(data.docId).update({
+      subCategories: newSubs, updatedAt: new Date().toISOString()
+    });
+    _biSubData[key].subs = newSubs;
+    renderBiSubExisting(key, document.getElementById('biSubExisting'));
+    renderBuiltinSubBadges(key, newSubs);
+    toast('মুছে ফেলা হয়েছে।', 'success');
+    loadCategories();
+  } catch(e) { toast('সমস্যা: ' + e.message, 'error'); }
+}
+
+function renderBuiltinSubBadges(key, subs) {
+  const el = document.getElementById('biSubs_' + key);
+  if (!el) return;
+  el.innerHTML = subs.map(s =>
+    '<span style="font-size:.7rem;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.15);border-radius:20px;padding:2px 8px;color:var(--muted)">' +
+    (s.emoji||'📌') + ' ' + s.name + '</span>'
+  ).join('');
+}
+
+// Load builtin sub-badges on page load
+async function loadBuiltinSubBadges() {
+  try {
+    const snap = await fbDb.collection(FS.categories).where('isBuiltin','==',true).get();
+    snap.docs.forEach(doc => {
+      const d = doc.data();
+      _biSubData[d.key] = { docId: doc.id, subs: d.subCategories || [] };
+      renderBuiltinSubBadges(d.key, d.subCategories || []);
+    });
+  } catch(e) {}
 }
 
 async function loadCategories() {
