@@ -752,7 +752,7 @@ select.form-control option{background:var(--card);color:var(--text)}
     <div class="nav-actions">
       <div class="nav-search">
         <i class="fas fa-search" style="color:var(--muted);font-size:.85rem"></i>
-        <input type="text" placeholder="সার্চ..." id="navSearchInput" oninput="liveSearch(this.value)" onfocus="showSO()">
+        <input type="text" placeholder="সার্চ..." id="navSearchInput" oninput="liveSearch(this.value)">
       </div>
       <!-- Notifications -->
       <div class="dropdown" id="notifDrop">
@@ -3770,7 +3770,7 @@ setTimeout(function() {
 
 // ── Nav live search ──────────────────────────────────────
 function liveSearch(q) {
-  if (!q || q.length < 2) return;
+  if (!q || q.length < 3) return;
   showSO();
   globalSearch(q);
 }
