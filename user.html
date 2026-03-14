@@ -38,7 +38,7 @@
   --gold-50:#fff9e6;--gold-100:#fff0c2;--gold-200:#ffe69e;--gold-300:#ffdb7a;
   --gold-400:#ffd156;--gold-500:#ffd700;--gold-600:#e6c200;--gold-700:#ccad00;
   /* Dark background palette */
-  --bg:#080810;--bg2:#0d0d17;--card:#10101a;--card2:#16162a;--card3:#1e1e30;
+  --bg:#060d1f;--bg2:#0a1228;--card:#0c1228;--card2:#0f1530;--card3:#1e1e30;
   --border:#1e1e32;--border-light:#2a2a44;
   --text:#eeeef8;--muted:#6a6a9a;
   /* Gradients */
@@ -109,7 +109,6 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 .nav-brand{font-family:var(--font-display);font-size:1.7rem;letter-spacing:4px;color:var(--primary);text-decoration:none;display:flex;align-items:center;gap:10px;flex-shrink:0;text-shadow:0 0 24px rgba(255,215,0,.2)}
 .nav-brand-ic{display:inline-block;animation:flt 3s ease-in-out infinite}
 @keyframes flt{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-.nav-ver{font-family:var(--font-code);font-size:.6rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:2px;display:block;margin-top:1px}
 .sec-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:rgba(0,230,118,.06);border:1px solid rgba(0,230,118,.2);border-radius:var(--r-full);color:var(--success);font-size:.68rem;font-family:var(--font-head);font-weight:700;flex-shrink:0}
 .nav-links{display:flex;list-style:none;gap:2px;margin-left:12px;flex:1}
 .nav-link{padding:6px 12px;border-radius:var(--r-md);color:var(--muted);font-family:var(--font-head);font-size:.88rem;font-weight:600;cursor:pointer;transition:var(--ease);display:flex;align-items:center;gap:6px;text-decoration:none;white-space:nowrap;border:none;background:none;position:relative}
@@ -185,10 +184,10 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 /* Particle canvas will be injected */
 #heroParticles{position:absolute;inset:0;z-index:0;pointer-events:none}
 .hero-bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,215,0,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,215,0,.025) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at 50% 50%,black 20%,transparent 80%)}
-.hero-bg-glow{position:absolute;top:0;left:-200px;width:700px;height:500px;background:radial-gradient(ellipse,rgba(255,106,0,.09) 0%,transparent 70%);pointer-events:none;animation:glowPulse 5s ease-in-out infinite}
-.hero-bg-glow2{position:absolute;top:0;right:-200px;width:700px;height:500px;background:radial-gradient(ellipse,rgba(255,215,0,.07) 0%,transparent 70%);pointer-events:none;animation:glowPulse 5s ease-in-out infinite 2.5s}
+.hero-bg-glow{position:absolute;top:0;left:-200px;width:700px;height:500px;background:radial-gradient(ellipse,rgba(30,100,255,.08) 0%,transparent 70%);pointer-events:none;animation:glowPulse 5s ease-in-out infinite}
+.hero-bg-glow2{position:absolute;top:0;right:-200px;width:700px;height:500px;background:radial-gradient(ellipse,rgba(0,80,200,.07) 0%,transparent 70%);pointer-events:none;animation:glowPulse 5s ease-in-out infinite 2.5s}
 @keyframes glowPulse{0%,100%{opacity:.6}50%{opacity:1}}
-.hero-split{max-width:1340px;margin:0 auto;padding:90px 24px 70px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative;z-index:1}
+.hero-split{max-width:1340px;margin:0 auto;padding:70px 24px 50px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;z-index:1}
 @media(max-width:900px){.hero-split{grid-template-columns:1fr;gap:36px;padding:70px 20px 50px;text-align:center}}
 .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.18);border-radius:var(--r-full);color:var(--primary);font-family:var(--font-head);font-size:.8rem;font-weight:700;margin-bottom:22px;letter-spacing:1px;backdrop-filter:blur(10px)}
 .h-dot{width:6px;height:6px;background:var(--success);border-radius:50%;animation:hpulse 2s infinite;box-shadow:0 0 8px var(--success)}
@@ -205,7 +204,7 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 .hero-stat-lbl{color:var(--muted);font-size:.75rem;font-family:var(--font-head);margin-top:2px;letter-spacing:.5px}
 #announcementBar{display:none;background:var(--grad);color:#000;padding:6px 16px;border-radius:var(--r-full);font-size:.82rem;font-weight:700;margin-bottom:16px;text-align:center}
 .hero-right{position:relative}
-@media(max-width:900px){.hero-right{display:none}}
+.hero-right{display:none!important}
 /* Hero terminal — upgraded */
 .hero-terminal{background:rgba(6,6,14,.95);border:1px solid rgba(255,215,0,.15);border-radius:20px;overflow:hidden;box-shadow:0 0 100px rgba(255,215,0,.06),0 40px 100px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.05);animation:termRise .9s var(--ease-out-expo) .2s both;backdrop-filter:blur(20px)}
 @keyframes termRise{from{opacity:0;transform:translateY(40px) scale(.96) rotateX(5deg)}to{opacity:1;transform:none}}
@@ -739,7 +738,6 @@ select.form-control option{background:var(--card);color:var(--text)}
       <span class="nav-brand-ic">⚡</span>
       <div>
         <span style="display:block">AUTOSCRIP</span>
-        <span class="nav-ver">SYMPHONY v12</span>
       </div>
     </a>
     <span class="sec-badge" style="margin-left:8px;flex-shrink:0"><i class="fas fa-shield-alt"></i> নিরাপদ</span>
@@ -841,16 +839,8 @@ select.form-control option{background:var(--card);color:var(--text)}
         <p class="hero-desc" id="heroSubEl" style="display:none"></p>
         <div class="hero-ctas">
           <button class="btn btn-primary btn-lg" onclick="showPage('tools')"><i class="fas fa-tools"></i> টুলস ব্রাউজ করুন</button>
-          <button class="btn btn-outline btn-lg" onclick="showPage('scripts')"><i class="fas fa-code"></i> এডিটর খুলুন</button>
-          <button class="btn btn-ghost btn-lg" onclick="openModal('registerModal')"><i class="fas fa-user-plus"></i> যোগ দিন</button>
         </div>
-        <!-- Social links -->
-        <div class="hero-socials">
-          <a id="footerFacebook" href="https://www.facebook.com/groups/autoscrip" target="_blank" rel="noopener" class="hero-social-link" style="background:rgba(24,119,242,.1);border-color:rgba(24,119,242,.3);color:#1877f2"><i class="fab fa-facebook-f"></i> Facebook</a>
-          <a href="https://www.youtube.com/@autoscrip" target="_blank" rel="noopener" class="hero-social-link" style="background:rgba(255,0,0,.08);border-color:rgba(255,0,0,.3);color:#ff4444"><i class="fab fa-youtube"></i> YouTube</a>
-          <a id="footerTelegram" href="https://t.me/autoscrip" target="_blank" rel="noopener" class="hero-social-link" style="background:rgba(0,136,204,.08);border-color:rgba(0,136,204,.3);color:#0088cc"><i class="fab fa-telegram"></i> Telegram</a>
-          <a href="https://github.com/autoscrip" target="_blank" rel="noopener" class="hero-social-link" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.15);color:var(--muted)"><i class="fab fa-github"></i> GitHub</a>
-        </div>
+
 
       </div>
 
@@ -1787,7 +1777,29 @@ const Analytics = {
 };
 
 // ===== DEFAULT DATA =====
-const DEFAULT_TOOLS=[];
+const DEFAULT_TOOLS=[
+  // ── System ──
+  {id:'dt001',name:'সিস্টেম ইনফো চেকার',category:'system',description:'CPU, RAM, OS সব তথ্য এক কমান্ডে দেখুন।',tags:['system','info','hardware'],status:'approved',published:true,views:120,downloads:45,likes:[],featured:true,createdAt:'2025-01-10T00:00:00Z',
+   code:'Get-ComputerInfo | Select-Object CsName,OsName,OsVersion,CsProcessors,CsTotalPhysicalMemory | Format-List',language:'powershell'},
+  {id:'dt002',name:'ডিস্ক স্পেস মনিটর',category:'system',description:'সব ড্রাইভের ফ্রি ও ব্যবহৃত স্পেস দেখুন।',tags:['disk','storage','system'],status:'approved',published:true,views:98,downloads:32,likes:[],featured:false,createdAt:'2025-01-12T00:00:00Z',
+   code:'Get-PSDrive -PSProvider FileSystem | Select-Object Name,@{N="Used(GB)";E={[math]::Round($_.Used/1GB,2)}},@{N="Free(GB)";E={[math]::Round($_.Free/1GB,2)}} | Format-Table -AutoSize',language:'powershell'},
+  {id:'dt003',name:'রানিং প্রসেস লিস্ট',category:'system',description:'চলমান সব প্রক্রিয়া CPU ও মেমরি ব্যবহার সহ দেখুন।',tags:['process','cpu','memory'],status:'approved',published:true,views:75,downloads:28,likes:[],featured:false,createdAt:'2025-01-14T00:00:00Z',
+   code:'Get-Process | Sort-Object CPU -Descending | Select-Object -First 20 Name,Id,CPU,@{N="Mem(MB)";E={[math]::Round($_.WorkingSet/1MB,1)}} | Format-Table -AutoSize',language:'powershell'},
+  // ── Network ──
+  {id:'dt004',name:'নেটওয়ার্ক স্পিড টেস্ট',category:'network',description:'ইন্টারনেট সংযোগ স্পিড ও লেটেন্সি পরীক্ষা করুন।',tags:['network','speed','ping'],status:'approved',published:true,views:210,downloads:88,likes:[],featured:true,createdAt:'2025-01-08T00:00:00Z',
+   code:'Test-Connection 8.8.8.8 -Count 4 | Select-Object Address,ResponseTime | Format-Table\nWrite-Host "DNS Test:" -ForegroundColor Yellow\nResolve-DnsName google.com | Select-Object -First 3',language:'powershell'},
+  {id:'dt005',name:'ওয়াইফাই পাসওয়ার্ড দেখুন',category:'network',description:'সংরক্ষিত সব WiFi নেটওয়ার্কের পাসওয়ার্ড দেখুন।',tags:['wifi','password','network'],status:'approved',published:true,views:345,downloads:142,likes:[],featured:true,createdAt:'2025-01-05T00:00:00Z',
+   code:'(netsh wlan show profiles) | Select-String "All User Profile" | ForEach-Object {\n  $name = ($_ -split ": ")[1].Trim()\n  $pass = (netsh wlan show profile name=$name key=clear) | Select-String "Key Content"\n  [PSCustomObject]@{Network=$name; Password=if($pass){($pass -split ": ")[1].Trim()}else{"(নেই)"}}\n} | Format-Table -AutoSize',language:'powershell'},
+  {id:'dt006',name:'ওপেন পোর্ট স্ক্যানার',category:'network',description:'লোকালহোস্টের সব ওপেন পোর্ট খুঁজে বের করুন।',tags:['port','scan','network'],status:'approved',published:true,views:167,downloads:61,likes:[],featured:false,createdAt:'2025-01-16T00:00:00Z',
+   code:'1..1024 | ForEach-Object {\n  $tcp = New-Object Net.Sockets.TcpClient\n  try { $tcp.Connect("127.0.0.1",$_); Write-Host "Port $_ OPEN" -ForegroundColor Green; $tcp.Close() }\n  catch {}\n}',language:'powershell'},
+  // ── Automation ──
+  {id:'dt007',name:'ফাইল ব্যাকআপ অটোমেটর',category:'automation',description:'নির্দিষ্ট ফোল্ডার স্বয়ংক্রিয়ভাবে ব্যাকআপ করুন।',tags:['backup','file','auto'],status:'approved',published:true,views:189,downloads:77,likes:[],featured:true,createdAt:'2025-01-07T00:00:00Z',
+   code:'$src = "C:\\Users\\$env:USERNAME\\Documents"\n$dst = "D:\\Backup\\$(Get-Date -Format yyyyMMdd_HHmm)"\nCopy-Item $src $dst -Recurse -Force\nWrite-Host "✅ ব্যাকআপ সম্পন্ন: $dst" -ForegroundColor Green',language:'powershell'},
+  {id:'dt008',name:'উইন্ডোজ আপডেট চেকার',category:'automation',description:'পেন্ডিং আপডেট চেক ও ইনস্টল করুন।',tags:['windows','update','auto'],status:'approved',published:true,views:134,downloads:53,likes:[],featured:false,createdAt:'2025-01-18T00:00:00Z',
+   code:'Install-Module PSWindowsUpdate -Force -Scope CurrentUser\nGet-WindowsUpdate\nWrite-Host "আপডেট চেক সম্পন্ন।" -ForegroundColor Yellow',language:'powershell'},
+  {id:'dt009',name:'স্টার্টআপ প্রোগ্রাম ম্যানেজার',category:'automation',description:'উইন্ডোজ স্টার্টআপে কোন প্রোগ্রাম চলে তা দেখুন ও নিয়ন্ত্রণ করুন।',tags:['startup','program','windows'],status:'approved',published:true,views:203,downloads:84,likes:[],featured:false,createdAt:'2025-01-20T00:00:00Z',
+   code:'Get-CimInstance Win32_StartupCommand | Select-Object Name,Command,Location,User | Format-Table -AutoSize -Wrap',language:'powershell'},
+];
 const DEFAULT_USERS=[];
 const DEFAULT_MSGS=[];
 
