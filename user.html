@@ -38,7 +38,7 @@
   --gold-50:#fff9e6;--gold-100:#fff0c2;--gold-200:#ffe69e;--gold-300:#ffdb7a;
   --gold-400:#ffd156;--gold-500:#ffd700;--gold-600:#e6c200;--gold-700:#ccad00;
   /* Dark background palette */
-  --bg:#060d1f;--bg2:#0a1228;--card:#0c1228;--card2:#0f1530;--card3:#1e1e30;
+  --bg:#0d1117;--bg2:#161b22;--card:#161b22;--card2:#1c2128;--card3:#1e1e30;
   --border:#1e1e32;--border-light:#2a2a44;
   --text:#eeeef8;--muted:#6a6a9a;
   /* Gradients */
@@ -109,6 +109,7 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 .nav-brand{font-family:var(--font-display);font-size:1.7rem;letter-spacing:4px;color:var(--primary);text-decoration:none;display:flex;align-items:center;gap:10px;flex-shrink:0;text-shadow:0 0 24px rgba(255,215,0,.2)}
 .nav-brand-ic{display:inline-block;animation:flt 3s ease-in-out infinite}
 @keyframes flt{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.nav-ver{font-family:var(--font-code);font-size:.6rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:2px;display:block;margin-top:1px}
 .sec-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:rgba(0,230,118,.06);border:1px solid rgba(0,230,118,.2);border-radius:var(--r-full);color:var(--success);font-size:.68rem;font-family:var(--font-head);font-weight:700;flex-shrink:0}
 .nav-links{display:flex;list-style:none;gap:2px;margin-left:12px;flex:1}
 .nav-link{padding:6px 12px;border-radius:var(--r-md);color:var(--muted);font-family:var(--font-head);font-size:.88rem;font-weight:600;cursor:pointer;transition:var(--ease);display:flex;align-items:center;gap:6px;text-decoration:none;white-space:nowrap;border:none;background:none;position:relative}
@@ -184,10 +185,10 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 /* Particle canvas will be injected */
 #heroParticles{position:absolute;inset:0;z-index:0;pointer-events:none}
 .hero-bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,215,0,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,215,0,.025) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at 50% 50%,black 20%,transparent 80%)}
-.hero-bg-glow{position:absolute;top:0;left:-200px;width:700px;height:500px;background:radial-gradient(ellipse,rgba(30,100,255,.08) 0%,transparent 70%);pointer-events:none;animation:glowPulse 5s ease-in-out infinite}
-.hero-bg-glow2{position:absolute;top:0;right:-200px;width:700px;height:500px;background:radial-gradient(ellipse,rgba(0,80,200,.07) 0%,transparent 70%);pointer-events:none;animation:glowPulse 5s ease-in-out infinite 2.5s}
+.hero-bg-glow{position:absolute;top:0;left:-200px;width:700px;height:500px;background:radial-gradient(ellipse,rgba(255,106,0,.09) 0%,transparent 70%);pointer-events:none;animation:glowPulse 5s ease-in-out infinite}
+.hero-bg-glow2{position:absolute;top:0;right:-200px;width:700px;height:500px;background:radial-gradient(ellipse,rgba(255,215,0,.07) 0%,transparent 70%);pointer-events:none;animation:glowPulse 5s ease-in-out infinite 2.5s}
 @keyframes glowPulse{0%,100%{opacity:.6}50%{opacity:1}}
-.hero-split{max-width:1340px;margin:0 auto;padding:70px 24px 50px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;z-index:1}
+.hero-split{max-width:900px;margin:0 auto;padding:80px 24px 60px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;z-index:1}
 @media(max-width:900px){.hero-split{grid-template-columns:1fr;gap:36px;padding:70px 20px 50px;text-align:center}}
 .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.18);border-radius:var(--r-full);color:var(--primary);font-family:var(--font-head);font-size:.8rem;font-weight:700;margin-bottom:22px;letter-spacing:1px;backdrop-filter:blur(10px)}
 .h-dot{width:6px;height:6px;background:var(--success);border-radius:50%;animation:hpulse 2s infinite;box-shadow:0 0 8px var(--success)}
@@ -204,7 +205,7 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 .hero-stat-lbl{color:var(--muted);font-size:.75rem;font-family:var(--font-head);margin-top:2px;letter-spacing:.5px}
 #announcementBar{display:none;background:var(--grad);color:#000;padding:6px 16px;border-radius:var(--r-full);font-size:.82rem;font-weight:700;margin-bottom:16px;text-align:center}
 .hero-right{position:relative}
-.hero-right{display:none!important}
+@media(max-width:900px){.hero-right{display:none}}
 /* Hero terminal — upgraded */
 .hero-terminal{background:rgba(6,6,14,.95);border:1px solid rgba(255,215,0,.15);border-radius:20px;overflow:hidden;box-shadow:0 0 100px rgba(255,215,0,.06),0 40px 100px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.05);animation:termRise .9s var(--ease-out-expo) .2s both;backdrop-filter:blur(20px)}
 @keyframes termRise{from{opacity:0;transform:translateY(40px) scale(.96) rotateX(5deg)}to{opacity:1;transform:none}}
@@ -425,20 +426,20 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 ================================================================ */
 
 /* ── SEARCH OVERLAY ─────────────────────────────────────────── */
-
-
+.search-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:9990;display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:110px;padding-inline:20px}
+.search-overlay.show{display:flex;animation:soIn .2s var(--ease-out-expo)}
 @keyframes soIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
-
+.so-wrap{display:flex;align-items:center;gap:12px;width:100%;max-width:640px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,215,0,.3);border-radius:var(--r-2xl);padding:14px 20px;backdrop-filter:blur(20px)}
 .so-wrap:focus-within{border-color:rgba(255,215,0,.55);box-shadow:0 0 0 4px rgba(255,215,0,.06)}
-
-
-
+.so-icon{color:var(--muted);font-size:1.1rem;flex-shrink:0}
+.so-input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:1.1rem;font-family:var(--font-body)}
+.so-input::placeholder{color:var(--muted)}
 .so-close{background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:var(--r-sm);font-size:.78rem;cursor:pointer;transition:var(--ease);font-family:var(--font-head)}
 .so-close:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
-
-
+.so-results{width:100%;max-width:640px;margin-top:12px;display:flex;flex-direction:column;gap:6px;max-height:52vh;overflow-y:auto}
+.so-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--r-lg);cursor:pointer;transition:background var(--dur-fast),border-color var(--dur-fast),transform var(--dur-fast)}
 .so-item:hover{background:rgba(255,215,0,.07);border-color:rgba(255,215,0,.2);transform:translateX(4px)}
-
+.so-ico{font-size:1.2rem;width:34px;text-align:center;flex-shrink:0}
 .so-text .ttl{font-family:var(--font-head);font-weight:700;font-size:.9rem;color:var(--text)}
 .so-text .dsc{font-size:.76rem;color:var(--muted);margin-top:2px}
 .so-cat-badge{font-size:.68rem;padding:2px 8px;border-radius:var(--r-full);font-weight:700;font-family:var(--font-head);margin-left:auto;flex-shrink:0}
@@ -752,7 +753,7 @@ select.form-control option{background:var(--card);color:var(--text)}
     <div class="nav-actions">
       <div class="nav-search">
         <i class="fas fa-search" style="color:var(--muted);font-size:.85rem"></i>
-        <input type="text" placeholder="সার্চ..." id="navSearchInput">
+        <input type="text" placeholder="সার্চ..." id="navSearchInput" oninput="liveSearch(this.value)" onfocus="showSO()">
       </div>
       <!-- Notifications -->
       <div class="dropdown" id="notifDrop">
@@ -808,7 +809,14 @@ select.form-control option{background:var(--card);color:var(--text)}
 </nav>
 
 <!-- SEARCH OVERLAY -->
-
+<div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)hideSO()">
+  <div class="so-wrap">
+    <i class="fas fa-search so-icon"></i>
+    <input type="text" class="so-input" id="soInput" placeholder="টুলস, স্ক্রিপ্ট বা কমান্ড সার্চ করুন..." oninput="globalSearch(this.value)">
+  </div>
+  <div class="so-results" id="soResults"></div>
+  <p style="color:var(--muted);font-size:.82rem;margin-top:12px">ESC চাপুন বা বাইরে ক্লিক করুন</p>
+</div>
 
 <!-- ===== PAGES ===== -->
 <main class="pages">
@@ -818,10 +826,6 @@ select.form-control option{background:var(--card);color:var(--text)}
 
   <!-- ===== HERO: SPLIT LAYOUT ===== -->
   <section class="hero">
-    <canvas id="heroParticles"></canvas>
-    <div class="hero-bg-grid"></div>
-    <div class="hero-bg-glow"></div>
-    <div class="hero-bg-glow2"></div>
     <div class="hero-split">
       <!-- Left: Value Proposition -->
       <div class="hero-left">
@@ -829,46 +833,13 @@ select.form-control option{background:var(--card);color:var(--text)}
 
         <h1 class="hero-title">AUTOSCRIP</h1>
         <div class="hero-platform">POWERSHELL PLATFORM</div>
-        <p style="font-size:1.05rem;color:var(--muted);margin-bottom:28px;line-height:1.7">
-          আপনার কাজ সহজ করাই আমাদের লক্ষ্য —<br>
-          <span style="color:var(--primary);font-weight:600">এক ক্লিকেই সমাধান।</span>
-        </p>
+        <p style="font-size:1.05rem;color:var(--muted);margin-bottom:28px;line-height:1.7">আপনার কাজ সহজ করাই আমাদের লক্ষ্য —<br><span style="color:var(--primary);font-weight:600">এক ক্লিকেই সমাধান।</span></p>
         <p class="hero-desc" id="heroSubEl" style="display:none"></p>
         <div class="hero-ctas">
           <button class="btn btn-primary btn-lg" onclick="showPage('tools')"><i class="fas fa-tools"></i> টুলস ব্রাউজ করুন</button>
         </div>
+</div>
 
-
-      </div>
-
-    </div>
-    <div class="hero-scroll-indicator" onclick="document.querySelector('.features-section').scrollIntoView({behavior:'smooth'})">
-      <span>এক্সপ্লোর করুন</span>
-      <i class="fas fa-chevron-down"></i>
-    </div>
-  </section>
-
-  <!-- ===== FEATURES (4 action cards) ===== -->
-  <section class="features-section">
-    <div class="features-inner">
-      <div class="features-grid">
-        <div class="feat-card" onclick="openModal('aiModal')">
-          <div class="feat-icon-wrap" style="background:linear-gradient(135deg,#7b1fa2,#4a148c)"><i class="fas fa-robot" style="color:#ce93d8"></i></div>
-          <div class="feat-label">AI জেনারেটর</div>
-          <div class="feat-desc">প্রম্পট লিখুন, PowerShell কোড অটো-তৈরি</div>
-        </div>
-        <div class="feat-card" onclick="showPage('youtube')">
-          <div class="feat-icon-wrap" style="background:linear-gradient(135deg,#c62828,#b71c1c)"><i class="fab fa-youtube" style="color:#ff8a80"></i></div>
-          <div class="feat-label">ভিডিও টিউটোরিয়াল</div>
-          <div class="feat-desc">বাংলায় PowerShell শিখুন</div>
-        </div>
-        <div class="feat-card" onclick="showPage('community')">
-          <div class="feat-icon-wrap" style="background:linear-gradient(135deg,#00838f,#004d40)"><i class="fas fa-users" style="color:#4dd0e1"></i></div>
-          <div class="feat-label">কমিউনিটি</div>
-          <div class="feat-desc">প্রশ্ন করুন, উত্তর দিন</div>
-        </div>
-
-      </div>
     </div>
   </section>
 
@@ -994,8 +965,7 @@ select.form-control option{background:var(--card);color:var(--text)}
         <button class="btn btn-ghost btn-sm" onclick="loadTools()"><i class="fas fa-sync"></i></button>
       </div>
     </div>
-    <div style="margin-bottom:6px;color:var(--muted);font-size:.85rem;font-family:var(--font-head)" id="toolsCount"></div>
-    <div id="catBreadcrumb" style="display:none;align-items:center;gap:6px;margin-bottom:10px;font-size:.82rem;color:var(--muted);flex-wrap:wrap"></div>
+    <div style="margin-bottom:12px;color:var(--muted);font-size:.85rem;font-family:var(--font-head)" id="toolsCount"></div>
     <div class="tools-grid" id="toolsGrid"></div>
     <div id="toolsEmpty" style="display:none;text-align:center;padding:60px;color:var(--muted)">
       <i class="fas fa-search" style="font-size:2.5rem;margin-bottom:14px;display:block;opacity:.35"></i>
@@ -1774,29 +1744,7 @@ const Analytics = {
 };
 
 // ===== DEFAULT DATA =====
-const DEFAULT_TOOLS=[
-  // ── System ──
-  {id:'dt001',name:'সিস্টেম ইনফো চেকার',category:'system',description:'CPU, RAM, OS সব তথ্য এক কমান্ডে দেখুন।',tags:['system','info','hardware'],status:'approved',published:true,views:120,downloads:45,likes:[],featured:true,createdAt:'2025-01-10T00:00:00Z',
-   code:'Get-ComputerInfo | Select-Object CsName,OsName,OsVersion,CsProcessors,CsTotalPhysicalMemory | Format-List',language:'powershell'},
-  {id:'dt002',name:'ডিস্ক স্পেস মনিটর',category:'system',description:'সব ড্রাইভের ফ্রি ও ব্যবহৃত স্পেস দেখুন।',tags:['disk','storage','system'],status:'approved',published:true,views:98,downloads:32,likes:[],featured:false,createdAt:'2025-01-12T00:00:00Z',
-   code:'Get-PSDrive -PSProvider FileSystem | Select-Object Name,@{N="Used(GB)";E={[math]::Round($_.Used/1GB,2)}},@{N="Free(GB)";E={[math]::Round($_.Free/1GB,2)}} | Format-Table -AutoSize',language:'powershell'},
-  {id:'dt003',name:'রানিং প্রসেস লিস্ট',category:'system',description:'চলমান সব প্রক্রিয়া CPU ও মেমরি ব্যবহার সহ দেখুন।',tags:['process','cpu','memory'],status:'approved',published:true,views:75,downloads:28,likes:[],featured:false,createdAt:'2025-01-14T00:00:00Z',
-   code:'Get-Process | Sort-Object CPU -Descending | Select-Object -First 20 Name,Id,CPU,@{N="Mem(MB)";E={[math]::Round($_.WorkingSet/1MB,1)}} | Format-Table -AutoSize',language:'powershell'},
-  // ── Network ──
-  {id:'dt004',name:'নেটওয়ার্ক স্পিড টেস্ট',category:'network',description:'ইন্টারনেট সংযোগ স্পিড ও লেটেন্সি পরীক্ষা করুন।',tags:['network','speed','ping'],status:'approved',published:true,views:210,downloads:88,likes:[],featured:true,createdAt:'2025-01-08T00:00:00Z',
-   code:'Test-Connection 8.8.8.8 -Count 4 | Select-Object Address,ResponseTime | Format-Table\nWrite-Host "DNS Test:" -ForegroundColor Yellow\nResolve-DnsName google.com | Select-Object -First 3',language:'powershell'},
-  {id:'dt005',name:'ওয়াইফাই পাসওয়ার্ড দেখুন',category:'network',description:'সংরক্ষিত সব WiFi নেটওয়ার্কের পাসওয়ার্ড দেখুন।',tags:['wifi','password','network'],status:'approved',published:true,views:345,downloads:142,likes:[],featured:true,createdAt:'2025-01-05T00:00:00Z',
-   code:'(netsh wlan show profiles) | Select-String "All User Profile" | ForEach-Object {\n  $name = ($_ -split ": ")[1].Trim()\n  $pass = (netsh wlan show profile name=$name key=clear) | Select-String "Key Content"\n  [PSCustomObject]@{Network=$name; Password=if($pass){($pass -split ": ")[1].Trim()}else{"(নেই)"}}\n} | Format-Table -AutoSize',language:'powershell'},
-  {id:'dt006',name:'ওপেন পোর্ট স্ক্যানার',category:'network',description:'লোকালহোস্টের সব ওপেন পোর্ট খুঁজে বের করুন।',tags:['port','scan','network'],status:'approved',published:true,views:167,downloads:61,likes:[],featured:false,createdAt:'2025-01-16T00:00:00Z',
-   code:'1..1024 | ForEach-Object {\n  $tcp = New-Object Net.Sockets.TcpClient\n  try { $tcp.Connect("127.0.0.1",$_); Write-Host "Port $_ OPEN" -ForegroundColor Green; $tcp.Close() }\n  catch {}\n}',language:'powershell'},
-  // ── Automation ──
-  {id:'dt007',name:'ফাইল ব্যাকআপ অটোমেটর',category:'automation',description:'নির্দিষ্ট ফোল্ডার স্বয়ংক্রিয়ভাবে ব্যাকআপ করুন।',tags:['backup','file','auto'],status:'approved',published:true,views:189,downloads:77,likes:[],featured:true,createdAt:'2025-01-07T00:00:00Z',
-   code:'$src = "C:\\Users\\$env:USERNAME\\Documents"\n$dst = "D:\\Backup\\$(Get-Date -Format yyyyMMdd_HHmm)"\nCopy-Item $src $dst -Recurse -Force\nWrite-Host "✅ ব্যাকআপ সম্পন্ন: $dst" -ForegroundColor Green',language:'powershell'},
-  {id:'dt008',name:'উইন্ডোজ আপডেট চেকার',category:'automation',description:'পেন্ডিং আপডেট চেক ও ইনস্টল করুন।',tags:['windows','update','auto'],status:'approved',published:true,views:134,downloads:53,likes:[],featured:false,createdAt:'2025-01-18T00:00:00Z',
-   code:'Install-Module PSWindowsUpdate -Force -Scope CurrentUser\nGet-WindowsUpdate\nWrite-Host "আপডেট চেক সম্পন্ন।" -ForegroundColor Yellow',language:'powershell'},
-  {id:'dt009',name:'স্টার্টআপ প্রোগ্রাম ম্যানেজার',category:'automation',description:'উইন্ডোজ স্টার্টআপে কোন প্রোগ্রাম চলে তা দেখুন ও নিয়ন্ত্রণ করুন।',tags:['startup','program','windows'],status:'approved',published:true,views:203,downloads:84,likes:[],featured:false,createdAt:'2025-01-20T00:00:00Z',
-   code:'Get-CimInstance Win32_StartupCommand | Select-Object Name,Command,Location,User | Format-Table -AutoSize -Wrap',language:'powershell'},
-];
+const DEFAULT_TOOLS=[];
 const DEFAULT_USERS=[];
 const DEFAULT_MSGS=[];
 
@@ -2494,7 +2442,29 @@ window.showPage=page=>{
 };
 
 // ===== SEARCH =====
+window.showSO=()=>{document.getElementById('searchOverlay').classList.add('show');document.getElementById('soInput').focus();};
+window.hideSO=()=>{document.getElementById('searchOverlay').classList.remove('show');};
+window.globalSearch=q=>{
+  const c=document.getElementById('soResults');c.innerHTML='';
+  if(q.length<2)return;
+  const tools=getTools().filter(t=>{const n=(t.name||t.title||'').toLowerCase(),d=(t.description||'').toLowerCase(),qL=q.toLowerCase();return n.includes(qL)||d.includes(qL)||(t.tags||[]).some(tag=>tag.toLowerCase().includes(qL));});
+  if(!tools.length){c.innerHTML='<div style="color:var(--muted);text-align:center;padding:20px">কোনো ফলাফল নেই।</div>';return;}
+  tools.slice(0,8).forEach(t=>{
+    const item=document.createElement('div');item.className='so-item';
+    item.innerHTML='<div class="so-ico">'+(CAT_LABEL[t.category||'']||'📦').split(' ')[0]+'</div><div class="so-text"><div class="ttl">'+Security.escapeHtml(t.name||t.title||'')+'</div><div class="dsc">'+Security.escapeHtml((t.description||'').substring(0,80))+'</div></div>';
+    item.addEventListener('click',()=>{hideSO();openToolDetail(t._id||t.id);});
+    c.appendChild(item);
+  });
+};
+function handleGlobalSearch(e){
+  if(e.key!=='Enter')return;
+  const q=document.getElementById('globalSearch')?.value?.trim();
+  if(!q)return;
+  showPage('tools');
+  setTimeout(()=>{const el=document.getElementById('toolsSearch');if(el){el.value=q;applyFilters();}},150);
+}
 document.addEventListener('keydown',e=>{
+  if(e.key==='/'&&e.target.tagName!=='INPUT'&&e.target.tagName!=='TEXTAREA'){e.preventDefault();showSO();}
   if(e.key==='Escape'){
     closeToolWindow();
     document.querySelectorAll('.modal.show,.modal-overlay.show').forEach(m=>{m.classList.remove('show');});
@@ -2936,66 +2906,6 @@ async function loadDynamicCategories() {
   _tryFS(5);
 }
 
-// ── Breadcrumb updater ──────────────────────────────────
-function _updateBreadcrumb(cat) {
-  const el = document.getElementById('catBreadcrumb');
-  if (!el) return;
-
-  if (!cat) {
-    el.style.display = 'none';
-    el.innerHTML = '';
-    return;
-  }
-
-  // Find if cat is a parent or sub
-  let parentCat = null, subCat = null;
-
-  if (_customCatsCache) {
-    // Is it a parent?
-    parentCat = _customCatsCache.find(c => c.key === cat);
-    if (!parentCat) {
-      // Is it a sub?
-      for (const c of _customCatsCache) {
-        const s = (c.subCategories || []).find(s => s.key === cat);
-        if (s) { parentCat = c; subCat = s; break; }
-      }
-    }
-  }
-
-  if (!parentCat) { el.style.display = 'none'; return; }
-
-  const col = parentCat.color || '#ffd700';
-  const pKey = parentCat.key;
-  let html =
-    '<span class="bc-parent" data-pkey="' + pKey + '" ' +
-    'style="cursor:pointer;color:' + col + ';font-weight:600">' +
-    (parentCat.emoji || '📦') + ' ' + parentCat.name +
-    '</span>';
-
-  if (subCat) {
-    html +=
-      '<span style="opacity:.5;margin:0 2px">›</span>' +
-      '<span style="color:var(--text)">' + (subCat.emoji || '📌') + ' ' + subCat.name + '</span>';
-  }
-
-  // Tool count
-  html += '<span style="margin-left:6px;font-size:.75rem;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.2);border-radius:20px;padding:1px 8px;color:' + col + '">' +
-    document.getElementById('toolsCount').textContent +
-  '</span>';
-
-  el.innerHTML = html;
-  el.style.display = 'flex';
-
-  // Parent breadcrumb click → activate parent chip
-  const bcParent = el.querySelector('.bc-parent');
-  if (bcParent) {
-    bcParent.addEventListener('click', function() {
-      const chip = document.querySelector('#catChips [data-cat="' + this.getAttribute('data-pkey') + '"]');
-      if (chip) chip.click();
-    });
-  }
-}
-
 // Cache to prevent duplicate Firestore reads when loadHome + loadTools both call fetchToolsFromAPI
 let _toolsCache = null;
 let _toolsCacheTs = 0;
@@ -3116,7 +3026,6 @@ window.applyFilters=()=>{
   tools.sort(sortFns[sort]||sortFns.newest);
   const grid=document.getElementById('toolsGrid');const emptyEl=document.getElementById('toolsEmpty');const cnt=document.getElementById('toolsCount');
   if(cnt)cnt.textContent=tools.length+'টি টুল পাওয়া গেছে';
-  _updateBreadcrumb(curCat);
   if(!tools.length){
     if(grid)grid.innerHTML='';
     if(emptyEl){emptyEl.style.display='block';emptyEl.innerHTML='<div class="empty-state"><i class="fas fa-search empty-state-icon"></i><div class="empty-state-text">কোনো টুল পাওয়া যায়নি</div><div class="empty-state-sub">ভিন্ন কীওয়ার্ড বা ক্যাটাগরি চেষ্টা করুন</div><button class="btn btn-outline btn-sm" style="margin-top:16px" onclick="filterTools(\'\')">সব টুলস দেখুন</button></div>';}
@@ -3744,7 +3653,11 @@ setTimeout(function() {
 // ===== ALL MISSING FUNCTIONS (COMPLETE IMPLEMENTATION) =====
 
 // ── Nav live search ──────────────────────────────────────
-
+function liveSearch(q) {
+  if (!q || q.length < 2) return;
+  showSO();
+  globalSearch(q);
+}
 
 // ── Tool detail modal helpers ─────────────────────────────
 function bookmarkCurrentTool() {
