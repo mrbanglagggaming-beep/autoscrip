@@ -823,96 +823,56 @@ select.form-control option{background:var(--card);color:var(--text)}
 
 <!-- HOME PAGE -->
 <div id="homePage" class="page active">
-
-  <!-- ===== HOME HEADER ===== -->
-  <div class="container" style="padding-top:32px;padding-bottom:0">
+  <div class="container">
     <div id="announcementBar"></div>
-    <div class="page-header" style="margin-bottom:16px">
-      <h1 class="page-title">⚡ AUTOSCRIP</h1>
+
+    <!-- Header — টুলস পেজের মতো -->
+    <div class="page-header">
+      <h1 class="page-title">🔧 PowerShell টুলস</h1>
       <p class="page-desc">আপনার কাজ সহজ করাই আমাদের লক্ষ্য — <span style="color:var(--primary);font-weight:600">এক ক্লিকেই সমাধান।</span></p>
     </div>
-  </div>
 
-  <!-- ===== TOOLS SECTION ===== -->
-  <div class="container" id="mainContent">
-    <!-- Featured Tools -->
-    <div class="mb-4">
-      <div class="sec-header">
-        <h2 class="sec-title">⭐ ফিচারড টুলস</h2>
-        <button class="btn btn-outline btn-sm" onclick="showPage('tools')">সবগুলো <i class="fas fa-arrow-right"></i></button>
-      </div>
-      <div class="tools-grid" id="featuredGrid">
-        <div style="color:var(--muted);text-align:center;padding:40px;grid-column:1/-1"><div class="spinner"></div><div style="margin-top:12px;font-family:var(--font-head)">লোড হচ্ছে...</div></div>
+    <!-- Category chips — টুলস পেজের chips clone -->
+    <div class="cat-chips" id="homeCatChips">
+      <button class="chip active" onclick="homeFilter('',this)">🏠 সবগুলো</button>
+      <button class="chip" onclick="homeFilter('system',this)">⚙️ সিস্টেম</button>
+      <button class="chip" onclick="homeFilter('network',this)">🌐 নেটওয়ার্ক</button>
+      <button class="chip" onclick="homeFilter('security',this)">🔒 সিকিউরিটি</button>
+      <button class="chip" onclick="homeFilter('backup',this)">💾 ব্যাকআপ</button>
+      <button class="chip" onclick="homeFilter('monitoring',this)">📊 মনিটরিং</button>
+      <button class="chip" onclick="homeFilter('automation',this)">🤖 অটোমেশন</button>
+      <button class="chip" onclick="homeFilter('download',this)">⬇️ ডাউনলোড</button>
+    </div>
+
+    <!-- Search + sort bar -->
+    <div class="view-filter-bar card mb-4">
+      <div class="d-flex gap-3 flex-wrap ai-c">
+        <div class="search-wrapper" style="flex:1;min-width:180px;position:relative">
+          <i class="fas fa-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.85rem;pointer-events:none"></i>
+          <input type="text" id="homeSearch" class="form-control" style="padding-left:40px" placeholder="কমান্ড, ট্যাগ, নাম..." oninput="applyHomeFilters()">
+        </div>
+        <select id="homeSort" class="form-control w-auto" onchange="applyHomeFilters()">
+          <option value="newest">নতুন থেকে</option>
+          <option value="popular">জনপ্রিয়</option>
+          <option value="name">নাম অনুসারে</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="showPage('tools')"><i class="fas fa-th-large"></i> সব টুলস</button>
       </div>
     </div>
 
-    <!-- Latest Tools + Category Highlights side by side -->
-    <div style="display:grid;grid-template-columns:1fr 220px;gap:28px;margin-top:40px;align-items:start" class="home-tools-layout">
-      <div>
-        <div class="sec-header">
-          <h2 class="sec-title">🆕 সর্বশেষ টুলস</h2>
-          <button class="btn btn-ghost btn-sm" onclick="showPage('tools')">সব দেখুন <i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div class="tools-grid" id="latestGrid"></div>
-      </div>
-      <!-- Categories sidebar -->
-      <div>
-        <div class="sec-header" style="margin-bottom:14px">
-          <h2 class="sec-title" style="font-size:1.2rem">📂 ক্যাটাগরি</h2>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(2)');filterTools('system',chip);},200)">
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="cat-hl-icon" style="background:linear-gradient(135deg,#1565c0,#1a237e);margin:0;width:34px;height:34px;flex-shrink:0"><i class="fas fa-cogs" style="font-size:.9rem"></i></div>
-              <div style="text-align:left"><div class="cat-hl-name">সিস্টেম</div><div class="cat-hl-count" id="catCount_system">—</div></div>
-            </div>
-          </div>
-          <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(3)');filterTools('network',chip);},200)">
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="cat-hl-icon" style="background:linear-gradient(135deg,#00838f,#004d40);margin:0;width:34px;height:34px;flex-shrink:0"><i class="fas fa-network-wired" style="font-size:.9rem"></i></div>
-              <div style="text-align:left"><div class="cat-hl-name">নেটওয়ার্ক</div><div class="cat-hl-count" id="catCount_network">—</div></div>
-            </div>
-          </div>
-          <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(4)');filterTools('security',chip);},200)">
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="cat-hl-icon" style="background:linear-gradient(135deg,#7b1fa2,#4a148c);margin:0;width:34px;height:34px;flex-shrink:0"><i class="fas fa-shield-alt" style="font-size:.9rem"></i></div>
-              <div style="text-align:left"><div class="cat-hl-name">সিকিউরিটি</div><div class="cat-hl-count" id="catCount_security">—</div></div>
-            </div>
-          </div>
-          <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(5)');filterTools('backup',chip);},200)">
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="cat-hl-icon" style="background:linear-gradient(135deg,#f4511e,#bf360c);margin:0;width:34px;height:34px;flex-shrink:0"><i class="fas fa-hdd" style="font-size:.9rem"></i></div>
-              <div style="text-align:left"><div class="cat-hl-name">ব্যাকআপ</div><div class="cat-hl-count" id="catCount_backup">—</div></div>
-            </div>
-          </div>
-          <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(6)');filterTools('monitoring',chip);},200)">
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="cat-hl-icon" style="background:linear-gradient(135deg,#388e3c,#1b5e20);margin:0;width:34px;height:34px;flex-shrink:0"><i class="fas fa-chart-line" style="font-size:.9rem"></i></div>
-              <div style="text-align:left"><div class="cat-hl-name">মনিটরিং</div><div class="cat-hl-count" id="catCount_monitoring">—</div></div>
-            </div>
-          </div>
-          <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(7)');filterTools('automation',chip);},200)">
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="cat-hl-icon" style="background:linear-gradient(135deg,#c2185b,#880e4f);margin:0;width:34px;height:34px;flex-shrink:0"><i class="fas fa-robot" style="font-size:.9rem"></i></div>
-              <div style="text-align:left"><div class="cat-hl-name">অটোমেশন</div>
-          <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(8)');filterTools('download',chip);},200)">
-            <div class="ch-ico">⬇️</div>
-            <div class="ch-info">
-              <div class="ch-name">ডাউনলোড</div>
-              <div class="ch-count" id="catCount-download">0 টুলস</div>
-            </div>
-          </div><div class="cat-hl-count" id="catCount_automation">—</div></div>
-            </div>
-          </div>
-          <button class="btn btn-outline w-100 mt-3" style="justify-content:center" onclick="showPage('tools')"><i class="fas fa-th-large"></i> সব টুলস</button>
-        </div>
+    <!-- Count -->
+    <div style="margin-bottom:12px;color:var(--muted);font-size:.85rem;font-family:var(--font-head)" id="homeCount"></div>
+
+    <!-- Tools grid -->
+    <div class="tools-grid" id="homeGrid">
+      <div style="color:var(--muted);text-align:center;padding:40px;grid-column:1/-1">
+        <div class="spinner"></div>
+        <div style="margin-top:12px;font-family:var(--font-head)">লোড হচ্ছে...</div>
       </div>
     </div>
 
     <div style="height:48px"></div>
-  </div><!-- end container -->
-
-
+  </div>
 </div><!-- end homePage -->
 
 <!-- TOOLS PAGE -->
@@ -2896,6 +2856,53 @@ async function loadDynamicCategories() {
   _tryFS(5);
 }
 
+
+// ===== HOME PAGE FILTER =====
+let _homeCat = '';
+window.homeFilter = function(cat, el) {
+  _homeCat = cat;
+  document.querySelectorAll('#homeCatChips .chip').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  applyHomeFilters();
+};
+
+window.applyHomeFilters = function() {
+  const q    = (document.getElementById('homeSearch')?.value || '').toLowerCase();
+  const sort = document.getElementById('homeSort')?.value || 'newest';
+  const grid = document.getElementById('homeGrid');
+  const cnt  = document.getElementById('homeCount');
+  if (!grid) return;
+
+  let tools = getTools().filter(t => t.status === 'approved' || t.published !== false);
+
+  if (_homeCat) {
+    const pc  = _customCatsCache && _customCatsCache.find(c => c.key === _homeCat);
+    const sk  = pc ? (pc.subCategories || []).map(s => s.key) : [];
+    tools = tools.filter(t => t.category === _homeCat || sk.includes(t.category));
+  }
+  if (q) tools = tools.filter(t =>
+    (t.name||t.title||'').toLowerCase().includes(q) ||
+    (t.description||'').toLowerCase().includes(q) ||
+    (t.tags||[]).some(tag => tag.toLowerCase().includes(q))
+  );
+
+  const sortFns = {
+    newest:  (a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0),
+    popular: (a,b) => (b.views||0) - (a.views||0),
+    name:    (a,b) => (a.name||a.title||'').localeCompare(b.name||b.title||'','bn')
+  };
+  tools.sort(sortFns[sort] || sortFns.newest);
+
+  if (cnt) cnt.textContent = tools.length + 'টি টুল পাওয়া গেছে';
+
+  if (!tools.length) {
+    grid.innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted);grid-column:1/-1"><i class="fas fa-search" style="font-size:2rem;opacity:.3;display:block;margin-bottom:12px"></i>কোনো টুল পাওয়া যায়নি</div>';
+    return;
+  }
+  grid.innerHTML = '';
+  tools.forEach(t => grid.appendChild(renderCard(t)));
+};
+
 // Cache to prevent duplicate Firestore reads when loadHome + loadTools both call fetchToolsFromAPI
 let _toolsCache = null;
 let _toolsCacheTs = 0;
@@ -2943,19 +2950,11 @@ async function fetchToolsFromAPI(){
 
 // ===== HOME PAGE =====
 async function loadHome(){
-  // Show skeleton loaders
-  const fg=document.getElementById('featuredGrid');
-  const lg=document.getElementById('latestGrid');
-  if(fg)fg.innerHTML='<div class="skeleton skel-card"></div>'.repeat(6).replace(/skel-card/g,'skel-card" style="height:260px');
   const apiTools=await fetchToolsFromAPI();
   if(apiTools&&apiTools.length){App.tools=apiTools;App.apiOnline=true;}
   else{syncFromAdmin();if(!App.tools.length)App.tools=[...DEFAULT_TOOLS];}
   const tools=App.tools;
   const approved=tools.filter(t=>t.status==='approved'||t.published!==false);
-  const featured=approved.filter(t=>t.featured).slice(0,6);
-  const latest=[...approved].sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0)).slice(0,8);
-  if(fg){fg.innerHTML='';(featured.length?featured:DEFAULT_TOOLS.filter(t=>t.featured)).forEach(t=>fg.appendChild(renderCard(t)));}
-  if(lg){lg.innerHTML='';latest.forEach(t=>lg.appendChild(renderCard(t)));}
   // Category counts
   ['system','network','security','backup','monitoring','automation'].forEach(cat=>{
     const el=document.getElementById('catCount_'+cat);
@@ -2971,6 +2970,8 @@ async function loadHome(){
   animateCounter('hStTools',tools.length+500);
   animateCounter('hStUsers',1247);
   animateCounter('hStOnline',Math.floor(Math.random()*18)+7);
+  // Render home grid
+  applyHomeFilters();
   SEOManager.updateMeta('home');
   // Show offline indicator if local
   if(IS_LOCAL){
