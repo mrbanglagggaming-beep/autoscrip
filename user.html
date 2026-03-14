@@ -425,20 +425,20 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 ================================================================ */
 
 /* ── SEARCH OVERLAY ─────────────────────────────────────────── */
-.search-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:9990;display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:110px;padding-inline:20px}
-.search-overlay.show{display:flex;animation:soIn .2s var(--ease-out-expo)}
+
+
 @keyframes soIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
-.so-wrap{display:flex;align-items:center;gap:12px;width:100%;max-width:640px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,215,0,.3);border-radius:var(--r-2xl);padding:14px 20px;backdrop-filter:blur(20px)}
+
 .so-wrap:focus-within{border-color:rgba(255,215,0,.55);box-shadow:0 0 0 4px rgba(255,215,0,.06)}
-.so-icon{color:var(--muted);font-size:1.1rem;flex-shrink:0}
-.so-input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:1.1rem;font-family:var(--font-body)}
-.so-input::placeholder{color:var(--muted)}
+
+
+
 .so-close{background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:var(--r-sm);font-size:.78rem;cursor:pointer;transition:var(--ease);font-family:var(--font-head)}
 .so-close:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
-.so-results{width:100%;max-width:640px;margin-top:12px;display:flex;flex-direction:column;gap:6px;max-height:52vh;overflow-y:auto}
-.so-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--r-lg);cursor:pointer;transition:background var(--dur-fast),border-color var(--dur-fast),transform var(--dur-fast)}
+
+
 .so-item:hover{background:rgba(255,215,0,.07);border-color:rgba(255,215,0,.2);transform:translateX(4px)}
-.so-ico{font-size:1.2rem;width:34px;text-align:center;flex-shrink:0}
+
 .so-text .ttl{font-family:var(--font-head);font-weight:700;font-size:.9rem;color:var(--text)}
 .so-text .dsc{font-size:.76rem;color:var(--muted);margin-top:2px}
 .so-cat-badge{font-size:.68rem;padding:2px 8px;border-radius:var(--r-full);font-weight:700;font-family:var(--font-head);margin-left:auto;flex-shrink:0}
@@ -752,7 +752,7 @@ select.form-control option{background:var(--card);color:var(--text)}
     <div class="nav-actions">
       <div class="nav-search">
         <i class="fas fa-search" style="color:var(--muted);font-size:.85rem"></i>
-        <input type="text" placeholder="সার্চ..." id="navSearchInput" oninput="liveSearch(this.value)">
+        <input type="text" placeholder="সার্চ..." id="navSearchInput">
       </div>
       <!-- Notifications -->
       <div class="dropdown" id="notifDrop">
@@ -808,14 +808,7 @@ select.form-control option{background:var(--card);color:var(--text)}
 </nav>
 
 <!-- SEARCH OVERLAY -->
-<div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)hideSO()">
-  <div class="so-wrap">
-    <i class="fas fa-search so-icon"></i>
-    <input type="text" class="so-input" id="soInput" placeholder="টুলস, স্ক্রিপ্ট বা কমান্ড সার্চ করুন..." oninput="globalSearch(this.value)">
-  </div>
-  <div class="so-results" id="soResults"></div>
-  <p style="color:var(--muted);font-size:.82rem;margin-top:12px">ESC চাপুন বা বাইরে ক্লিক করুন</p>
-</div>
+
 
 <!-- ===== PAGES ===== -->
 <main class="pages">
@@ -2497,29 +2490,7 @@ window.showPage=page=>{
 };
 
 // ===== SEARCH =====
-window.showSO=()=>{document.getElementById('searchOverlay').classList.add('show');document.getElementById('soInput').focus();};
-window.hideSO=()=>{document.getElementById('searchOverlay').classList.remove('show');};
-window.globalSearch=q=>{
-  const c=document.getElementById('soResults');c.innerHTML='';
-  if(q.length<2)return;
-  const tools=getTools().filter(t=>{const n=(t.name||t.title||'').toLowerCase(),d=(t.description||'').toLowerCase(),qL=q.toLowerCase();return n.includes(qL)||d.includes(qL)||(t.tags||[]).some(tag=>tag.toLowerCase().includes(qL));});
-  if(!tools.length){c.innerHTML='<div style="color:var(--muted);text-align:center;padding:20px">কোনো ফলাফল নেই।</div>';return;}
-  tools.slice(0,8).forEach(t=>{
-    const item=document.createElement('div');item.className='so-item';
-    item.innerHTML='<div class="so-ico">'+(CAT_LABEL[t.category||'']||'📦').split(' ')[0]+'</div><div class="so-text"><div class="ttl">'+Security.escapeHtml(t.name||t.title||'')+'</div><div class="dsc">'+Security.escapeHtml((t.description||'').substring(0,80))+'</div></div>';
-    item.addEventListener('click',()=>{hideSO();openToolDetail(t._id||t.id);});
-    c.appendChild(item);
-  });
-};
-function handleGlobalSearch(e){
-  if(e.key!=='Enter')return;
-  const q=document.getElementById('globalSearch')?.value?.trim();
-  if(!q)return;
-  showPage('tools');
-  setTimeout(()=>{const el=document.getElementById('toolsSearch');if(el){el.value=q;applyFilters();}},150);
-}
 document.addEventListener('keydown',e=>{
-  if(e.key==='/'&&e.target.tagName!=='INPUT'&&e.target.tagName!=='TEXTAREA'){e.preventDefault();showSO();}
   if(e.key==='Escape'){
     closeToolWindow();
     document.querySelectorAll('.modal.show,.modal-overlay.show').forEach(m=>{m.classList.remove('show');});
@@ -3769,11 +3740,7 @@ setTimeout(function() {
 // ===== ALL MISSING FUNCTIONS (COMPLETE IMPLEMENTATION) =====
 
 // ── Nav live search ──────────────────────────────────────
-function liveSearch(q) {
-  if (!q || q.length < 3) return;
-  showSO();
-  globalSearch(q);
-}
+
 
 // ── Tool detail modal helpers ─────────────────────────────
 function bookmarkCurrentTool() {
