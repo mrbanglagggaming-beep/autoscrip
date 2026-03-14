@@ -5155,7 +5155,8 @@ const FIREBASE_CONFIG = {
     projectId:         "powerscript-pro-web",
     storageBucket:     "powerscript-pro-web.firebasestorage.app",
     messagingSenderId: "709315727810",
-    appId:             "1:709315727810:web:abeb73172635061343c65b"
+    appId:             "1:709315727810:web:abeb73172635061343c65b",
+    databaseId:        "(default)"
 };
 
 const ADMIN_UID_MASTER   = "E97OGEv5ZJFbHaoojCnFe25GSeY1";
@@ -7001,8 +7002,8 @@ async function loadTools() {
         const recent = [...allTools].slice(0, 5);
         renderRecentTools(recent);
 
-        // AUTO-MIGRATE: If Firestore empty but localStorage has tools → upload automatically
-        if (snap.empty) {
+        // AUTO-MIGRATE: disabled — tools already in Firestore
+        if (false && snap.empty) {
             const lsKeys = ['autoscrip_tools', 'as7_tools', 'tools'];
             let lsAll = [];
             for (const k of lsKeys) {
