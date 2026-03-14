@@ -5176,6 +5176,7 @@ let fbApp, fbAuth, fbDb;
                 fbApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
                 fbAuth = firebase.auth();
                 fbDb   = firebase.firestore();
+                try { fbDb.settings({ experimentalAutoDetectLongPolling: true, merge: true }); } catch(e) {}
                 // Use long-polling to avoid WebChannel 404 errors on some networks
                 try {
                     fbDb.settings({
@@ -9232,7 +9233,8 @@ async function saveBuiltinSub() {
   if (!name) { toast('নাম দিন!', 'error'); return; }
   if (!skey) { toast('Key দিন!', 'error'); return; }
 
-  const data = _biSubData[key] || { docId: null, subs: [] };
+  if (!_biSubData[key]) _biSubData[key] = { docId: null, subs: [] };
+  const data = _biSubData[key];
   if (data.subs.find(s => s.key === skey)) { toast('এই key ইতিমধ্যে আছে!', 'error'); return; }
 
   const newSubs = [...data.subs, { emoji, name, key: skey }];
@@ -9258,6 +9260,7 @@ async function saveBuiltinSub() {
         isBuiltin: true, subCategories: newSubs,
         createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
       });
+      if (!_biSubData[key]) _biSubData[key] = { subs: newSubs };
       _biSubData[key].docId = ref.id;
     }
     _biSubData[key].subs = newSubs;
@@ -9269,7 +9272,16 @@ async function saveBuiltinSub() {
     // Update badge in builtin list
     renderBuiltinSubBadges(key, newSubs);
     loadCategories();
-  } catch(e) { toast('সমস্যা: ' + e.message, 'error'); }
+  } catch(e) {
+    console.error('saveBuiltinSub error:', e);
+    if (e.code === 'permission-denied') {
+      toast('Firestore permission denied — Rules চেক করুন', 'error');
+    } else if (!window._fbDb) {
+      toast('Firebase এখনো ready নয়, একটু অপেক্ষা করুন', 'error');
+    } else {
+      toast('সমস্যা: ' + e.message, 'error');
+    }
+  }
 }
 
 async function deleteBuiltinSub(key, idx) {
