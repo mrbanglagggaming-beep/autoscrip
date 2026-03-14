@@ -4554,7 +4554,10 @@ body.offline-mode { padding-top: 44px !important; }
         <div class="pnl-tt"><i class="fas fa-layer-group" style="color:var(--primary)"></i> ক্যাটাগরি ও সাব-ক্যাটাগরি ম্যানেজ</div>
         <p style="color:var(--muted);font-size:.82rem;margin-top:4px">ক্যাটাগরির ভেতরে Playlist / Section যোগ করুন। ইউজার সাইটে স্বয়ংক্রিয়ভাবে দেখাবে।</p>
       </div>
-      <button class="btn btn-pr btn-sm" onclick="openCatModal()"><i class="fas fa-plus"></i> নতুন ক্যাটাগরি</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-pr btn-sm" onclick="openCatModal()"><i class="fas fa-plus"></i> নতুন ক্যাটাগরি</button>
+        <button class="btn btn-ghost btn-sm" onclick="seedDefaultCats()" title="ডিফল্ট ক্যাটাগরি লোড করুন"><i class="fas fa-seedling"></i> ডিফল্ট লোড</button>
+      </div>
     </div>
     <div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.15);border-radius:10px;padding:10px 14px;margin-bottom:18px;font-size:.8rem;color:var(--muted)">
       <i class="fas fa-info-circle" style="color:var(--primary)"></i>
@@ -9017,6 +9020,72 @@ function getYouTubeId(url) {
 let allCustomCategories = [];
 const _BUILTIN = ['system','network','security','backup','monitoring','automation','download','files','windows','other'];
 let _subRowIdx = 0;
+
+async function seedDefaultCats() {
+    if (!confirm('ডিফল্ট ক্যাটাগরিগুলো Firestore-এ যোগ করবেন?\n(যা আগে থেকে আছে সেগুলো এড়িয়ে যাবে)')) return;
+
+    const defaults = [
+        {
+            emoji:'🎬', name:'ভিডিও টুলস', key:'video_tools', color:'#e53935', description:'ভিডিও ডাউনলোড, এডিট ও কনভার্ট টুলস',
+            subCategories:[
+                {emoji:'📥', name:'ডাউনলোডার',  key:'video_downloader'},
+                {emoji:'✂️', name:'এডিটর',       key:'video_editor'},
+                {emoji:'🔄', name:'কনভার্টার',   key:'video_converter'}
+            ]
+        },
+        {
+            emoji:'📁', name:'ফাইল ম্যানেজমেন্ট', key:'file_tools', color:'#fb8c00', description:'ফাইল কপি, মুভ, সিঙ্ক ও ক্লিনআপ',
+            subCategories:[
+                {emoji:'📦', name:'কম্প্রেস/আনজিপ', key:'file_compress'},
+                {emoji:'🔄', name:'সিঙ্ক ও ব্যাকআপ',  key:'file_sync'},
+                {emoji:'🗑️', name:'ক্লিনআপ',         key:'file_cleanup'}
+            ]
+        },
+        {
+            emoji:'🌐', name:'সোশ্যাল মিডিয়া', key:'social_media', color:'#1e88e5', description:'সোশ্যাল মিডিয়া অটোমেশন ও টুলস',
+            subCategories:[
+                {emoji:'📘', name:'ফেসবুক',   key:'social_facebook'},
+                {emoji:'▶️', name:'ইউটিউব',   key:'social_youtube'},
+                {emoji:'📸', name:'ইনস্টাগ্রাম', key:'social_instagram'}
+            ]
+        },
+        {
+            emoji:'🤖', name:'AI & স্ক্রিপ্টিং', key:'ai_tools', color:'#8e24aa', description:'AI ও অটোমেশন স্ক্রিপ্ট',
+            subCategories:[
+                {emoji:'💬', name:'চ্যাটবট',     key:'ai_chatbot'},
+                {emoji:'🖼️', name:'ইমেজ AI',    key:'ai_image'},
+                {emoji:'📝', name:'টেক্সট টুলস', key:'ai_text'}
+            ]
+        },
+        {
+            emoji:'🔒', name:'সিকিউরিটি', key:'security_pro', color:'#43a047', description:'নিরাপত্তা ও প্রাইভেসি টুলস',
+            subCategories:[
+                {emoji:'🛡️', name:'ফায়ারওয়াল',  key:'sec_firewall'},
+                {emoji:'🔍', name:'ভালনারেবিলিটি', key:'sec_scan'},
+                {emoji:'🔑', name:'পাসওয়ার্ড',    key:'sec_password'}
+            ]
+        }
+    ];
+
+    let added = 0, skipped = 0;
+    for (const cat of defaults) {
+        try {
+            // Check if key already exists
+            const snap = await fbDb.collection(FS.categories).where('key','==',cat.key).get();
+            if (!snap.empty) { skipped++; continue; }
+            await fbDb.collection(FS.categories).add({
+                ...cat,
+                order: added,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            });
+            added++;
+        } catch(e) { toast('সমস্যা: ' + e.message, 'error'); return; }
+    }
+
+    toast(`✅ ${added}টি ক্যাটাগরি যোগ হয়েছে${skipped ? ' · ' + skipped + 'টি আগে থেকে ছিল' : ''}`, 'success');
+    loadCategories();
+}
 
 async function loadCategories() {
     const el = document.getElementById('customCatList');
