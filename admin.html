@@ -3402,6 +3402,27 @@ body.offline-mode { padding-top: 44px !important; }
 /* ── BLOCK NUMBER ────────────────────────────────────────────── */
 .block-number { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: rgba(255,215,0,.12); border: 1px solid rgba(255,215,0,.25); color: var(--primary); font-size: 0.72rem; font-weight: 700; font-family: var(--font-heading); flex-shrink: 0; }
 
+
+/* ===== PINK TEXT SYSTEM ===== */
+:root { --text: #ffb3d9 !important; --text-muted: #cc88aa !important; --text-dim: #aa6688 !important; }
+body { color: #ffb3d9 !important; }
+p, span, div, li, label, small, .fl, .fc, .act-txt, .act-time, .em-t, .em-p, .sc-lbl, .sc-chg, .sb-nm, .sb-sec, .version-changes, .version-time, .rate-limit-text, .topbar-time, .twt-title, .bdg, .bdg-p, .bdg-i, .bdg-g, .bdg-w, .bdg-r { color: #ffb3d9 !important; }
+h1, h2, h3, h4, h5, h6, .topbar-title, .cd-tt, .tw-tt, .pnl-tt, .md-tt, .cfm-ttl, .cfm-sub, .sb-logo { color: #ff6eb4 !important; }
+tbody td { color: #ffb3d9 !important; }
+thead th { color: #ff2d78 !important; }
+.fc, input, textarea, select { color: #ffb3d9 !important; }
+.fc::placeholder, input::placeholder, textarea::placeholder { color: #aa6688 !important; }
+.text-muted, .sb-sec, .act-time, .sc-lbl, .tw-srch input, .topbar-time, .yt-author, .yt-stats, .version-time { color: #cc88aa !important; }
+code, pre, .font-code, .t-prompt { color: #ff9ecb !important; }
+.dd-item, .dd-head { color: #cc88aa !important; }
+.dd-item:hover { color: #ff6eb4 !important; }
+.sb-lnk { color: #cc88aa !important; }
+.sb-lnk:hover, .sb-lnk.active { color: #ffd700 !important; }
+.em-t { color: #ff9ecb !important; }
+.em-p { color: #cc88aa !important; }
+.team-name { color: #ff9ecb !important; }
+.team-role { color: #cc88aa !important; }
+.login-sub { color: #cc88aa !important; }
 </style>
 </head>
 <body>
@@ -10018,6 +10039,43 @@ service cloud.firestore {
 window.va = window.va || function() { (window.va.q = window.va.q || []).push(arguments); };
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
+
+<script>
+(function adminMigrateFix() {
+  'use strict';
+  window.migrateLocalTools = async function() {
+    var lsTools = [];
+    var keys = ['autoscrip_tools', 'as7_tools', 'tools'];
+    for (var k of keys) {
+      try { var raw = localStorage.getItem(k); if(raw){var arr=JSON.parse(raw);if(Array.isArray(arr))lsTools=lsTools.concat(arr);} } catch(_e) {}
+    }
+    var seen = new Set();
+    lsTools = lsTools.filter(function(t){ var key=t._id||t.id||t.title||t.name; if(seen.has(key))return false; seen.add(key); return true; });
+    if (!lsTools.length) { if(typeof window.toast==='function') window.toast('localStorage-এ কোনো টুল নেই','warning'); return; }
+    if (!confirm(lsTools.length + 'টি টুল Firestore-এ আপলোড করবেন?')) return;
+    if(typeof window.toast==='function') window.toast('⬆️ '+lsTools.length+'টি টুল আপলোড হচ্ছে...','info');
+    var ok=0, fail=0;
+    for (var tool of lsTools) {
+      try {
+        await window.fbDb.collection('autoscrip_tools').add({
+          title: tool.title||tool.name||'Untitled', name: tool.title||tool.name||'Untitled',
+          category: tool.category||'system', description: tool.description||'',
+          author: tool.author||'AutoScrip Team', tags: Array.isArray(tool.tags)?tool.tags:[],
+          commands: tool.commands||(tool.code?[{title:'Main',code:tool.code}]:[]),
+          youtube: tool.youtube||null, thumbnail: tool.thumbnail||null,
+          status: 'approved', published: true, featured: !!tool.featured,
+          views: tool.views||0, downloads: tool.downloads||0, likes: 0,
+          createdAt: tool.createdAt||new Date().toISOString()
+        });
+        ok++;
+      } catch(e) { console.error('[migrate]',tool.title,e.message); fail++; }
+    }
+    if(typeof window.toast==='function') window.toast('✅ '+ok+'টি সফল!'+(fail>0?' '+fail+'টি ব্যর্থ':''), ok>0?'success':'error');
+    if(ok>0){ window.loadTools(); if(typeof window.loadDashboard==='function') window.loadDashboard(); }
+  };
+  console.log('[admin-fix] Migrate fix loaded!');
+})();
+</script>
 </body>
 </html>
 </body>
