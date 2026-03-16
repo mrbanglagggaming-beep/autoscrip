@@ -31,18 +31,18 @@
 ============================================================ */
 :root{
   /* Core palette */
-  --primary:#ffd700;--primary-dark:#e6c200;--primary-light:#fff47f;
+  --primary:#ffffff;--primary-dark:#ededed;--primary-light:#ffffff;
   --secondary:#ff6a00;
   --success:#00e676;--danger:#ff3d57;--warning:#ff9800;--info:#29b6f6;--purple:#ab47bc;
   /* Gold scale */
   --gold-50:#fff9e6;--gold-100:#fff0c2;--gold-200:#ffe69e;--gold-300:#ffdb7a;
   --gold-400:#ffd156;--gold-500:#ffd700;--gold-600:#e6c200;--gold-700:#ccad00;
   /* Dark background palette */
-  --bg:#0d1117;--bg2:#161b22;--card:#161b22;--card2:#1c2128;--card3:#1e1e30;
-  --border:#1e1e32;--border-light:#2a2a44;
-  --text:#eeeef8;--muted:#6a6a9a;
+  --bg:#000000;--bg2:#0a0a0a;--card:#111111;--card2:#161616;--card3:#1a1a1a;
+  --border:#2a2a2a;--border-light:#333333;
+  --text:#ededed;--muted:#888888;
   /* Gradients */
-  --grad:linear-gradient(135deg,#ffd700,#ff6a00);
+  --grad:linear-gradient(180deg,#ffffff,#888888);
   --grad-soft:linear-gradient(135deg,rgba(255,215,0,.15),rgba(255,106,0,.08));
   --grad-cool:linear-gradient(135deg,#0d0d17,#1a1a2e);
   /* Shadows */
@@ -698,28 +698,294 @@ select.form-control option{background:var(--card);color:var(--text)}
   background: rgba(255,0,0,.06);
 }
 
-/* ===== USER SITE PINK TEXT SYSTEM ===== */
-:root { --text: #ffb3d9 !important; --text-muted: #cc88aa !important; --text-dim: #aa6688 !important; }
-body { color: #ffb3d9 !important; }
-p, span, li, div, small, label, .hero-desc, .feat-desc, .feat-label, .yt-title, .yt-author, .yt-stats, .page-desc, .empty-sub, .chip, .badge, .bdg, .footer-desc, .footer-links a, .footer-links li, .footer-col-head { color: #ffb3d9 !important; }
-h1, h2, h3, h4, h5, h6, .page-title, .sec-title, .hero-platform, .doc-title, .cat-hl-name, .vid-title, .chat-head, .tw-tool-title, .np-head h4 { color: #ff6eb4 !important; }
-.text-muted, .hero-stat-lbl, .yt-stats, .yt-author, .feat-desc, .page-desc, .vid-desc-txt, .vid-channel, .doc-desc, .cat-hl-count, .footer-desc { color: #cc88aa !important; }
-.nav-link { color: #cc88aa !important; }
-.nav-link:hover, .nav-link.active { color: #ffd700 !important; }
-.chip { color: #cc88aa !important; }
-.chip.active { color: #ffd700 !important; }
-.form-control, .form-control::placeholder { color: #cc88aa !important; }
-.hero-stat-num { color: #ffd700 !important; }
-.vid-title { color: #ffb3d9 !important; }
-.vid-desc-txt { color: #cc88aa !important; }
-.footer-links a:hover { color: #ff6eb4 !important; }
-.footer-bottom { color: #cc88aa !important; }
-.empty-title { color: #ff9ecb !important; }
-.empty-sub { color: #cc88aa !important; }
-.tw-desc { color: #cc88aa !important; }
-.tw-author-name { color: #ffb3d9 !important; }
+/* ═══════════════════════════════════════════════════
+   AUTOSCRIP — VERCEL DARK THEME
+   Pure Dark, Minimal, Bright Text — Vercel.com style
+   ═══════════════════════════════════════════════════ */
+
+/* ── Body ── */
+body {
+  background: #000000 !important;
+  color: #ededed !important;
+}
+
+/* ── Navbar ── */
+.navbar, .nav-bar, header nav {
+  background: rgba(0,0,0,.85) !important;
+  backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid #333 !important;
+}
+.nav-link { color: #888 !important; font-weight: 400 !important; }
+.nav-link:hover { color: #ededed !important; }
+.nav-link.active { color: #fff !important; font-weight: 600 !important; }
+.nav-brand, .nav-brand span, .nav-logo { color: #fff !important; font-weight: 700 !important; }
+
+/* ── Sidebar ── */
+.sidebar, .sb {
+  background: #0a0a0a !important;
+  border-right: 1px solid #1a1a1a !important;
+}
+.sb-lnk { color: #888 !important; font-weight: 400 !important; }
+.sb-lnk:hover { color: #ededed !important; background: #111 !important; }
+.sb-lnk.active {
+  color: #fff !important;
+  background: #1a1a1a !important;
+  border-left: 2px solid #fff !important;
+  font-weight: 600 !important;
+}
+.sb-logo, .sb-brand { color: #fff !important; font-weight: 700 !important; }
+
+/* ── Cards ── */
+.cd, .card, .feat-card, .view-filter-bar,
+.yt-card, .tool-card,
+[class*="card"]:not([class*="text-card"]) {
+  background: #111 !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  transition: border-color .15s, box-shadow .15s !important;
+}
+.cd:hover, .feat-card:hover, .yt-card:hover, .tool-card:hover {
+  border-color: #444 !important;
+  box-shadow: 0 0 0 1px #444 !important;
+}
+
+/* ── Text ── */
+h1, h2, h3, h4, h5, h6,
+.page-title, .sec-title, .pnl-tt, .cd-tt,
+.topbar-title, .feat-label, .cat-hl-name,
+.yt-title, .vid-title, .tw-tool-title {
+  color: #fff !important;
+  text-shadow: none !important;
+  font-weight: 700 !important;
+  letter-spacing: -.02em !important;
+}
+p, .page-desc, .feat-desc, .yt-author, .yt-stats,
+.cat-hl-count, .vid-desc-txt, .footer-desc,
+.text-muted, .muted, small { color: #888 !important; }
+span, li, label { color: #ededed !important; }
+
+/* ── Hero title ── */
+.hero-title {
+  background: linear-gradient(180deg, #fff 0%, #888 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  font-weight: 800 !important;
+  letter-spacing: -.04em !important;
+}
+.page-title {
+  color: #fff !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}
+.hero-platform { color: #666 !important; letter-spacing: 3px !important; font-size: .75rem !important; }
+
+/* ── Chips ── */
+.chip {
+  background: #111 !important;
+  border: 1px solid #2a2a2a !important;
+  color: #888 !important;
+  border-radius: 6px !important;
+  font-size: .8rem !important;
+  transition: all .15s !important;
+}
+.chip:hover { border-color: #555 !important; color: #ededed !important; }
+.chip.active {
+  background: #fff !important;
+  border-color: #fff !important;
+  color: #000 !important;
+  font-weight: 600 !important;
+}
+
+/* ── Buttons ── */
+.btn-primary, .btn-pr {
+  background: #fff !important;
+  color: #000 !important;
+  border: 1px solid #fff !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  transition: background .15s, box-shadow .15s !important;
+}
+.btn-primary:hover, .btn-pr:hover {
+  background: #ededed !important;
+  box-shadow: 0 0 0 3px rgba(255,255,255,.15) !important;
+}
+.btn-outline {
+  background: transparent !important;
+  border: 1px solid #333 !important;
+  color: #ededed !important;
+  border-radius: 8px !important;
+}
+.btn-outline:hover { border-color: #666 !important; background: #111 !important; }
+.btn-ghost { color: #888 !important; background: transparent !important; border-radius: 8px !important; }
+.btn-ghost:hover { color: #ededed !important; background: #111 !important; }
+
+/* ── Forms ── */
+.fc, input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+textarea, select, .form-control {
+  background: #0a0a0a !important;
+  border: 1px solid #333 !important;
+  color: #ededed !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+.fc:focus, input:focus, textarea:focus, select:focus {
+  border-color: #666 !important;
+  box-shadow: 0 0 0 3px rgba(255,255,255,.08) !important;
+  outline: none !important;
+}
+input::placeholder, textarea::placeholder { color: #555 !important; }
+label, .fl { color: #888 !important; font-size: .82rem !important; font-weight: 500 !important; }
+
+/* ── Badges ── */
+.bdg, .badge {
+  background: #1a1a1a !important;
+  color: #888 !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 4px !important;
+  font-size: .72rem !important;
+}
+.bdg-i { background: rgba(59,130,246,.1) !important; color: #60a5fa !important; border-color: rgba(59,130,246,.2) !important; }
+.bdg-g { background: rgba(34,197,94,.08) !important; color: #4ade80 !important; border-color: rgba(34,197,94,.2) !important; }
+.bdg-r { background: rgba(239,68,68,.08) !important; color: #f87171 !important; border-color: rgba(239,68,68,.2) !important; }
+
+/* ── Table ── */
+table { background: #111 !important; border: 1px solid #1a1a1a !important; border-radius: 12px !important; }
+thead { background: #0a0a0a !important; border-bottom: 1px solid #1a1a1a !important; }
+thead th { color: #888 !important; font-weight: 500 !important; font-size: .75rem !important; letter-spacing: .04em !important; text-transform: uppercase !important; }
+tbody tr:hover { background: rgba(255,255,255,.03) !important; }
+tbody td { color: #ededed !important; border-bottom: 1px solid #1a1a1a !important; }
+
+/* ── Topbar ── */
+.topbar, .cd-hd {
+  background: #0a0a0a !important;
+  border-bottom: 1px solid #1a1a1a !important;
+}
+.topbar-title { color: #fff !important; font-weight: 600 !important; }
+.topbar-time { color: #666 !important; font-size: .78rem !important; }
+
+/* ── Code editor ── */
+.code-editor, .ce-area, pre, code {
+  background: #0a0a0a !important;
+  color: #a5b4fc !important;
+  border: 1px solid #1a1a1a !important;
+  border-radius: 8px !important;
+}
+
+/* ── Modals ── */
+[id*="Modal"] > div, [class*="modal"] > div {
+  background: #111 !important;
+  border: 1px solid #2a2a2a !important;
+  box-shadow: 0 0 0 1px #333, 0 24px 80px rgba(0,0,0,.9) !important;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #000 !important; }
+::-webkit-scrollbar-thumb { background: #333 !important; border-radius: 3px !important; }
+::-webkit-scrollbar-thumb:hover { background: #555 !important; }
+
+/* ── Footer ── */
+footer, .footer { background: #000 !important; border-top: 1px solid #1a1a1a !important; }
+.footer-bottom { background: #000 !important; color: #666 !important; border-top: 1px solid #1a1a1a !important; }
+.footer-links a { color: #888 !important; }
+.footer-links a:hover { color: #ededed !important; }
+.footer-col-head { color: #ededed !important; font-weight: 600 !important; font-size: .8rem !important; }
+.footer-desc { color: #666 !important; }
+
+/* ── Spinner ── */
+.spinner { border-color: #222 !important; border-top-color: #fff !important; }
+
+/* ── Toast ── */
+.tk {
+  background: #111 !important;
+  color: #ededed !important;
+  border: 1px solid #333 !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,.7) !important;
+}
+
+/* ── Empty state ── */
+.empty-state i, .em i { color: #333 !important; }
+.empty-state-text, .em-t { color: #ededed !important; font-weight: 600 !important; }
+.empty-state-sub, .em-p { color: #666 !important; }
+
+/* ── Dropdown ── */
+.dd-menu, [class*="dropdown"] {
+  background: #111 !important;
+  border: 1px solid #2a2a2a !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,.8) !important;
+  border-radius: 8px !important;
+}
+.dd-item { color: #888 !important; font-size: .85rem !important; }
+.dd-item:hover { background: #1a1a1a !important; color: #ededed !important; }
+
+/* ── Stat cards ── */
+.sc-num, .stat-num { color: #fff !important; font-weight: 700 !important; font-size: 1.8rem !important; }
+.sc-lbl, .stat-lbl { color: #666 !important; font-size: .78rem !important; }
+.sc-chg { font-size: .75rem !important; }
+
+/* ── Category highlights ── */
+.cat-highlight {
+  background: #111 !important;
+  border: 1px solid #1a1a1a !important;
+  border-radius: 10px !important;
+}
+.cat-highlight:hover { border-color: #333 !important; background: #161616 !important; }
+.cat-hl-name { color: #ededed !important; }
+.cat-hl-count { color: #666 !important; font-size: .75rem !important; }
+
+/* ── Login box ── */
+.login-box, .ld-box {
+  background: #111 !important;
+  border: 1px solid #2a2a2a !important;
+}
+.login-sub { color: #666 !important; }
+
+/* ── Announcement bar ── */
+#announcementBar > div {
+  background: #111 !important;
+  border-color: #2a2a2a !important;
+  color: #888 !important;
+}
+
+/* ── Section header ── */
+.sec-header { border-bottom: 1px solid #1a1a1a !important; padding-bottom: 12px !important; }
+.sec-title { color: #fff !important; font-weight: 700 !important; letter-spacing: -.02em !important; }
+
+/* ── Search ── */
+.search-wrapper input, .nav-search input {
+  background: #111 !important;
+  border-color: #2a2a2a !important;
+  color: #ededed !important;
+}
+
+/* ── View filter bar ── */
+.view-filter-bar {
+  background: #0a0a0a !important;
+  border: 1px solid #1a1a1a !important;
+}
+
+/* ── Hero section ── */
+.hero { background: #000 !important; }
+
+/* ── Breadcrumb ── */
+#catBreadcrumb { color: #888 !important; }
+#catBreadcrumb b { color: #ededed !important; }
+
+/* ── Sub-chip bar ── */
+#subCatBar {
+  background: #111 !important;
+  border-color: #2a2a2a !important;
+}
+
+/* ── Loading screen ── */
+.ld-box { background: #000 !important; }
 </style>
 </head>
+  <script defer src="https://va.vercel-scripts.com/v1/analytics.js"></script>
 <body>
 <div id="offlineBanner"><i class="fas fa-wifi-slash"></i> অফলাইন — লোকাল ডেটা দেখাচ্ছে</div>
 <div id="bgGlow"></div>
@@ -843,56 +1109,96 @@ h1, h2, h3, h4, h5, h6, .page-title, .sec-title, .hero-platform, .doc-title, .ca
 
 <!-- HOME PAGE -->
 <div id="homePage" class="page active">
-  <div class="container">
-    <div id="announcementBar"></div>
 
-    <!-- Header — টুলস পেজের মতো -->
-    <div class="page-header">
-      <h1 class="page-title">🔧 PowerShell টুলস</h1>
+  <!-- ===== HOME HEADER ===== -->
+  <div class="container" style="padding-top:32px;padding-bottom:0">
+    <div id="announcementBar"></div>
+    <div class="page-header" style="margin-bottom:16px">
+      <h1 class="page-title">⚡ AUTOSCRIP</h1>
       <p class="page-desc">আপনার কাজ সহজ করাই আমাদের লক্ষ্য — <span style="color:var(--primary);font-weight:600">এক ক্লিকেই সমাধান।</span></p>
     </div>
+  </div>
 
-    <!-- Category chips — টুলস পেজের chips clone -->
-    <div class="cat-chips" id="homeCatChips">
-      <button class="chip active" onclick="homeFilter('',this)">🏠 সবগুলো</button>
-      <button class="chip" onclick="homeFilter('system',this)">⚙️ সিস্টেম</button>
-      <button class="chip" onclick="homeFilter('network',this)">🌐 নেটওয়ার্ক</button>
-      <button class="chip" onclick="homeFilter('security',this)">🔒 সিকিউরিটি</button>
-      <button class="chip" onclick="homeFilter('backup',this)">💾 ব্যাকআপ</button>
-      <button class="chip" onclick="homeFilter('monitoring',this)">📊 মনিটরিং</button>
-      <button class="chip" onclick="homeFilter('automation',this)">🤖 অটোমেশন</button>
-      <button class="chip" onclick="homeFilter('download',this)">⬇️ ডাউনলোড</button>
-    </div>
-
-    <!-- Search + sort bar -->
-    <div class="view-filter-bar card mb-4">
-      <div class="d-flex gap-3 flex-wrap ai-c">
-        <div class="search-wrapper" style="flex:1;min-width:180px;position:relative">
-          <i class="fas fa-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.85rem;pointer-events:none"></i>
-          <input type="text" id="homeSearch" class="form-control" style="padding-left:40px" placeholder="কমান্ড, ট্যাগ, নাম..." oninput="applyHomeFilters()">
-        </div>
-        <select id="homeSort" class="form-control w-auto" onchange="applyHomeFilters()">
-          <option value="newest">নতুন থেকে</option>
-          <option value="popular">জনপ্রিয়</option>
-          <option value="name">নাম অনুসারে</option>
-        </select>
-        <button class="btn btn-primary btn-sm" onclick="showPage('tools')"><i class="fas fa-th-large"></i> সব টুলস</button>
+  <!-- ===== TOOLS SECTION ===== -->
+  <div class="container" id="mainContent">
+    <!-- Featured Tools -->
+    <div class="mb-4">
+      <div class="sec-header">
+        <h2 class="sec-title">⭐ ফিচারড টুলস</h2>
+        <button class="btn btn-outline btn-sm" onclick="showPage('tools')">সবগুলো <i class="fas fa-arrow-right"></i></button>
+      </div>
+      <div class="tools-grid" id="featuredGrid">
+        <div style="color:var(--muted);text-align:center;padding:40px;grid-column:1/-1"><div class="spinner"></div><div style="margin-top:12px;font-family:var(--font-head)">লোড হচ্ছে...</div></div>
       </div>
     </div>
 
-    <!-- Count -->
-    <div style="margin-bottom:12px;color:var(--muted);font-size:.85rem;font-family:var(--font-head)" id="homeCount"></div>
-
-    <!-- Tools grid -->
-    <div class="tools-grid" id="homeGrid">
-      <div style="color:var(--muted);text-align:center;padding:40px;grid-column:1/-1">
-        <div class="spinner"></div>
-        <div style="margin-top:12px;font-family:var(--font-head)">লোড হচ্ছে...</div>
+    <!-- Latest Tools + Category Highlights side by side -->
+    <div style="display:grid;grid-template-columns:1fr 220px;gap:28px;margin-top:40px;align-items:start" class="home-tools-layout">
+      <div>
+        <div class="sec-header">
+          <h2 class="sec-title">🆕 সর্বশেষ টুলস</h2>
+          <button class="btn btn-ghost btn-sm" onclick="showPage('tools')">সব দেখুন <i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="tools-grid" id="latestGrid"></div>
+      </div>
+      <!-- Categories sidebar -->
+      <div>
+        <div class="sec-header" style="margin-bottom:14px">
+          <h2 class="sec-title" style="font-size:1.2rem">📂 ক্যাটাগরি</h2>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(2)');filterTools('system',chip);},200)">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="cat-hl-icon" style="background:linear-gradient(135deg,#1565c0,#1a237e);margin:0;width:34px;height:34px;flex-shrink:0"><i class="fas fa-cogs" style="font-size:.9rem"></i></div>
+              <div style="text-align:left"><div class="cat-hl-name">সিস্টেম</div><div class="cat-hl-count" id="catCount_system">—</div></div>
+            </div>
+          </div>
+          <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(3)');filterTools('network',chip);},200)">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="cat-hl-icon" style="background:linear-gradient(135deg,#00838f,#004d40);margin:0;width:34px;height:34px;flex-shrink:0"><i class="fas fa-network-wired" style="font-size:.9rem"></i></div>
+              <div style="text-align:left"><div class="cat-hl-name">নেটওয়ার্ক</div><div class="cat-hl-count" id="catCount_network">—</div></div>
+            </div>
+          </div>
+          <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(4)');filterTools('security',chip);},200)">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="cat-hl-icon" style="background:linear-gradient(135deg,#7b1fa2,#4a148c);margin:0;width:34px;height:34px;flex-shrink:0"><i class="fas fa-shield-alt" style="font-size:.9rem"></i></div>
+              <div style="text-align:left"><div class="cat-hl-name">সিকিউরিটি</div><div class="cat-hl-count" id="catCount_security">—</div></div>
+            </div>
+          </div>
+          <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(5)');filterTools('backup',chip);},200)">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="cat-hl-icon" style="background:linear-gradient(135deg,#f4511e,#bf360c);margin:0;width:34px;height:34px;flex-shrink:0"><i class="fas fa-hdd" style="font-size:.9rem"></i></div>
+              <div style="text-align:left"><div class="cat-hl-name">ব্যাকআপ</div><div class="cat-hl-count" id="catCount_backup">—</div></div>
+            </div>
+          </div>
+          <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(6)');filterTools('monitoring',chip);},200)">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="cat-hl-icon" style="background:linear-gradient(135deg,#388e3c,#1b5e20);margin:0;width:34px;height:34px;flex-shrink:0"><i class="fas fa-chart-line" style="font-size:.9rem"></i></div>
+              <div style="text-align:left"><div class="cat-hl-name">মনিটরিং</div><div class="cat-hl-count" id="catCount_monitoring">—</div></div>
+            </div>
+          </div>
+          <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(7)');filterTools('automation',chip);},200)">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="cat-hl-icon" style="background:linear-gradient(135deg,#c2185b,#880e4f);margin:0;width:34px;height:34px;flex-shrink:0"><i class="fas fa-robot" style="font-size:.9rem"></i></div>
+              <div style="text-align:left"><div class="cat-hl-name">অটোমেশন</div>
+          <div class="cat-highlight" onclick="showPage('tools');setTimeout(()=>{const chip=document.querySelector('#catChips .chip:nth-child(8)');filterTools('download',chip);},200)">
+            <div class="ch-ico">⬇️</div>
+            <div class="ch-info">
+              <div class="ch-name">ডাউনলোড</div>
+              <div class="ch-count" id="catCount-download">0 টুলস</div>
+            </div>
+          </div><div class="cat-hl-count" id="catCount_automation">—</div></div>
+            </div>
+          </div>
+          <button class="btn btn-outline w-100 mt-3" style="justify-content:center" onclick="showPage('tools')"><i class="fas fa-th-large"></i> সব টুলস</button>
+        </div>
       </div>
     </div>
 
     <div style="height:48px"></div>
-  </div>
+  </div><!-- end container -->
+
+
 </div><!-- end homePage -->
 
 <!-- TOOLS PAGE -->
@@ -2876,53 +3182,6 @@ async function loadDynamicCategories() {
   _tryFS(5);
 }
 
-
-// ===== HOME PAGE FILTER =====
-let _homeCat = '';
-window.homeFilter = function(cat, el) {
-  _homeCat = cat;
-  document.querySelectorAll('#homeCatChips .chip').forEach(b => b.classList.remove('active'));
-  if (el) el.classList.add('active');
-  applyHomeFilters();
-};
-
-window.applyHomeFilters = function() {
-  const q    = (document.getElementById('homeSearch')?.value || '').toLowerCase();
-  const sort = document.getElementById('homeSort')?.value || 'newest';
-  const grid = document.getElementById('homeGrid');
-  const cnt  = document.getElementById('homeCount');
-  if (!grid) return;
-
-  let tools = getTools().filter(t => t.status === 'approved' || t.published !== false);
-
-  if (_homeCat) {
-    const pc  = _customCatsCache && _customCatsCache.find(c => c.key === _homeCat);
-    const sk  = pc ? (pc.subCategories || []).map(s => s.key) : [];
-    tools = tools.filter(t => t.category === _homeCat || sk.includes(t.category));
-  }
-  if (q) tools = tools.filter(t =>
-    (t.name||t.title||'').toLowerCase().includes(q) ||
-    (t.description||'').toLowerCase().includes(q) ||
-    (t.tags||[]).some(tag => tag.toLowerCase().includes(q))
-  );
-
-  const sortFns = {
-    newest:  (a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0),
-    popular: (a,b) => (b.views||0) - (a.views||0),
-    name:    (a,b) => (a.name||a.title||'').localeCompare(b.name||b.title||'','bn')
-  };
-  tools.sort(sortFns[sort] || sortFns.newest);
-
-  if (cnt) cnt.textContent = tools.length + 'টি টুল পাওয়া গেছে';
-
-  if (!tools.length) {
-    grid.innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted);grid-column:1/-1"><i class="fas fa-search" style="font-size:2rem;opacity:.3;display:block;margin-bottom:12px"></i>কোনো টুল পাওয়া যায়নি</div>';
-    return;
-  }
-  grid.innerHTML = '';
-  tools.forEach(t => grid.appendChild(renderCard(t)));
-};
-
 // Cache to prevent duplicate Firestore reads when loadHome + loadTools both call fetchToolsFromAPI
 let _toolsCache = null;
 let _toolsCacheTs = 0;
@@ -2970,11 +3229,19 @@ async function fetchToolsFromAPI(){
 
 // ===== HOME PAGE =====
 async function loadHome(){
+  // Show skeleton loaders
+  const fg=document.getElementById('featuredGrid');
+  const lg=document.getElementById('latestGrid');
+  if(fg)fg.innerHTML='<div class="skeleton skel-card"></div>'.repeat(6).replace(/skel-card/g,'skel-card" style="height:260px');
   const apiTools=await fetchToolsFromAPI();
   if(apiTools&&apiTools.length){App.tools=apiTools;App.apiOnline=true;}
   else{syncFromAdmin();if(!App.tools.length)App.tools=[...DEFAULT_TOOLS];}
   const tools=App.tools;
   const approved=tools.filter(t=>t.status==='approved'||t.published!==false);
+  const featured=approved.filter(t=>t.featured).slice(0,6);
+  const latest=[...approved].sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0)).slice(0,8);
+  if(fg){fg.innerHTML='';(featured.length?featured:DEFAULT_TOOLS.filter(t=>t.featured)).forEach(t=>fg.appendChild(renderCard(t)));}
+  if(lg){lg.innerHTML='';latest.forEach(t=>lg.appendChild(renderCard(t)));}
   // Category counts
   ['system','network','security','backup','monitoring','automation'].forEach(cat=>{
     const el=document.getElementById('catCount_'+cat);
@@ -2990,8 +3257,6 @@ async function loadHome(){
   animateCounter('hStTools',tools.length+500);
   animateCounter('hStUsers',1247);
   animateCounter('hStOnline',Math.floor(Math.random()*18)+7);
-  // Render home grid
-  applyHomeFilters();
   SEOManager.updateMeta('home');
   // Show offline indicator if local
   if(IS_LOCAL){
@@ -3586,8 +3851,7 @@ document.addEventListener('keydown', (e) => {
     projectId:         "powerscript-pro-web",
     storageBucket:     "powerscript-pro-web.firebasestorage.app",
     messagingSenderId: "709315727810",
-    appId:             "1:709315727810:web:abeb73172635061343c65b",
-    databaseId:        "(default)"
+    appId:             "1:709315727810:web:abeb73172635061343c65b"
   };
   function tryInit(){
     if(typeof firebase !== 'undefined'){
@@ -3595,7 +3859,6 @@ document.addEventListener('keydown', (e) => {
         if(!firebase.apps.length) firebase.initializeApp(FB_CONFIG);
         else firebase.app();
         window._fbDb   = firebase.firestore();
-                try { fbDb.settings({ experimentalAutoDetectLongPolling: true, merge: true }); } catch(e) {}
         window._fbAuth = firebase.auth();
         // NOTE: enablePersistence() is deprecated in Firestore 10+.
         // The compat SDK handles caching automatically — no explicit call needed.
@@ -4524,31 +4787,5 @@ window.setView = function(mode, btn) {
 
 
 </script>
-
-<script>
-(function patchFirestoreLoad() {
-  var _maxWait = 15000, _start = Date.now();
-  function tryPatch() {
-    if (!window._fbDb && (Date.now() - _start) < _maxWait) { setTimeout(tryPatch, 500); return; }
-    if (!window._fbDb) { return; }
-    window.fetchToolsFromAPI = async function() {
-      try {
-        var snap;
-        try { snap = await window._fbDb.collection('autoscrip_tools').where('status','==','approved').get(); }
-        catch(e1) { snap = await window._fbDb.collection('autoscrip_tools').get(); }
-        if (snap && !snap.empty) {
-          return snap.docs.map(function(d){ return Object.assign({id:d.id,_id:d.id},d.data()); })
-            .filter(function(t){ return t.status==='approved'||t.published!==false; });
-        }
-      } catch(e) {}
-      return null;
-    };
-    setTimeout(function(){ if(typeof loadHome==='function') loadHome(); }, 300);
-  }
-  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', tryPatch); }
-  else { setTimeout(tryPatch, 1000); }
-})();
-<\/script>
-
 </body>
 </html>
