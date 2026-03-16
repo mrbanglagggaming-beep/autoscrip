@@ -697,9 +697,29 @@ select.form-control option{background:var(--card);color:var(--text)}
   display: flex; align-items: center; gap: 7px;
   background: rgba(255,0,0,.06);
 }
+
+/* ===== USER SITE PINK TEXT SYSTEM ===== */
+:root { --text: #ffb3d9 !important; --text-muted: #cc88aa !important; --text-dim: #aa6688 !important; }
+body { color: #ffb3d9 !important; }
+p, span, li, div, small, label, .hero-desc, .feat-desc, .feat-label, .yt-title, .yt-author, .yt-stats, .page-desc, .empty-sub, .chip, .badge, .bdg, .footer-desc, .footer-links a, .footer-links li, .footer-col-head { color: #ffb3d9 !important; }
+h1, h2, h3, h4, h5, h6, .page-title, .sec-title, .hero-platform, .doc-title, .cat-hl-name, .vid-title, .chat-head, .tw-tool-title, .np-head h4 { color: #ff6eb4 !important; }
+.text-muted, .hero-stat-lbl, .yt-stats, .yt-author, .feat-desc, .page-desc, .vid-desc-txt, .vid-channel, .doc-desc, .cat-hl-count, .footer-desc { color: #cc88aa !important; }
+.nav-link { color: #cc88aa !important; }
+.nav-link:hover, .nav-link.active { color: #ffd700 !important; }
+.chip { color: #cc88aa !important; }
+.chip.active { color: #ffd700 !important; }
+.form-control, .form-control::placeholder { color: #cc88aa !important; }
+.hero-stat-num { color: #ffd700 !important; }
+.vid-title { color: #ffb3d9 !important; }
+.vid-desc-txt { color: #cc88aa !important; }
+.footer-links a:hover { color: #ff6eb4 !important; }
+.footer-bottom { color: #cc88aa !important; }
+.empty-title { color: #ff9ecb !important; }
+.empty-sub { color: #cc88aa !important; }
+.tw-desc { color: #cc88aa !important; }
+.tw-author-name { color: #ffb3d9 !important; }
 </style>
 </head>
-  <script defer src="https://va.vercel-scripts.com/v1/analytics.js"></script>
 <body>
 <div id="offlineBanner"><i class="fas fa-wifi-slash"></i> অফলাইন — লোকাল ডেটা দেখাচ্ছে</div>
 <div id="bgGlow"></div>
@@ -3566,7 +3586,8 @@ document.addEventListener('keydown', (e) => {
     projectId:         "powerscript-pro-web",
     storageBucket:     "powerscript-pro-web.firebasestorage.app",
     messagingSenderId: "709315727810",
-    appId:             "1:709315727810:web:abeb73172635061343c65b"
+    appId:             "1:709315727810:web:abeb73172635061343c65b",
+    databaseId:        "(default)"
   };
   function tryInit(){
     if(typeof firebase !== 'undefined'){
@@ -4503,5 +4524,31 @@ window.setView = function(mode, btn) {
 
 
 </script>
+
+<script>
+(function patchFirestoreLoad() {
+  var _maxWait = 15000, _start = Date.now();
+  function tryPatch() {
+    if (!window._fbDb && (Date.now() - _start) < _maxWait) { setTimeout(tryPatch, 500); return; }
+    if (!window._fbDb) { return; }
+    window.fetchToolsFromAPI = async function() {
+      try {
+        var snap;
+        try { snap = await window._fbDb.collection('autoscrip_tools').where('status','==','approved').get(); }
+        catch(e1) { snap = await window._fbDb.collection('autoscrip_tools').get(); }
+        if (snap && !snap.empty) {
+          return snap.docs.map(function(d){ return Object.assign({id:d.id,_id:d.id},d.data()); })
+            .filter(function(t){ return t.status==='approved'||t.published!==false; });
+        }
+      } catch(e) {}
+      return null;
+    };
+    setTimeout(function(){ if(typeof loadHome==='function') loadHome(); }, 300);
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', tryPatch); }
+  else { setTimeout(tryPatch, 1000); }
+})();
+<\/script>
+
 </body>
 </html>
