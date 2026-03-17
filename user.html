@@ -985,7 +985,7 @@ footer, .footer { background: #000 !important; border-top: 1px solid #1a1a1a !im
 .ld-box { background: #000 !important; }
 </style>
 </head>
-  <script defer src="https://va.vercel-scripts.com/v1/analytics.js"></script>
+  <!-- analytics removed -->
 <body>
 <div id="offlineBanner"><i class="fas fa-wifi-slash"></i> অফলাইন — লোকাল ডেটা দেখাচ্ছে</div>
 <div id="bgGlow"></div>
@@ -3194,29 +3194,23 @@ async function fetchToolsFromAPI(){
   }
   // Try Firebase Firestore first
   if(typeof firebase !== 'undefined' && window._fbDb){
+    // Step 1: Simple .get() — no where/orderBy to avoid composite index requirement
     try{
-      const snap = await window._fbDb.collection('autoscrip_tools')
-        .where('status','==','approved')
-        .orderBy('createdAt','desc')
-        .get();
+      const snap = await window._fbDb.collection('autoscrip_tools').get();
+      console.log('[fetchTools] Firestore snap size:', snap.size, 'empty:', snap.empty);
       if(!snap.empty){
-        const tools = snap.docs.map(d=>({id:d.id,_id:d.id,...d.data()}));
-        
+        const tools = snap.docs
+          .map(d=>({id:d.id,_id:d.id,...d.data()}))
+          .filter(t=> t.status==='approved' || t.published!==false)
+          .sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
+        _toolsCache = tools; _toolsCacheTs = Date.now();
         return tools;
       }
+      // snap.empty = Firestore connected but collection is empty
+      console.warn('[fetchTools] autoscrip_tools collection is empty — add tools via admin panel');
+      return [];
     }catch(e){
-      // Try without orderBy (rules may not allow index)
-      try{
-        const snap2 = await window._fbDb.collection('autoscrip_tools').get();
-        if(!snap2.empty){
-          const tools = snap2.docs
-            .map(d=>({id:d.id,_id:d.id,...d.data()}))
-            .filter(t=>t.status==='approved'||t.published!==false);
-          
-          _toolsCache = tools; _toolsCacheTs = Date.now();
-          return tools;
-        }
-      }catch(e2){ console.warn('[Firestore] read failed:',e2.message); }
+      console.warn('[Firestore] read failed:', e.code, e.message);
     }
   }
   // Fallback: REST API
@@ -3278,6 +3272,7 @@ async function loadTools(){
   if(!App.tools.length || !App.apiOnline){
     const apiTools=await fetchToolsFromAPI();
     if(apiTools&&apiTools.length){App.tools=apiTools;App.apiOnline=true;}
+    else if(apiTools!==null){App.apiOnline=true;}  // empty array = connected, no tools
     else{syncFromAdmin();if(!App.tools.length)App.tools=[...DEFAULT_TOOLS];}
   }
   applyFilters();
@@ -3860,8 +3855,10 @@ document.addEventListener('keydown', (e) => {
         else firebase.app();
         window._fbDb   = firebase.firestore();
         window._fbAuth = firebase.auth();
-        // NOTE: enablePersistence() is deprecated in Firestore 10+.
-        // The compat SDK handles caching automatically — no explicit call needed.
+        // Force long-polling — fixes Firestore Listen/channel 404 on asia-south2
+        try {
+          window._fbDb.settings({ experimentalForceLongPolling: true, merge: true });
+        } catch(_se) {}
         // Firebase initialized silently
       }catch(e){ console.warn('Firebase init:',e.message); }
     } else { setTimeout(tryInit,200); }
