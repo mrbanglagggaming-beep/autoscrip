@@ -7278,8 +7278,13 @@ async function loadTools() {
         if (!snap.empty) {
             allTools = snap.docs.map(d => ({ id: d.id, _id: d.id, ...d.data() }))
                 .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
+            console.log('[loadTools] Loaded', allTools.length, 'tools from Firestore');
         } else {
             allTools = [];
+            console.warn('[loadTools] autoscrip_tools collection is EMPTY in Firestore');
+            console.warn('[loadTools] → Firebase project: powerscript-pro-web');
+            console.warn('[loadTools] → Check: Firebase Console > Firestore > autoscrip_tools');
+            console.warn('[loadTools] → Also check Firestore Security Rules allow read');
         }
         
         renderToolsTable(allTools);
