@@ -7320,7 +7320,6 @@ function refreshCharts() {
 async function migrateLocalTools() {
     let lsTools = [];
     try {
-        // Check all possible localStorage keys where tools might be stored
         const keys = ['autoscrip_tools', 'as7_tools', 'tools', 'autoscrip_data_tools'];
         for (const key of keys) {
             const raw = localStorage.getItem(key);
@@ -7332,7 +7331,7 @@ async function migrateLocalTools() {
                 }
             }
         }
-        // Deduplicate by id/title
+        // Deduplicate
         const seen = new Set();
         lsTools = lsTools.filter(t => {
             const key = t._id || t.id || t.title || t.name;
@@ -7341,13 +7340,31 @@ async function migrateLocalTools() {
             return true;
         });
     } catch(e) { console.warn('migrate read error:', e); }
+
     if (!lsTools.length) { toast('কোনো টুল পাওয়া যায়নি localStorage-এ', 'warning'); return; }
-    
+
     const btn = event?.target;
-    if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> আপলোড হচ্ছে...'; btn.disabled = true; }
+    const totalCount = lsTools.length;
+    if (btn) { btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> 0/${totalCount} আপলোড হচ্ছে...`; btn.disabled = true; }
+
+    // ── Firestore REST API ব্যবহার করি — WebChannel timeout এড়াতে ──
+    // Batch size: ৫টি করে, প্রতিটির মাঝে ৩০০ms বিরতি
+    const PROJECT = 'powerscript-pro-web';
+    const DB = '(default)';
+    const COLLECTION = 'autoscrip_tools';
     
+    // Get auth token
+    let authToken = null;
+    try {
+        const user = fbAuth.currentUser;
+        if (user) authToken = await user.getIdToken();
+    } catch(e) {}
+
     let success = 0, failed = 0;
-    for (const tool of lsTools) {
+    const BATCH_SIZE = 5;
+
+    for (let i = 0; i < lsTools.length; i++) {
+        const tool = lsTools[i];
         try {
             const toolData = {
                 title:       tool.title || tool.name || 'Untitled',
@@ -7355,32 +7372,99 @@ async function migrateLocalTools() {
                 category:    tool.category || 'system',
                 description: tool.description || '',
                 author:      tool.author || 'AutoScrip Team',
-                tags:        tool.tags || [],
+                tags:        Array.isArray(tool.tags) ? tool.tags : [],
                 commands:    tool.commands || (tool.code ? [{ title: 'Main', code: tool.code, language: 'powershell' }] : []),
                 youtube:     tool.youtube || null,
                 thumbnail:   tool.thumbnail || null,
-                slug:        tool.slug || tool.title?.toLowerCase().replace(/\s+/g, '-') || '',
+                slug:        (tool.slug || (tool.title||tool.name||'').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'')).substring(0,60),
                 published:   tool.published !== false,
                 featured:    !!tool.featured,
                 verified:    !!tool.verified,
                 status:      (tool.published !== false || tool.status === 'approved') ? 'approved' : 'pending',
-                views:       tool.views || 0,
-                downloads:   tool.downloads || 0,
-                likes:       tool.likes || 0,
-                createdAt:   tool.createdAt || firebase.firestore.FieldValue.serverTimestamp(),
+                views:       Number(tool.views) || 0,
+                downloads:   Number(tool.downloads) || 0,
+                likes:       Array.isArray(tool.likes) ? tool.likes : (Number(tool.likes) || 0),
+                createdAt:   tool.createdAt || new Date().toISOString(),
                 migratedAt:  new Date().toISOString(),
             };
-            await fbDb.collection('autoscrip_tools').add(toolData);
-            success++;
+
+            // Firestore REST API — timeout নেই, সরাসরি HTTP
+            const url = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/${DB}/documents/${COLLECTION}`;
+            
+            // Firestore value format এ convert করি
+            function toFirestoreValue(val) {
+                if (val === null || val === undefined) return { nullValue: null };
+                if (typeof val === 'boolean') return { booleanValue: val };
+                if (typeof val === 'number') return { integerValue: String(Math.round(val)) };
+                if (typeof val === 'string') return { stringValue: val };
+                if (Array.isArray(val)) return { arrayValue: { values: val.map(toFirestoreValue) } };
+                if (typeof val === 'object') {
+                    const fields = {};
+                    for (const k in val) fields[k] = toFirestoreValue(val[k]);
+                    return { mapValue: { fields } };
+                }
+                return { stringValue: String(val) };
+            }
+
+            const fields = {};
+            for (const k in toolData) fields[k] = toFirestoreValue(toolData[k]);
+
+            const headers = { 'Content-Type': 'application/json' };
+            if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+
+            const ctrl = new AbortController();
+            const tid = setTimeout(() => ctrl.abort(), 15000); // 15s timeout per tool
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ fields }),
+                signal: ctrl.signal
+            });
+            clearTimeout(tid);
+
+            if (res.ok) {
+                success++;
+                console.log(`[migrate] ✅ ${success}/${totalCount}: ${toolData.name}`);
+            } else {
+                const err = await res.text();
+                console.error(`[migrate] ❌ ${toolData.name}:`, res.status, err.substring(0,100));
+                failed++;
+            }
         } catch(e) {
-            console.error('Migration failed for', tool.title, e.message);
+            if (e.name === 'AbortError') {
+                console.warn(`[migrate] ⏰ Timeout: ${tool.title||tool.name}`);
+            } else {
+                console.error(`[migrate] ❌ ${tool.title||tool.name}:`, e.message);
+            }
             failed++;
         }
+
+        // Progress update
+        if (btn) btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${success+failed}/${totalCount} আপলোড হচ্ছে...`;
+
+        // প্রতি BATCH_SIZE টার পর একটু বিরতি নাও
+        if ((i + 1) % BATCH_SIZE === 0 && i < lsTools.length - 1) {
+            await new Promise(r => setTimeout(r, 500));
+        }
     }
+
+    if (btn) {
+        btn.innerHTML = success > 0
+            ? `<i class="fas fa-check"></i> ${success}টি আপলোড সম্পন্ন!`
+            : `<i class="fas fa-times"></i> ব্যর্থ (${failed}টি)`;
+        btn.disabled = false;
+        btn.style.background = success > 0 ? 'linear-gradient(135deg,#00e676,#00b04f)' : '';
+    }
+
+    toast(`✅ ${success}টি টুল Firestore-এ আপলোড হয়েছে${failed ? ' (' + failed + 'টি ব্যর্থ)' : ''}!`, success > 0 ? 'success' : 'error');
     
-    toast(`✅ ${success}টি টুল Firestore-এ আপলোড হয়েছে${failed ? ' (' + failed + 'টি ব্যর্থ)' : ''}!`, 'success');
-    await loadTools();
-    await loadDashboard();
+    if (success > 0) {
+        setTimeout(async () => {
+            await loadTools();
+            try { await loadDashboard(); } catch(e) {}
+        }, 1000);
+    }
 }
 window.migrateLocalTools = migrateLocalTools;
 
