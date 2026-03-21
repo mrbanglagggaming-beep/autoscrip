@@ -128,7 +128,7 @@
     --border-dim: rgba(255, 255, 255, 0.06);
 
     /* TEXT */
-    --text: #FFB3D9;
+    --text: #F0F0F8;
     --text-muted: #9090B0;
     --text-dim: #60607A;
 
@@ -3402,461 +3402,6 @@ body.offline-mode { padding-top: 44px !important; }
 /* ── BLOCK NUMBER ────────────────────────────────────────────── */
 .block-number { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: rgba(255,215,0,.12); border: 1px solid rgba(255,215,0,.25); color: var(--primary); font-size: 0.72rem; font-weight: 700; font-family: var(--font-heading); flex-shrink: 0; }
 
-
-/* ═══════════════════════════════════════════════════
-   AUTOSCRIP — VERCEL DARK THEME
-   Pure Dark, Minimal, Bright Text — Vercel.com style
-   ═══════════════════════════════════════════════════ */
-
-/* ── Body ── */
-body {
-  background: #000000 !important;
-  color: #ededed !important;
-}
-
-/* ── Navbar ── */
-.navbar, .nav-bar, header nav {
-  background: rgba(0,0,0,.85) !important;
-  backdrop-filter: blur(12px) !important;
-  border-bottom: 1px solid #333 !important;
-}
-.nav-link { color: #888 !important; font-weight: 400 !important; }
-.nav-link:hover { color: #ededed !important; }
-.nav-link.active { color: #fff !important; font-weight: 600 !important; }
-.nav-brand, .nav-brand span, .nav-logo { color: #FFB3D9 !important; font-weight: 700 !important; }
-
-/* ── Sidebar ── */
-.sidebar, .sb {
-  background: #0a0a0a !important;
-  border-right: 1px solid #1a1a1a !important;
-}
-.sb-lnk { color: #888 !important; font-weight: 400 !important; }
-.sb-lnk:hover { color: #ededed !important; background: #111 !important; }
-.sb-lnk.active {
-  color: #FF6EB4 !important;
-  background: #1a1a1a !important;
-  border-left: 2px solid #FF6EB4 !important;
-  font-weight: 600 !important;
-}
-.sb-logo, .sb-brand { color: #FF6EB4 !important; font-weight: 700 !important; }
-
-/* ── Cards ── */
-.cd, .card, .feat-card, .view-filter-bar,
-.yt-card, .tool-card,
-[class*="card"]:not([class*="text-card"]) {
-  background: #111 !important;
-  border: 1px solid #2a2a2a !important;
-  border-radius: 12px !important;
-  box-shadow: none !important;
-  transition: border-color .15s, box-shadow .15s !important;
-}
-.cd:hover, .feat-card:hover, .yt-card:hover, .tool-card:hover {
-  border-color: #444 !important;
-  box-shadow: 0 0 0 1px #444 !important;
-}
-
-/* ── Text ── */
-h1, h2, h3, h4, h5, h6,
-.page-title, .sec-title, .pnl-tt, .cd-tt,
-.topbar-title, .feat-label, .cat-hl-name,
-.yt-title, .vid-title, .tw-tool-title {
-  color: #FFB3D9 !important;
-  text-shadow: none !important;
-  font-weight: 700 !important;
-  letter-spacing: -.02em !important;
-}
-p, .page-desc, .feat-desc, .yt-author, .yt-stats,
-.cat-hl-count, .vid-desc-txt, .footer-desc,
-.text-muted, .muted, small { color: #888 !important; }
-span, li, label { color: #FFB3D9 !important; }
-
-/* ── Hero title ── */
-.hero-title {
-  background: linear-gradient(180deg, #fff 0%, #888 100%) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  color: transparent !important;
-  font-weight: 800 !important;
-  letter-spacing: -.04em !important;
-}
-.page-title {
-  color: #fff !important;
-  background: none !important;
-  -webkit-background-clip: unset !important;
-  background-clip: unset !important;
-}
-.hero-platform { color: #666 !important; letter-spacing: 3px !important; font-size: .75rem !important; }
-
-/* ── Chips ── */
-.chip {
-  background: #111 !important;
-  border: 1px solid #2a2a2a !important;
-  color: #888 !important;
-  border-radius: 6px !important;
-  font-size: .8rem !important;
-  transition: all .15s !important;
-}
-.chip:hover { border-color: #555 !important; color: #ededed !important; }
-.chip.active {
-  background: #fff !important;
-  border-color: #fff !important;
-  color: #000 !important;
-  font-weight: 600 !important;
-}
-
-/* ── Buttons ── */
-.btn-primary, .btn-pr {
-  background: #fff !important;
-  color: #000 !important;
-  border: 1px solid #fff !important;
-  font-weight: 600 !important;
-  border-radius: 8px !important;
-  box-shadow: none !important;
-  transition: background .15s, box-shadow .15s !important;
-}
-.btn-primary:hover, .btn-pr:hover {
-  background: #ededed !important;
-  box-shadow: 0 0 0 3px rgba(255,255,255,.15) !important;
-}
-.btn-outline {
-  background: transparent !important;
-  border: 1px solid #333 !important;
-  color: #ededed !important;
-  border-radius: 8px !important;
-}
-.btn-outline:hover { border-color: #666 !important; background: #111 !important; }
-.btn-ghost { color: #888 !important; background: transparent !important; border-radius: 8px !important; }
-.btn-ghost:hover { color: #ededed !important; background: #111 !important; }
-
-/* ── Forms ── */
-.fc, input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
-textarea, select, .form-control {
-  background: #0a0a0a !important;
-  border: 1px solid #333 !important;
-  color: #ededed !important;
-  border-radius: 8px !important;
-  box-shadow: none !important;
-}
-.fc:focus, input:focus, textarea:focus, select:focus {
-  border-color: #666 !important;
-  box-shadow: 0 0 0 3px rgba(255,255,255,.08) !important;
-  outline: none !important;
-}
-input::placeholder, textarea::placeholder { color: #555 !important; }
-label, .fl { color: #888 !important; font-size: .82rem !important; font-weight: 500 !important; }
-
-/* ── Badges ── */
-.bdg, .badge {
-  background: #1a1a1a !important;
-  color: #888 !important;
-  border: 1px solid #2a2a2a !important;
-  border-radius: 4px !important;
-  font-size: .72rem !important;
-}
-.bdg-i { background: rgba(59,130,246,.1) !important; color: #60a5fa !important; border-color: rgba(59,130,246,.2) !important; }
-.bdg-g { background: rgba(34,197,94,.08) !important; color: #4ade80 !important; border-color: rgba(34,197,94,.2) !important; }
-.bdg-r { background: rgba(239,68,68,.08) !important; color: #f87171 !important; border-color: rgba(239,68,68,.2) !important; }
-
-/* ── Table ── */
-table { background: #111 !important; border: 1px solid #1a1a1a !important; border-radius: 12px !important; }
-thead { background: #0a0a0a !important; border-bottom: 1px solid #1a1a1a !important; }
-thead th { color: #888 !important; font-weight: 500 !important; font-size: .75rem !important; letter-spacing: .04em !important; text-transform: uppercase !important; }
-tbody tr:hover { background: rgba(255,255,255,.03) !important; }
-tbody td { color: #ededed !important; border-bottom: 1px solid #1a1a1a !important; }
-
-/* ── Topbar ── */
-.topbar, .cd-hd {
-  background: #0a0a0a !important;
-  border-bottom: 1px solid #1a1a1a !important;
-}
-.topbar-title { color: #FFB3D9 !important; font-weight: 600 !important; }
-.topbar-time { color: #666 !important; font-size: .78rem !important; }
-
-/* ── Code editor ── */
-.code-editor, .ce-area, pre, code {
-  background: #0a0a0a !important;
-  color: #a5b4fc !important;
-  border: 1px solid #1a1a1a !important;
-  border-radius: 8px !important;
-}
-
-/* ── Modals ── */
-[id*="Modal"] > div, [class*="modal"] > div {
-  background: #111 !important;
-  border: 1px solid #2a2a2a !important;
-  box-shadow: 0 0 0 1px #333, 0 24px 80px rgba(0,0,0,.9) !important;
-}
-
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #000 !important; }
-::-webkit-scrollbar-thumb { background: #333 !important; border-radius: 3px !important; }
-::-webkit-scrollbar-thumb:hover { background: #555 !important; }
-
-/* ── Footer ── */
-footer, .footer { background: #000 !important; border-top: 1px solid #1a1a1a !important; }
-.footer-bottom { background: #000 !important; color: #666 !important; border-top: 1px solid #1a1a1a !important; }
-.footer-links a { color: #888 !important; }
-.footer-links a:hover { color: #FFB3D9 !important; }
-.footer-col-head { color: #FF6EB4 !important; font-weight: 600 !important; font-size: .8rem !important; }
-.footer-desc { color: #666 !important; }
-
-/* ── Spinner ── */
-.spinner { border-color: #222 !important; border-top-color: #fff !important; }
-
-/* ── Toast ── */
-.tk {
-  background: #111 !important;
-  color: #FFB3D9 !important;
-  border: 1px solid #333 !important;
-  box-shadow: 0 4px 24px rgba(0,0,0,.7) !important;
-}
-
-/* ── Empty state ── */
-.empty-state i, .em i { color: #333 !important; }
-.empty-state-text, .em-t { color: #FFB3D9 !important; font-weight: 600 !important; }
-.empty-state-sub, .em-p { color: #666 !important; }
-
-/* ── Dropdown ── */
-.dd-menu, [class*="dropdown"] {
-  background: #111 !important;
-  border: 1px solid #2a2a2a !important;
-  box-shadow: 0 8px 32px rgba(0,0,0,.8) !important;
-  border-radius: 8px !important;
-}
-.dd-item { color: #888 !important; font-size: .85rem !important; }
-.dd-item:hover { background: #1a1a1a !important; color: #FFB3D9 !important; }
-
-/* ── Stat cards ── */
-.sc-num, .stat-num { color: #FF6EB4 !important; font-weight: 700 !important; font-size: 1.8rem !important; }
-.sc-lbl, .stat-lbl { color: #666 !important; font-size: .78rem !important; }
-.sc-chg { font-size: .75rem !important; }
-
-/* ── Category highlights ── */
-.cat-highlight {
-  background: #111 !important;
-  border: 1px solid #1a1a1a !important;
-  border-radius: 10px !important;
-}
-.cat-highlight:hover { border-color: #333 !important; background: #161616 !important; }
-.cat-hl-name { color: #FFB3D9 !important; }
-.cat-hl-count { color: #666 !important; font-size: .75rem !important; }
-
-/* ── Login box ── */
-.login-box, .ld-box {
-  background: #111 !important;
-  border: 1px solid #2a2a2a !important;
-}
-.login-sub { color: #666 !important; }
-
-/* ── Announcement bar ── */
-#announcementBar > div {
-  background: #111 !important;
-  border-color: #2a2a2a !important;
-  color: #888 !important;
-}
-
-/* ── Section header ── */
-.sec-header { border-bottom: 1px solid #1a1a1a !important; padding-bottom: 12px !important; }
-.sec-title { color: #FF6EB4 !important; font-weight: 700 !important; letter-spacing: -.02em !important; }
-
-/* ── Search ── */
-.search-wrapper input, .nav-search input {
-  background: #111 !important;
-  border-color: #2a2a2a !important;
-  color: #ededed !important;
-}
-
-/* ── View filter bar ── */
-.view-filter-bar {
-  background: #0a0a0a !important;
-  border: 1px solid #1a1a1a !important;
-}
-
-/* ── Hero section ── */
-.hero { background: #000 !important; }
-
-/* ── Breadcrumb ── */
-#catBreadcrumb { color: #888 !important; }
-#catBreadcrumb b { color: #ededed !important; }
-
-/* ── Sub-chip bar ── */
-#subCatBar {
-  background: #111 !important;
-  border-color: #2a2a2a !important;
-}
-
-/* ── Loading screen ── */
-.ld-box { background: #000 !important; }
-
-/* ═══════════════════════════════════════════════════
-   AUTOSCRIP — PINK TEXT OVERRIDE
-   সব সাদা/ঝাপসা text → Pink
-   ═══════════════════════════════════════════════════ */
-
-/* Core text variables */
-:root {
-  --text: #FFB3D9 !important;
-  --primary: #FF6EB4 !important;
-  --primary-dark: #E91E8C !important;
-  --primary-light: #FFB3D9 !important;
-  --grad: linear-gradient(135deg, #FF6EB4, #E91E8C) !important;
-}
-
-/* All headings */
-h1, h2, h3, h4, h5, h6 {
-  color: #FFB3D9 !important;
-}
-
-/* Body text */
-body, p, div, span, li, td, th, a:not([class*="btn"]):not(.social-btn) {
-  color: #FFB3D9;
-}
-
-/* Muted text */
-.text-muted, .muted, small, .page-desc, .feat-desc,
-.yt-author, .yt-stats, .cat-hl-count, .vid-desc-txt,
-.footer-desc, [class*="muted"] {
-  color: #b08898 !important;
-}
-
-/* Section titles */
-.sec-title, .page-title {
-  color: #FF6EB4 !important;
-  -webkit-background-clip: unset !important;
-  background-clip: unset !important;
-  background: none !important;
-}
-
-/* Nav */
-.nav-brand, .nav-brand span, .nav-brand-ic {
-  color: #FF6EB4 !important;
-}
-.nav-link { color: #b08898 !important; }
-.nav-link:hover, .nav-link.active { color: #FF6EB4 !important; }
-
-/* Chips */
-.chip { color: #b08898 !important; }
-.chip:hover { color: #FFB3D9 !important; }
-.chip.active {
-  background: #FF6EB4 !important;
-  border-color: #FF6EB4 !important;
-  color: #fff !important;
-}
-
-/* Buttons */
-.btn-primary, .btn-pr {
-  background: #FF6EB4 !important;
-  color: #fff !important;
-  border-color: #FF6EB4 !important;
-}
-.btn-primary:hover, .btn-pr:hover {
-  background: #E91E8C !important;
-}
-.btn-outline {
-  color: #FF6EB4 !important;
-  border-color: rgba(255,110,180,.4) !important;
-}
-.btn-outline:hover {
-  background: rgba(255,110,180,.1) !important;
-  border-color: #FF6EB4 !important;
-}
-.btn-ghost { color: #b08898 !important; }
-.btn-ghost:hover { color: #FFB3D9 !important; }
-
-/* Tool cards */
-.yt-title, .tw-tool-title, .feat-label, .cat-hl-name {
-  color: #FFB3D9 !important;
-}
-
-/* Footer */
-.footer-col-head { color: #FF6EB4 !important; }
-.footer-links a, .footer-links li { color: #b08898 !important; }
-.footer-links a:hover { color: #FFB3D9 !important; }
-.footer-brand { color: #FF6EB4 !important; }
-
-/* Stat numbers */
-.sc-num, .stat-num, .stat-val, .hero-stat-num {
-  color: #FF6EB4 !important;
-  background: linear-gradient(135deg, #FF6EB4, #E91E8C) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-}
-
-/* Progress bar */
-#readProgress {
-  background: linear-gradient(90deg, #FF6EB4, #E91E8C) !important;
-}
-
-/* Loading screen */
-.ld-logo, .ld-logo-text {
-  color: #FF6EB4 !important;
-}
-
-/* Spinner */
-.spinner {
-  border-color: rgba(255,110,180,.15) !important;
-  border-top-color: #FF6EB4 !important;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar-thumb {
-  background: #E91E8C !important;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #FF6EB4 !important;
-}
-
-/* Social buttons hover */
-.social-btn:hover {
-  background: rgba(255,110,180,.15) !important;
-  color: #FF6EB4 !important;
-  border-color: rgba(255,110,180,.4) !important;
-}
-
-/* Form focus */
-.form-control:focus, input:focus, textarea:focus, select:focus {
-  border-color: rgba(255,110,180,.5) !important;
-  box-shadow: 0 0 0 3px rgba(255,110,180,.1) !important;
-}
-
-/* Announcement / badge */
-.hero-eyebrow, .sec-badge {
-  color: #FF6EB4 !important;
-  border-color: rgba(255,110,180,.3) !important;
-  background: rgba(255,110,180,.06) !important;
-}
-
-/* Float button */
-.float-btn {
-  background: linear-gradient(135deg, #FF6EB4, #E91E8C) !important;
-}
-
-/* Table */
-tbody td { color: #FFB3D9 !important; }
-thead th { color: #b08898 !important; }
-
-/* Notification */
-.np-head h4, .notif-msg { color: #FFB3D9 !important; }
-.notification.info .notif-icon { color: #FF6EB4 !important; }
-
-/* Empty state */
-.empty-state-text, .em-t { color: #FFB3D9 !important; }
-
-/* Sidebar (admin) */
-.sb-brand, .sb-logo { color: #FF6EB4 !important; }
-.sb-lnk.active {
-  color: #FF6EB4 !important;
-  border-left-color: #FF6EB4 !important;
-}
-
-/* Hero title gradient */
-.hero-title, .page-title {
-  background: linear-gradient(135deg, #FF6EB4 0%, #E91E8C 100%) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  color: transparent !important;
-}
 </style>
 </head>
 <body>
@@ -4002,10 +3547,6 @@ thead th { color: #b08898 !important; }
     <button class="sb-lnk" id="nav-add-tool" onclick="showP('add-tool');rstTool()">
       <i class="fas fa-plus-circle"></i>
       <span class="sb-lnk-txt">নতুন টুল</span>
-    </button>
-    <button class="sb-lnk" id="nav-categories" onclick="showP('categories');loadCategories();loadBuiltinSubBadges()">
-      <i class="fas fa-layer-group"></i>
-      <span class="sb-lnk-txt">ক্যাটাগরি ম্যানেজ</span>
     </button>
     <button class="sb-lnk" id="nav-community" onclick="showP('community');loadCom()">
       <i class="fas fa-comments"></i>
@@ -5002,201 +4543,6 @@ thead th { color: #b08898 !important; }
     </div>
   </div>
 
-  <!-- ══ ক্যাটাগরি ম্যানেজ ══ -->
-  <div class="pnl" id="pnl-categories">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
-      <div>
-        <div class="pnl-tt"><i class="fas fa-layer-group" style="color:var(--primary)"></i> ক্যাটাগরি ও সাব-ক্যাটাগরি ম্যানেজ</div>
-        <p style="color:var(--muted);font-size:.82rem;margin-top:4px">ক্যাটাগরির ভেতরে Playlist / Section যোগ করুন। ইউজার সাইটে স্বয়ংক্রিয়ভাবে দেখাবে।</p>
-      </div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-pr btn-sm" onclick="openCatModal()"><i class="fas fa-plus"></i> নতুন ক্যাটাগরি</button>
-        <button class="btn btn-ghost btn-sm" onclick="seedDefaultCats()" title="ডিফল্ট ক্যাটাগরি লোড করুন"><i class="fas fa-seedling"></i> ডিফল্ট লোড</button>
-      </div>
-    </div>
-    <div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.15);border-radius:10px;padding:10px 14px;margin-bottom:18px;font-size:.8rem;color:var(--muted)">
-      <i class="fas fa-info-circle" style="color:var(--primary)"></i>
-      &nbsp;<b style="color:var(--text)">ক্যাটাগরি</b> = বড় গ্রুপ &nbsp;|&nbsp;
-      <b style="color:var(--text)">সাব-ক্যাটাগরি</b> = ভেতরের বিভাগ (Playlist, Section ইত্যাদি)
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
-      <div class="cd">
-        <div class="cd-hd"><div class="cd-tt">🔒 বিল্ট-ইন ক্যাটাগরি</div></div>
-        <div class="cd-bd" style="display:flex;flex-direction:column;gap:6px">
-          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span>⚙️</span>
-              <div style="flex:1"><b style="font-size:.85rem">সিস্টেম</b><div style="font-size:.7rem;color:var(--muted)">system</div></div>
-              <span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span>
-              <button class="bti" onclick="openBuiltinSubModal('system','সিস্টেম','⚙️')" title="সাব-ক্যাটাগরি যোগ করুন" style="color:var(--primary)"><i class="fas fa-plus"></i></button>
-            </div>
-            <div id="biSubs_system" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
-          </div>
-          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span>🌐</span>
-              <div style="flex:1"><b style="font-size:.85rem">নেটওয়ার্ক</b><div style="font-size:.7rem;color:var(--muted)">network</div></div>
-              <span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span>
-              <button class="bti" onclick="openBuiltinSubModal('network','নেটওয়ার্ক','🌐')" title="সাব-ক্যাটাগরি যোগ করুন" style="color:var(--primary)"><i class="fas fa-plus"></i></button>
-            </div>
-            <div id="biSubs_network" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
-          </div>
-          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span>🔒</span>
-              <div style="flex:1"><b style="font-size:.85rem">সিকিউরিটি</b><div style="font-size:.7rem;color:var(--muted)">security</div></div>
-              <span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span>
-              <button class="bti" onclick="openBuiltinSubModal('security','সিকিউরিটি','🔒')" title="সাব-ক্যাটাগরি যোগ করুন" style="color:var(--primary)"><i class="fas fa-plus"></i></button>
-            </div>
-            <div id="biSubs_security" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
-          </div>
-          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span>💾</span>
-              <div style="flex:1"><b style="font-size:.85rem">ব্যাকআপ</b><div style="font-size:.7rem;color:var(--muted)">backup</div></div>
-              <span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span>
-              <button class="bti" onclick="openBuiltinSubModal('backup','ব্যাকআপ','💾')" title="সাব-ক্যাটাগরি যোগ করুন" style="color:var(--primary)"><i class="fas fa-plus"></i></button>
-            </div>
-            <div id="biSubs_backup" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
-          </div>
-          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span>📊</span>
-              <div style="flex:1"><b style="font-size:.85rem">মনিটরিং</b><div style="font-size:.7rem;color:var(--muted)">monitoring</div></div>
-              <span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span>
-              <button class="bti" onclick="openBuiltinSubModal('monitoring','মনিটরিং','📊')" title="সাব-ক্যাটাগরি যোগ করুন" style="color:var(--primary)"><i class="fas fa-plus"></i></button>
-            </div>
-            <div id="biSubs_monitoring" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
-          </div>
-          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span>🤖</span>
-              <div style="flex:1"><b style="font-size:.85rem">অটোমেশন</b><div style="font-size:.7rem;color:var(--muted)">automation</div></div>
-              <span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span>
-              <button class="bti" onclick="openBuiltinSubModal('automation','অটোমেশন','🤖')" title="সাব-ক্যাটাগরি যোগ করুন" style="color:var(--primary)"><i class="fas fa-plus"></i></button>
-            </div>
-            <div id="biSubs_automation" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
-          </div>
-          <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:8px 12px">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span>⬇️</span>
-              <div style="flex:1"><b style="font-size:.85rem">ডাউনলোড</b><div style="font-size:.7rem;color:var(--muted)">download</div></div>
-              <span class="bdg bdg-i" style="font-size:.68rem">বিল্ট-ইন</span>
-              <button class="bti" onclick="openBuiltinSubModal('download','ডাউনলোড','⬇️')" title="সাব-ক্যাটাগরি যোগ করুন" style="color:var(--primary)"><i class="fas fa-plus"></i></button>
-            </div>
-            <div id="biSubs_download" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
-          </div>
-        </div>
-      </div>
-      <div class="cd">
-        <div class="cd-hd">
-          <div class="cd-tt">✨ কাস্টম ক্যাটাগরি</div>
-          <button class="btn btn-ghost btn-sm" onclick="loadCategories()"><i class="fas fa-sync"></i></button>
-        </div>
-        <div class="cd-bd">
-          <div id="customCatList"><div style="text-align:center;padding:20px;color:var(--muted)"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</div></div>
-          <button class="btn btn-pr w-100" onclick="openCatModal()" style="margin-top:10px"><i class="fas fa-plus"></i> নতুন ক্যাটাগরি</button>
-        </div>
-      </div>
-    </div>
-    <div class="cd" style="margin-top:18px">
-      <div class="cd-hd"><div class="cd-tt">👁️ ইউজার সাইটে প্রিভিউ</div></div>
-      <div class="cd-bd"><div id="catPreviewArea" style="display:flex;flex-wrap:wrap;gap:8px"><span style="color:var(--muted);font-size:.82rem">লোড হলে দেখাবে...</span></div></div>
-    </div>
-  </div>
-
-
-  <!-- ══ Builtin Sub-Cat Modal ══ -->
-  <div id="biSubModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(16px);z-index:9999;align-items:center;justify-content:center">
-    <div style="background:var(--card);border:1px solid rgba(255,215,0,.2);border-radius:16px;padding:26px;width:100%;max-width:500px;margin:16px;max-height:85vh;overflow-y:auto">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-        <h3 style="margin:0;font-size:1rem" id="biSubModalTitle">সাব-ক্যাটাগরি যোগ করুন</h3>
-        <button onclick="document.getElementById('biSubModal').style.display='none'" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem"><i class="fas fa-times"></i></button>
-      </div>
-      <input type="hidden" id="biSubParentKey">
-      <div style="background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.12);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:.82rem;color:var(--muted)">
-        <i class="fas fa-info-circle" style="color:var(--primary)"></i>
-        বিল্ট-ইন ক্যাটাগরির ভেতরে সাব-বিভাগ তৈরি করুন
-      </div>
-      <!-- Existing subs -->
-      <div id="biSubExisting" style="margin-bottom:14px"></div>
-      <!-- New sub row -->
-      <div style="border:1px solid rgba(255,215,0,.15);border-radius:10px;padding:12px;margin-bottom:14px">
-        <div style="font-size:.82rem;font-weight:600;margin-bottom:10px"><i class="fas fa-plus" style="color:var(--primary)"></i> নতুন সাব-ক্যাটাগরি</div>
-        <div style="display:grid;grid-template-columns:52px 1fr 1fr;gap:8px">
-          <div><label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:3px">ইমোজি</label>
-            <input type="text" class="fc" id="biSubEmoji" placeholder="📌" maxlength="4" style="text-align:center;font-size:1.1rem;padding:5px"></div>
-          <div><label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:3px">নাম *</label>
-            <input type="text" class="fc" id="biSubName" placeholder="যেমন: হার্ডওয়্যার" style="padding:5px 9px;font-size:.83rem"></div>
-          <div><label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:3px">Key * (a-z_)</label>
-            <input type="text" class="fc" id="biSubKey" placeholder="hardware" style="padding:5px 9px;font-size:.83rem" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')"></div>
-        </div>
-      </div>
-      <div style="display:flex;gap:10px">
-        <button class="btn btn-pr" style="flex:1" onclick="saveBuiltinSub()"><i class="fas fa-save"></i> সেভ করুন</button>
-        <button class="btn btn-ghost" onclick="document.getElementById('biSubModal').style.display='none'">বাতিল</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ Category Modal ══ -->
-  <div id="catModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(16px);z-index:9999;align-items:center;justify-content:center">
-    <div style="background:var(--card);border:1px solid rgba(255,215,0,.2);border-radius:16px;padding:26px;width:100%;max-width:560px;margin:16px;max-height:90vh;overflow-y:auto">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-        <h3 style="margin:0;font-size:1.05rem" id="catModalTitle">✨ নতুন ক্যাটাগরি</h3>
-        <button onclick="closeCatModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem"><i class="fas fa-times"></i></button>
-      </div>
-      <input type="hidden" id="editCatId">
-      <div style="display:grid;grid-template-columns:72px 1fr;gap:10px;margin-bottom:10px">
-        <div class="fg" style="margin:0"><label class="fl">ইমোজি *</label><input type="text" class="fc" id="catEmoji" placeholder="🎯" style="text-align:center;font-size:1.4rem" maxlength="4" oninput="updateCatChip()"></div>
-        <div class="fg" style="margin:0"><label class="fl">ক্যাটাগরির নাম *</label><input type="text" class="fc" id="catName" placeholder="Gaming, Playlist, মিডিয়া..." oninput="updateCatChip()"></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 56px;gap:10px;margin-bottom:10px">
-        <div class="fg" style="margin:0"><label class="fl">Unique Key * <small style="color:var(--muted)">(a-z, 0-9, _)</small></label><input type="text" class="fc" id="catKey" placeholder="gaming, playlist, media" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')"></div>
-        <div class="fg" style="margin:0"><label class="fl">রঙ</label><input type="color" id="catColor" value="#ffd700" style="width:100%;height:38px;border:1px solid var(--border);border-radius:8px;cursor:pointer" oninput="updateCatChip()"></div>
-      </div>
-      <div class="fg" style="margin-bottom:10px"><label class="fl">বিবরণ (ঐচ্ছিক)</label><input type="text" class="fc" id="catDesc" placeholder="এই ক্যাটাগরিতে কী ধরনের টুলস..."></div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;padding:8px;background:rgba(255,255,255,.03);border-radius:8px">
-        <span style="font-size:.7rem;color:var(--muted);width:100%;margin-bottom:2px">দ্রুত ইমোজি:</span>
-        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🎯</span>
-        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🎮</span>
-        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🎵</span>
-        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">📺</span>
-        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🚀</span>
-        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🔧</span>
-        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">💡</span>
-        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🏆</span>
-        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🎬</span>
-        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🌟</span>
-        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🔥</span>
-        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">💎</span>
-        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">📱</span>
-        <span onclick="document.getElementById('catEmoji').value=this.textContent;updateCatChip()" style="cursor:pointer;font-size:1.2rem;padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.05)">🗂️</span>
-      </div>
-      <div style="background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.12);border-radius:8px;padding:8px 12px;margin-bottom:14px">
-        <div style="font-size:.7rem;color:var(--muted);margin-bottom:5px">প্রিভিউ:</div>
-        <button class="chip" id="catChipPreview" style="pointer-events:none">🎯 নতুন ক্যাটাগরি</button>
-      </div>
-      <!-- Sub-categories -->
-      <div style="border:1px solid rgba(255,215,0,.15);border-radius:10px;padding:12px;margin-bottom:14px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div>
-            <div style="font-weight:600;font-size:.88rem"><i class="fas fa-sitemap" style="color:var(--primary)"></i> সাব-ক্যাটাগরি / Playlist / Section</div>
-            <div style="font-size:.72rem;color:var(--muted);margin-top:2px">এই ক্যাটাগরির ভেতরের বিভাগ যোগ করুন</div>
-          </div>
-          <button class="btn btn-ghost btn-sm" onclick="addSubRow()"><i class="fas fa-plus"></i> যোগ</button>
-        </div>
-        <div id="subRows" style="display:flex;flex-direction:column;gap:7px">
-          <div id="subRowsEmpty" style="text-align:center;padding:10px;color:var(--muted);font-size:.8rem">সাব-ক্যাটাগরি নেই। যোগ করুন →</div>
-        </div>
-      </div>
-      <div style="display:flex;gap:10px">
-        <button class="btn btn-pr" style="flex:1" onclick="saveCat()"><i class="fas fa-save"></i> <span id="catSaveTxt">সেভ করুন</span></button>
-        <button class="btn btn-ghost" onclick="closeCatModal()">বাতিল</button>
-      </div>
-    </div>
-  </div>
-
     <!-- ══════════════════ YouTube ভিডিও ম্যানেজ ══════════════════ -->
     <div id="pnl-youtube" class="pnl">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
@@ -5610,8 +4956,7 @@ const FIREBASE_CONFIG = {
     projectId:         "powerscript-pro-web",
     storageBucket:     "powerscript-pro-web.firebasestorage.app",
     messagingSenderId: "709315727810",
-    appId:             "1:709315727810:web:abeb73172635061343c65b",
-    databaseId:        "(default)"
+    appId:             "1:709315727810:web:abeb73172635061343c65b"
 };
 
 const ADMIN_UID_MASTER   = "E97OGEv5ZJFbHaoojCnFe25GSeY1";
@@ -5632,12 +4977,10 @@ let fbApp, fbAuth, fbDb;
                 fbApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
                 fbAuth = firebase.auth();
                 fbDb   = firebase.firestore();
-                try { fbDb.settings({ experimentalForceLongPolling: true, experimentalAutoDetectLongPolling: false, merge: true }); } catch(e) {}
                 // Use long-polling to avoid WebChannel 404 errors on some networks
                 try {
                     fbDb.settings({
                         experimentalForceLongPolling: true,
-                        experimentalAutoDetectLongPolling: false,
                         merge: true
                     });
                 } catch(se) { /* settings already applied */ }
@@ -5671,8 +5014,7 @@ const FS = {
     activity:    'autoscrip_activity',
     notifs:      'autoscrip_notifications',
     subscribers: 'autoscrip_subscribers',
-    youtube:     'autoscrip_youtube',
-    categories:  'autoscrip_categories'
+    youtube:     'autoscrip_youtube'
 };
 
 // ===== CONFIGURATION =====
@@ -6892,7 +6234,6 @@ window.reorderYtVideo = reorderYtVideo;
         loadAnalytics();
         loadSettings();
         loadTeam();
-        setTimeout(loadCategories, 1500);
     });
     } else {
         setTimeout(waitAndRegisterAuthListener, 200);
@@ -7094,7 +6435,6 @@ async function doLogin() {
         loadAnalytics();
         loadSettings();
         loadTeam();
-        setTimeout(loadCategories, 1500);
 
         toast('✅ স্বাগতম, ' + currentUser.name + '!', 'success');
 
@@ -7321,6 +6661,7 @@ function refreshCharts() {
 async function migrateLocalTools() {
     let lsTools = [];
     try {
+        // Check all possible localStorage keys where tools might be stored
         const keys = ['autoscrip_tools', 'as7_tools', 'tools', 'autoscrip_data_tools'];
         for (const key of keys) {
             const raw = localStorage.getItem(key);
@@ -7332,7 +6673,7 @@ async function migrateLocalTools() {
                 }
             }
         }
-        // Deduplicate
+        // Deduplicate by id/title
         const seen = new Set();
         lsTools = lsTools.filter(t => {
             const key = t._id || t.id || t.title || t.name;
@@ -7341,31 +6682,13 @@ async function migrateLocalTools() {
             return true;
         });
     } catch(e) { console.warn('migrate read error:', e); }
-
     if (!lsTools.length) { toast('কোনো টুল পাওয়া যায়নি localStorage-এ', 'warning'); return; }
-
-    const btn = event?.target;
-    const totalCount = lsTools.length;
-    if (btn) { btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> 0/${totalCount} আপলোড হচ্ছে...`; btn.disabled = true; }
-
-    // ── Firestore REST API ব্যবহার করি — WebChannel timeout এড়াতে ──
-    // Batch size: ৫টি করে, প্রতিটির মাঝে ৩০০ms বিরতি
-    const PROJECT = 'powerscript-pro-web';
-    const DB = '(default)';
-    const COLLECTION = 'autoscrip_tools';
     
-    // Get auth token
-    let authToken = null;
-    try {
-        const user = fbAuth.currentUser;
-        if (user) authToken = await user.getIdToken();
-    } catch(e) {}
-
+    const btn = event?.target;
+    if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> আপলোড হচ্ছে...'; btn.disabled = true; }
+    
     let success = 0, failed = 0;
-    const BATCH_SIZE = 5;
-
-    for (let i = 0; i < lsTools.length; i++) {
-        const tool = lsTools[i];
+    for (const tool of lsTools) {
         try {
             const toolData = {
                 title:       tool.title || tool.name || 'Untitled',
@@ -7373,99 +6696,32 @@ async function migrateLocalTools() {
                 category:    tool.category || 'system',
                 description: tool.description || '',
                 author:      tool.author || 'AutoScrip Team',
-                tags:        Array.isArray(tool.tags) ? tool.tags : [],
+                tags:        tool.tags || [],
                 commands:    tool.commands || (tool.code ? [{ title: 'Main', code: tool.code, language: 'powershell' }] : []),
                 youtube:     tool.youtube || null,
                 thumbnail:   tool.thumbnail || null,
-                slug:        (tool.slug || (tool.title||tool.name||'').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'')).substring(0,60),
+                slug:        tool.slug || tool.title?.toLowerCase().replace(/\s+/g, '-') || '',
                 published:   tool.published !== false,
                 featured:    !!tool.featured,
                 verified:    !!tool.verified,
                 status:      (tool.published !== false || tool.status === 'approved') ? 'approved' : 'pending',
-                views:       Number(tool.views) || 0,
-                downloads:   Number(tool.downloads) || 0,
-                likes:       Array.isArray(tool.likes) ? tool.likes : (Number(tool.likes) || 0),
-                createdAt:   tool.createdAt || new Date().toISOString(),
+                views:       tool.views || 0,
+                downloads:   tool.downloads || 0,
+                likes:       tool.likes || 0,
+                createdAt:   tool.createdAt || firebase.firestore.FieldValue.serverTimestamp(),
                 migratedAt:  new Date().toISOString(),
             };
-
-            // Firestore REST API — timeout নেই, সরাসরি HTTP
-            const url = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/${DB}/documents/${COLLECTION}`;
-            
-            // Firestore value format এ convert করি
-            function toFirestoreValue(val) {
-                if (val === null || val === undefined) return { nullValue: null };
-                if (typeof val === 'boolean') return { booleanValue: val };
-                if (typeof val === 'number') return { integerValue: String(Math.round(val)) };
-                if (typeof val === 'string') return { stringValue: val };
-                if (Array.isArray(val)) return { arrayValue: { values: val.map(toFirestoreValue) } };
-                if (typeof val === 'object') {
-                    const fields = {};
-                    for (const k in val) fields[k] = toFirestoreValue(val[k]);
-                    return { mapValue: { fields } };
-                }
-                return { stringValue: String(val) };
-            }
-
-            const fields = {};
-            for (const k in toolData) fields[k] = toFirestoreValue(toolData[k]);
-
-            const headers = { 'Content-Type': 'application/json' };
-            if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
-
-            const ctrl = new AbortController();
-            const tid = setTimeout(() => ctrl.abort(), 15000); // 15s timeout per tool
-
-            const res = await fetch(url, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({ fields }),
-                signal: ctrl.signal
-            });
-            clearTimeout(tid);
-
-            if (res.ok) {
-                success++;
-                console.log(`[migrate] ✅ ${success}/${totalCount}: ${toolData.name}`);
-            } else {
-                const err = await res.text();
-                console.error(`[migrate] ❌ ${toolData.name}:`, res.status, err.substring(0,100));
-                failed++;
-            }
+            await fbDb.collection('autoscrip_tools').add(toolData);
+            success++;
         } catch(e) {
-            if (e.name === 'AbortError') {
-                console.warn(`[migrate] ⏰ Timeout: ${tool.title||tool.name}`);
-            } else {
-                console.error(`[migrate] ❌ ${tool.title||tool.name}:`, e.message);
-            }
+            console.error('Migration failed for', tool.title, e.message);
             failed++;
         }
-
-        // Progress update
-        if (btn) btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${success+failed}/${totalCount} আপলোড হচ্ছে...`;
-
-        // প্রতি BATCH_SIZE টার পর একটু বিরতি নাও
-        if ((i + 1) % BATCH_SIZE === 0 && i < lsTools.length - 1) {
-            await new Promise(r => setTimeout(r, 500));
-        }
     }
-
-    if (btn) {
-        btn.innerHTML = success > 0
-            ? `<i class="fas fa-check"></i> ${success}টি আপলোড সম্পন্ন!`
-            : `<i class="fas fa-times"></i> ব্যর্থ (${failed}টি)`;
-        btn.disabled = false;
-        btn.style.background = success > 0 ? 'linear-gradient(135deg,#00e676,#00b04f)' : '';
-    }
-
-    toast(`✅ ${success}টি টুল Firestore-এ আপলোড হয়েছে${failed ? ' (' + failed + 'টি ব্যর্থ)' : ''}!`, success > 0 ? 'success' : 'error');
     
-    if (success > 0) {
-        setTimeout(async () => {
-            await loadTools();
-            try { await loadDashboard(); } catch(e) {}
-        }, 1000);
-    }
+    toast(`✅ ${success}টি টুল Firestore-এ আপলোড হয়েছে${failed ? ' (' + failed + 'টি ব্যর্থ)' : ''}!`, 'success');
+    await loadTools();
+    await loadDashboard();
 }
 window.migrateLocalTools = migrateLocalTools;
 
@@ -7532,13 +6788,8 @@ async function loadTools() {
         if (!snap.empty) {
             allTools = snap.docs.map(d => ({ id: d.id, _id: d.id, ...d.data() }))
                 .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
-            console.log('[loadTools] Loaded', allTools.length, 'tools from Firestore');
         } else {
             allTools = [];
-            console.warn('[loadTools] autoscrip_tools collection is EMPTY in Firestore');
-            console.warn('[loadTools] → Firebase project: powerscript-pro-web');
-            console.warn('[loadTools] → Check: Firebase Console > Firestore > autoscrip_tools');
-            console.warn('[loadTools] → Also check Firestore Security Rules allow read');
         }
         
         renderToolsTable(allTools);
@@ -7547,8 +6798,8 @@ async function loadTools() {
         const recent = [...allTools].slice(0, 5);
         renderRecentTools(recent);
 
-        // AUTO-MIGRATE: disabled — tools already in Firestore
-        if (false && snap.empty) {
+        // AUTO-MIGRATE: If Firestore empty but localStorage has tools → upload automatically
+        if (snap.empty) {
             const lsKeys = ['autoscrip_tools', 'as7_tools', 'tools'];
             let lsAll = [];
             for (const k of lsKeys) {
@@ -9653,391 +8904,35 @@ function getYouTubeId(url) {
     return match ? match[1] : null;
 }
 
-// ===== CATEGORY MANAGER =====
-let allCustomCategories = [];
-const _BUILTIN = ['system','network','security','backup','monitoring','automation','download','files','windows','other'];
-let _subRowIdx = 0;
-
-async function seedDefaultCats() {
-    if (!confirm('ডিফল্ট ক্যাটাগরিগুলো Firestore-এ যোগ করবেন?\n(যা আগে থেকে আছে সেগুলো এড়িয়ে যাবে)')) return;
-
-    const defaults = [
-        {
-            emoji:'🎬', name:'ভিডিও টুলস', key:'video_tools', color:'#e53935', description:'ভিডিও ডাউনলোড, এডিট ও কনভার্ট টুলস',
-            subCategories:[
-                {emoji:'📥', name:'ডাউনলোডার',  key:'video_downloader'},
-                {emoji:'✂️', name:'এডিটর',       key:'video_editor'},
-                {emoji:'🔄', name:'কনভার্টার',   key:'video_converter'}
-            ]
-        },
-        {
-            emoji:'📁', name:'ফাইল ম্যানেজমেন্ট', key:'file_tools', color:'#fb8c00', description:'ফাইল কপি, মুভ, সিঙ্ক ও ক্লিনআপ',
-            subCategories:[
-                {emoji:'📦', name:'কম্প্রেস/আনজিপ', key:'file_compress'},
-                {emoji:'🔄', name:'সিঙ্ক ও ব্যাকআপ',  key:'file_sync'},
-                {emoji:'🗑️', name:'ক্লিনআপ',         key:'file_cleanup'}
-            ]
-        },
-        {
-            emoji:'🌐', name:'সোশ্যাল মিডিয়া', key:'social_media', color:'#1e88e5', description:'সোশ্যাল মিডিয়া অটোমেশন ও টুলস',
-            subCategories:[
-                {emoji:'📘', name:'ফেসবুক',   key:'social_facebook'},
-                {emoji:'▶️', name:'ইউটিউব',   key:'social_youtube'},
-                {emoji:'📸', name:'ইনস্টাগ্রাম', key:'social_instagram'}
-            ]
-        },
-        {
-            emoji:'🤖', name:'AI & স্ক্রিপ্টিং', key:'ai_tools', color:'#8e24aa', description:'AI ও অটোমেশন স্ক্রিপ্ট',
-            subCategories:[
-                {emoji:'💬', name:'চ্যাটবট',     key:'ai_chatbot'},
-                {emoji:'🖼️', name:'ইমেজ AI',    key:'ai_image'},
-                {emoji:'📝', name:'টেক্সট টুলস', key:'ai_text'}
-            ]
-        },
-        {
-            emoji:'🔒', name:'সিকিউরিটি', key:'security_pro', color:'#43a047', description:'নিরাপত্তা ও প্রাইভেসি টুলস',
-            subCategories:[
-                {emoji:'🛡️', name:'ফায়ারওয়াল',  key:'sec_firewall'},
-                {emoji:'🔍', name:'ভালনারেবিলিটি', key:'sec_scan'},
-                {emoji:'🔑', name:'পাসওয়ার্ড',    key:'sec_password'}
-            ]
-        }
-    ];
-
-    let added = 0, skipped = 0;
-    for (const cat of defaults) {
-        try {
-            // Check if key already exists
-            const snap = await fbDb.collection(FS.categories).where('key','==',cat.key).get();
-            if (!snap.empty) { skipped++; continue; }
-            await fbDb.collection(FS.categories).add({
-                ...cat,
-                order: added,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            });
-            added++;
-        } catch(e) { toast('সমস্যা: ' + e.message, 'error'); return; }
-    }
-
-    toast(`✅ ${added}টি ক্যাটাগরি যোগ হয়েছে${skipped ? ' · ' + skipped + 'টি আগে থেকে ছিল' : ''}`, 'success');
-    loadCategories();
-}
-
-
-// ===== BUILTIN SUB-CATEGORY MANAGER =====
-let _biSubData = {}; // cache: key → {docId, subCategories[]}
-
-async function openBuiltinSubModal(key, name, emoji) {
-  document.getElementById('biSubModal').style.display = 'flex';
-  document.getElementById('biSubModalTitle').textContent = emoji + ' ' + name + ' — সাব-ক্যাটাগরি';
-  document.getElementById('biSubParentKey').value = key;
-  document.getElementById('biSubEmoji').value = '';
-  document.getElementById('biSubName').value = '';
-  document.getElementById('biSubKey').value = '';
-
-  // Load existing subs from Firestore
-  const existing = document.getElementById('biSubExisting');
-  existing.innerHTML = '<div style="text-align:center;padding:12px;color:var(--muted)"><i class="fas fa-spinner fa-spin"></i></div>';
-  try {
-    const snap = await fbDb.collection(FS.categories).where('key','==',key).get();
-    if (!snap.empty) {
-      const doc = snap.docs[0];
-      _biSubData[key] = { docId: doc.id, subs: doc.data().subCategories || [] };
-    } else {
-      _biSubData[key] = { docId: null, subs: [] };
-    }
-    renderBiSubExisting(key, existing);
-  } catch(e) {
-    existing.innerHTML = '<div style="color:var(--muted);font-size:.8rem">লোড করা যায়নি।</div>';
-  }
-}
-
-function renderBiSubExisting(key, container) {
-  const data = _biSubData[key];
-  if (!data || !data.subs.length) {
-    container.innerHTML = '<div style="text-align:center;padding:8px;color:var(--muted);font-size:.8rem">এখনো কোনো সাব-ক্যাটাগরি নেই।</div>';
-    return;
-  }
-  container.innerHTML =
-    '<div style="font-size:.78rem;color:var(--muted);margin-bottom:6px">বিদ্যমান সাব-ক্যাটাগরি:</div>' +
-    data.subs.map((s,i) =>
-      '<div style="display:flex;align-items:center;gap:8px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:7px 10px;margin-bottom:5px">' +
-      '<span>' + (s.emoji||'📌') + '</span>' +
-      '<div style="flex:1"><b style="font-size:.83rem">' + s.name + '</b><div style="font-size:.68rem;color:var(--muted)">' + s.key + '</div></div>' +
-      '<button class="bti dn" onclick="deleteBuiltinSub(\'' + key + '\',' + i + ')" title="মুছুন"><i class="fas fa-trash"></i></button>' +
-      '</div>'
-    ).join('');
-}
-
-async function saveBuiltinSub() {
-  const key   = document.getElementById('biSubParentKey').value;
-  const emoji = document.getElementById('biSubEmoji').value.trim() || '📌';
-  const name  = document.getElementById('biSubName').value.trim();
-  const skey  = document.getElementById('biSubKey').value.trim();
-
-  if (!name) { toast('নাম দিন!', 'error'); return; }
-  if (!skey) { toast('Key দিন!', 'error'); return; }
-
-  if (!_biSubData[key]) _biSubData[key] = { docId: null, subs: [] };
-  const data = _biSubData[key];
-  if (data.subs.find(s => s.key === skey)) { toast('এই key ইতিমধ্যে আছে!', 'error'); return; }
-
-  const newSubs = [...data.subs, { emoji, name, key: skey }];
-  const builtinMeta = {
-    system:     { name:'সিস্টেম',   emoji:'⚙️', color:'#1565c0' },
-    network:    { name:'নেটওয়ার্ক', emoji:'🌐', color:'#00838f' },
-    security:   { name:'সিকিউরিটি', emoji:'🔒', color:'#7b1fa2' },
-    backup:     { name:'ব্যাকআপ',   emoji:'💾', color:'#f4511e' },
-    monitoring: { name:'মনিটরিং',   emoji:'📊', color:'#388e3c' },
-    automation: { name:'অটোমেশন',  emoji:'🤖', color:'#c2185b' },
-    download:   { name:'ডাউনলোড',  emoji:'⬇️', color:'#0277bd' },
-  };
-
-  try {
-    if (data.docId) {
-      await fbDb.collection(FS.categories).doc(data.docId).update({
-        subCategories: newSubs, updatedAt: new Date().toISOString()
-      });
-    } else {
-      const meta = builtinMeta[key] || { name: key, emoji: '📦', color: '#ffd700' };
-      const ref = await fbDb.collection(FS.categories).add({
-        key, name: meta.name, emoji: meta.emoji, color: meta.color,
-        isBuiltin: true, subCategories: newSubs,
-        createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
-      });
-      if (!_biSubData[key]) _biSubData[key] = { subs: newSubs };
-      _biSubData[key].docId = ref.id;
-    }
-    _biSubData[key].subs = newSubs;
-    toast('"' + name + '" যোগ হয়েছে!', 'success');
-    document.getElementById('biSubEmoji').value = '';
-    document.getElementById('biSubName').value = '';
-    document.getElementById('biSubKey').value = '';
-    renderBiSubExisting(key, document.getElementById('biSubExisting'));
-    // Update badge in builtin list
-    renderBuiltinSubBadges(key, newSubs);
-    loadCategories();
-  } catch(e) {
-    console.error('saveBuiltinSub error:', e);
-    if (e.code === 'permission-denied') {
-      toast('Firestore permission denied — Rules চেক করুন', 'error');
-    } else if (!window._fbDb) {
-      toast('Firebase এখনো ready নয়, একটু অপেক্ষা করুন', 'error');
-    } else {
-      toast('সমস্যা: ' + e.message, 'error');
-    }
-  }
-}
-
-async function deleteBuiltinSub(key, idx) {
-  if (!confirm('এই সাব-ক্যাটাগরি মুছবেন?')) return;
-  const data = _biSubData[key];
-  if (!data || !data.docId) return;
-  const newSubs = data.subs.filter((_,i) => i !== idx);
-  try {
-    await fbDb.collection(FS.categories).doc(data.docId).update({
-      subCategories: newSubs, updatedAt: new Date().toISOString()
-    });
-    _biSubData[key].subs = newSubs;
-    renderBiSubExisting(key, document.getElementById('biSubExisting'));
-    renderBuiltinSubBadges(key, newSubs);
-    toast('মুছে ফেলা হয়েছে।', 'success');
-    loadCategories();
-  } catch(e) { toast('সমস্যা: ' + e.message, 'error'); }
-}
-
-function renderBuiltinSubBadges(key, subs) {
-  const el = document.getElementById('biSubs_' + key);
-  if (!el) return;
-  el.innerHTML = subs.map(s =>
-    '<span style="font-size:.7rem;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.15);border-radius:20px;padding:2px 8px;color:var(--muted)">' +
-    (s.emoji||'📌') + ' ' + s.name + '</span>'
-  ).join('');
-}
-
-// Load builtin sub-badges on page load
-async function loadBuiltinSubBadges() {
-  try {
-    const snap = await fbDb.collection(FS.categories).where('isBuiltin','==',true).get();
-    snap.docs.forEach(doc => {
-      const d = doc.data();
-      _biSubData[d.key] = { docId: doc.id, subs: d.subCategories || [] };
-      renderBuiltinSubBadges(d.key, d.subCategories || []);
-    });
-  } catch(e) {}
-}
-
-async function loadCategories() {
-    const el = document.getElementById('customCatList');
-    if(el) el.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</div>';
-    try {
-        let snap;
-        try { snap = await fbDb.collection(FS.categories).orderBy('order','asc').get(); }
-        catch(e) { snap = await fbDb.collection(FS.categories).get(); }
-        allCustomCategories = snap.docs.map(d=>({id:d.id,...d.data()}));
-        renderCats(); renderPreview(); updateSelects();
-    } catch(e) {
-        if(el) el.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)"><i class="fas fa-exclamation-triangle" style="color:#ef4444"></i><br>লোড করা যায়নি.<br><button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="loadCategories()"><i class="fas fa-sync"></i> পুনরায়</button></div>';
-    }
-}
-
-function renderCats() {
-    const el = document.getElementById('customCatList');
-    if(!el) return;
-    if(!allCustomCategories.length) {
-        el.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:.85rem"><i class="fas fa-layer-group" style="font-size:1.8rem;opacity:.3;display:block;margin-bottom:8px"></i>কোনো কাস্টম ক্যাটাগরি নেই।</div>';
-        return;
-    }
-    el.innerHTML = allCustomCategories.map(c => {
-        const subs = c.subCategories||[];
-        return `<div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:7px">
-            <div style="display:flex;align-items:center;gap:8px">
-                <span style="font-size:1.2rem">${c.emoji||'📦'}</span>
-                <div style="flex:1"><div style="font-weight:600;font-size:.88rem">${c.name||''}</div><div style="font-size:.7rem;color:var(--muted)">key: ${c.key||''}</div></div>
-                <div style="display:flex;gap:4px">
-                    <button class="bti" onclick="openCatModal('${c.id}')" title="সম্পাদনা"><i class="fas fa-edit"></i></button>
-                    <button class="bti dn" onclick="deleteCat('${c.id}','${(c.name||'').replace(/['"]/g,'')}')" title="মুছুন"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>
-            ${subs.length?'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">'+subs.map(s=>`<span style="font-size:.7rem;background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.15);border-radius:20px;padding:2px 8px;color:var(--muted)">${s.emoji||'📌'} ${s.name}</span>`).join('')+'</div>':''}
-        </div>`;
-    }).join('');
-}
-
-function renderPreview() {
-    const el = document.getElementById('catPreviewArea');
-    if(!el) return;
-    const bi=[{e:'⚙️',n:'সিস্টেম'},{e:'🌐',n:'নেটওয়ার্ক'},{e:'🔒',n:'সিকিউরিটি'},{e:'💾',n:'ব্যাকআপ'},{e:'📊',n:'মনিটরিং'},{e:'🤖',n:'অটোমেশন'},{e:'⬇️',n:'ডাউনলোড'}];
-    el.innerHTML='<button class="chip active" style="pointer-events:none">🏠 সবগুলো</button>'+
-        bi.map(c=>`<button class="chip" style="pointer-events:none">${c.e} ${c.n}</button>`).join('')+
-        allCustomCategories.map(c=>`<button class="chip" style="pointer-events:none;${c.color?'border-color:'+c.color+';color:'+c.color:''}">${c.emoji||'📦'} ${c.name}${(c.subCategories||[]).length?' <small style="opacity:.5">('+c.subCategories.length+')</small>':''}</button>`).join('');
-}
-
-function updateSelects() {
-    if(!allCustomCategories.length) return;
-    ['toolCatFilter','toolCat'].forEach(sid=>{
-        const sel=document.getElementById(sid);
-        if(!sel) return;
-        sel.querySelectorAll('[data-custom]').forEach(o=>o.remove());
-        allCustomCategories.forEach(c=>{
-            if(!c.key||sel.querySelector('option[value="'+c.key+'"]')) return;
-            const o=document.createElement('option');o.value=c.key;o.textContent=(c.emoji||'')+'  '+c.name;o.setAttribute('data-custom','1');sel.appendChild(o);
-            (c.subCategories||[]).forEach(s=>{
-                if(!s.key||sel.querySelector('option[value="'+s.key+'"]')) return;
-                const os=document.createElement('option');os.value=s.key;os.textContent='  └ '+(s.emoji||'')+' '+s.name;os.setAttribute('data-custom','1');sel.appendChild(os);
-            });
-        });
-    });
-}
-
-function openCatModal(editId) {
-    editId=editId||null;
-    document.getElementById('catModal').style.display='flex';
-    document.getElementById('editCatId').value=editId||'';
-    document.getElementById('catModalTitle').textContent=editId?'✏️ সম্পাদনা':'✨ নতুন ক্যাটাগরি';
-    document.getElementById('catSaveTxt').textContent=editId?'আপডেট':'সেভ করুন';
-    _subRowIdx=0;
-    const rowsEl=document.getElementById('subRows');
-    rowsEl.innerHTML='<div id="subRowsEmpty" style="text-align:center;padding:10px;color:var(--muted);font-size:.8rem">সাব-ক্যাটাগরি নেই। যোগ করুন →</div>';
-    if(editId){
-        const c=allCustomCategories.find(x=>x.id===editId);
-        if(c){
-            document.getElementById('catEmoji').value=c.emoji||'';
-            document.getElementById('catName').value=c.name||'';
-            document.getElementById('catKey').value=c.key||'';
-            document.getElementById('catColor').value=c.color||'#ffd700';
-            document.getElementById('catDesc').value=c.description||'';
-            (c.subCategories||[]).forEach(s=>addSubRow(s));
-            updateCatChip();
-        }
-    } else {
-        ['catEmoji','catName','catKey','catDesc'].forEach(id=>{document.getElementById(id).value='';});
-        document.getElementById('catColor').value='#ffd700';
-        const p=document.getElementById('catChipPreview');
-        p.textContent='🎯 নতুন ক্যাটাগরি';p.style.borderColor='';p.style.color='';
-    }
-}
-
-function updateCatChip(){
-    const e=document.getElementById('catEmoji').value||'📦';
-    const n=document.getElementById('catName').value||'ক্যাটাগরি';
-    const col=document.getElementById('catColor').value||'#ffd700';
-    const p=document.getElementById('catChipPreview');
-    p.textContent=e+' '+n;p.style.borderColor=col;p.style.color=col;
-}
-
-function closeCatModal(){document.getElementById('catModal').style.display='none';}
-
-function addSubRow(data){
-    data=data||{};
-    const e=document.getElementById('subRowsEmpty');if(e)e.remove();
-    const id='sr'+(++_subRowIdx);
-    const div=document.createElement('div');div.id=id;
-    div.style.cssText='display:grid;grid-template-columns:50px 1fr 1fr 34px;gap:7px;align-items:end;background:rgba(255,215,0,.03);border:1px solid rgba(255,215,0,.08);border-radius:7px;padding:7px 9px';
-    div.innerHTML=`
-        <div><label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:3px">ইমোজি</label>
-        <input type="text" class="fc" placeholder="📌" maxlength="4" value="${data.emoji||''}" style="text-align:center;font-size:1.1rem;padding:5px" data-se></div>
-        <div><label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:3px">নাম *</label>
-        <input type="text" class="fc" placeholder="Playlist-1, Action..." value="${data.name||''}" style="padding:5px 9px;font-size:.83rem" data-sn></div>
-        <div><label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:3px">Key * (a-z, _)</label>
-        <input type="text" class="fc" placeholder="playlist_1, action" value="${data.key||''}" style="padding:5px 9px;font-size:.83rem" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')" data-sk></div>
-        <div><label style="font-size:.7rem;color:transparent;display:block;margin-bottom:3px">.</label>
-        <button onclick="document.getElementById('${id}').remove()" class="bti dn" style="width:34px;height:34px"><i class="fas fa-times"></i></button></div>`;
-    document.getElementById('subRows').appendChild(div);
-}
-
-function getSubRows(){
-    const rows=document.querySelectorAll('#subRows > div[id^="sr"]');
-    const res=[];
-    rows.forEach(r=>{
-        const name=(r.querySelector('[data-sn]')||{}).value||'';
-        const key=(r.querySelector('[data-sk]')||{}).value||'';
-        const emoji=(r.querySelector('[data-se]')||{}).value||'📌';
-        if(name&&key)res.push({emoji,name,key});
-    });
-    return res;
-}
-
-async function saveCat(){
-    const editId=document.getElementById('editCatId').value;
-    const emoji=document.getElementById('catEmoji').value.trim();
-    const name=document.getElementById('catName').value.trim();
-    const key=document.getElementById('catKey').value.trim();
-    const color=document.getElementById('catColor').value;
-    const desc=document.getElementById('catDesc').value.trim();
-    const subs=getSubRows();
-    if(!emoji){toast('ইমোজি দিন!','error');return;}
-    if(!name){toast('নাম দিন!','error');return;}
-    if(!key){toast('Unique key দিন!','error');return;}
-    if(_BUILTIN.includes(key)){toast('এই key বিল্ট-ইন। অন্য key দিন।','error');return;}
-    if(!editId&&allCustomCategories.find(c=>c.key===key)){toast('এই key ইতিমধ্যে আছে।','error');return;}
-    const subKeys=subs.map(s=>s.key);
-    if(new Set(subKeys).size!==subKeys.length){toast('সাব-ক্যাটাগরিতে একই key দুইবার!','error');return;}
-    const data={emoji,name,key,color,description:desc,subCategories:subs,order:allCustomCategories.length,updatedAt:new Date().toISOString()};
-    try{
-        if(editId){await fbDb.collection(FS.categories).doc(editId).update(data);toast('আপডেট হয়েছে!','success');}
-        else{data.createdAt=new Date().toISOString();await fbDb.collection(FS.categories).add(data);toast('"'+name+'" যোগ হয়েছে!'+(subs.length?' ('+subs.length+'টি সাব-ক্যাটাগরি সহ)':''),'success');}
-        closeCatModal();loadCategories();
-    }catch(e){toast('সেভ করতে সমস্যা: '+e.message,'error');}
-}
-
-async function deleteCat(id,name){
-    if(!confirm('"'+name+'" মুছবেন?\nটুলসগুলো ঠিকই থাকবে।'))return;
-    try{await fbDb.collection(FS.categories).doc(id).delete();toast('মুছে ফেলা হয়েছে।','success');loadCategories();}
-    catch(e){toast('সমস্যা: '+e.message,'error');}
-}
-
 function getCategoryLabel(cat) {
-    for(const c of allCustomCategories){if(c.key===cat)return(c.emoji||'📦')+' '+c.name;for(const s of(c.subCategories||[])){if(s.key===cat)return(s.emoji||'📌')+' '+s.name;}}
-    const labels={system:'⚙️ সিস্টেম',network:'🌐 নেটওয়ার্ক',security:'🔒 সিকিউরিটি',backup:'💾 ব্যাকআপ',monitoring:'📊 মনিটরিং',automation:'🤖 অটোমেশন',download:'⬇️ ডাউনলোড',files:'📁 ফাইল',windows:'🪟 উইন্ডোজ',other:'📜 অন্যান্য'};
-    return labels[cat]||cat||'📜 অন্যান্য';
+    const labels = {
+        system: '⚙️ সিস্টেম',
+        network: '🌐 নেটওয়ার্ক',
+        security: '🔒 সিকিউরিটি',
+        backup: '💾 ব্যাকআপ',
+        monitoring: '📊 মনিটরিং',
+        automation: '🤖 অটোমেশন',
+        download: '⬇️ ডাউনলোড',
+        files: '📁 ফাইল',
+        windows: '🪟 উইন্ডোজ',
+        other: '📜 অন্যান্য'
+    };
+    return labels[cat] || cat || '📜 অন্যান্য';
 }
 
 function getCategoryIcon(cat) {
-    for(const c of allCustomCategories){if(c.key===cat)return c.emoji||'📦';for(const s of(c.subCategories||[])){if(s.key===cat)return s.emoji||'📌';}}
-    const icons={system:'⚙️',network:'🌐',security:'🔒',backup:'💾',monitoring:'📊',automation:'🤖',files:'📁',windows:'🪟',other:'📜'};
-    return icons[cat]||'📜';
+    const icons = {
+        system: '⚙️',
+        network: '🌐',
+        security: '🔒',
+        backup: '💾',
+        monitoring: '📊',
+        automation: '🤖',
+        files: '📁',
+        windows: '🪟',
+        other: '📜'
+    };
+    return icons[cat] || '📜';
 }
 
 function formatDate(date) {
