@@ -5632,11 +5632,12 @@ let fbApp, fbAuth, fbDb;
                 fbApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
                 fbAuth = firebase.auth();
                 fbDb   = firebase.firestore();
-                try { fbDb.settings({ experimentalAutoDetectLongPolling: true, merge: true }); } catch(e) {}
+                try { fbDb.settings({ experimentalForceLongPolling: true, experimentalAutoDetectLongPolling: false, merge: true }); } catch(e) {}
                 // Use long-polling to avoid WebChannel 404 errors on some networks
                 try {
                     fbDb.settings({
                         experimentalForceLongPolling: true,
+                        experimentalAutoDetectLongPolling: false,
                         merge: true
                     });
                 } catch(se) { /* settings already applied */ }
