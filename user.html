@@ -4043,7 +4043,8 @@ document.addEventListener('keydown', (e) => {
     projectId:         "powerscript-pro-web",
     storageBucket:     "powerscript-pro-web.firebasestorage.app",
     messagingSenderId: "709315727810",
-    appId:             "1:709315727810:web:abeb73172635061343c65b"
+    appId:             "1:709315727810:web:abeb73172635061343c65b",
+    databaseId:        "(default)"
   };
   function tryInit(){
     if(typeof firebase !== 'undefined'){
@@ -4052,9 +4053,15 @@ document.addEventListener('keydown', (e) => {
         else firebase.app();
         window._fbDb   = firebase.firestore();
         window._fbAuth = firebase.auth();
-        // Force long-polling — fixes Firestore Listen/channel 404 on asia-south2
+        // Force long-polling + asia-south2 host fix
         try {
-          window._fbDb.settings({ experimentalForceLongPolling: true, merge: true });
+          window._fbDb.settings({
+            host: 'firestore.googleapis.com',
+            ssl: true,
+            experimentalForceLongPolling: true,
+            experimentalAutoDetectLongPolling: false,
+            merge: true
+          });
         } catch(_se) {}
         // Firebase initialized silently
       }catch(e){ console.warn('Firebase init:',e.message); }
