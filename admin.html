@@ -3870,6 +3870,92 @@ thead th { color: #b08898 !important; }
   background-clip: text !important;
   color: transparent !important;
 }
+
+/* ═══ EYE-FRIENDLY ADMIN THEME ═══ */
+body {
+  background: #0f1117 !important;
+  background-image: none !important;
+  color: #d1d5db !important;
+}
+body::before { display: none !important; }
+
+/* Cards & panels - soft dark */
+.cd, .sc, .tw, .pnl {
+  background: #1a1d27 !important;
+  border-color: #2d3140 !important;
+}
+.cd:hover, .sc:hover { border-color: #4a4f63 !important; }
+.cd-hd, .tw-hd { background: rgba(99,102,241,.04) !important; border-color: #2d3140 !important; }
+
+/* Sidebar - deep dark */
+.sb { background: #0d0f15 !important; border-right-color: #1e2130 !important; }
+.sb-lnk { color: #8b92a8 !important; }
+.sb-lnk:hover { color: #a5b4fc !important; background: rgba(99,102,241,.08) !important; }
+.sb-lnk.active { color: #a5b4fc !important; background: rgba(99,102,241,.1) !important; border-left-color: #6366f1 !important; }
+.sb-sec { color: rgba(165,180,252,.4) !important; }
+.sb-logo { filter: none !important; }
+
+/* Topbar */
+.topbar { background: rgba(15,17,23,.97) !important; border-color: #1e2130 !important; }
+
+/* Text colors - warm gray instead of harsh */
+.sc-num { color: #a5b4fc !important; }
+.cd-tt, .tw-tt, .pnl-tt { color: #e2e8f0 !important; }
+.sc-lbl, .text-muted, td, .act-txt { color: #9ca3af !important; }
+th { color: #6b7280 !important; background: rgba(99,102,241,.03) !important; }
+
+/* Form controls */
+.fc { background: #1a1d27 !important; border-color: #2d3140 !important; color: #e2e8f0 !important; }
+.fc:focus { border-color: #6366f1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,.15) !important; }
+
+/* Buttons */
+.btn-pr { background: linear-gradient(135deg,#6366f1,#8b5cf6) !important; color: #fff !important; box-shadow: 0 4px 12px rgba(99,102,241,.25) !important; }
+.btn-pr:hover { box-shadow: 0 6px 20px rgba(99,102,241,.35) !important; }
+.btn-gh { border-color: #2d3140 !important; color: #9ca3af !important; }
+.btn-gh:hover { border-color: #4a4f63 !important; color: #e2e8f0 !important; background: rgba(255,255,255,.04) !important; }
+
+/* Login screen */
+#loginScreen { background: linear-gradient(135deg,#0f1117 0%,#1a1d27 50%,#0f1117 100%) !important; }
+.login-box { background: #1a1d27 !important; border-color: #2d3140 !important; }
+
+/* Scrollbar */
+::-webkit-scrollbar-thumb { background: #4a4f63 !important; }
+::-webkit-scrollbar-thumb:hover { background: #6366f1 !important; }
+::-webkit-scrollbar-track { background: #0f1117 !important; }
+
+/* Modal */
+.md { background: #1a1d27 !important; border-color: #2d3140 !important; }
+.md-hd { border-color: #2d3140 !important; }
+
+/* Toast */
+.tk { background: #1a1d27 !important; color: #e2e8f0 !important; border-color: #2d3140 !important; }
+
+/* Table rows */
+tbody tr:hover { background: rgba(99,102,241,.04) !important; }
+tbody tr { border-color: #1e2130 !important; }
+
+/* Toggle */
+input:checked + .tg-sl { background: linear-gradient(135deg,#6366f1,#8b5cf6) !important; box-shadow: 0 0 8px rgba(99,102,241,.3) !important; }
+
+/* Badges */
+.bdg-p { background: rgba(99,102,241,.1) !important; color: #a5b4fc !important; border-color: rgba(99,102,241,.25) !important; }
+
+/* Category modal */
+#catModal { background: rgba(0,0,0,.85) !important; }
+#catModal > div { background: #1a1d27 !important; border-color: #2d3140 !important; }
+
+/* Confirm dialog */
+.cfm-box { background: #1a1d27 !important; }
+
+/* Dropdown */
+.dropdown-menu { background: #1a1d27 !important; border-color: #2d3140 !important; }
+.dropdown-item:hover { background: rgba(99,102,241,.08) !important; color: #a5b4fc !important; }
+
+/* Remove all gold/FFD700 references in dynamic styles */
+.sb-badge { background: rgba(99,102,241,.15) !important; color: #a5b4fc !important; border-color: rgba(99,102,241,.3) !important; }
+.sb-av { background: linear-gradient(135deg,#6366f1,#8b5cf6) !important; box-shadow: 0 0 12px rgba(99,102,241,.25) !important; }
+.sb-rl { color: #a5b4fc !important; }
+
 </style>
 </head>
 <body>
@@ -10702,7 +10788,106 @@ service cloud.firestore {
 <script>
 window.va = window.va || function() { (window.va.q = window.va.q || []).push(arguments); };
 </script>
-<script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/insights/script.js">
+
+// ═══ DEFAULT SUB-CATEGORIES FOR BUILT-IN CATEGORIES ═══
+var DEFAULT_ADMIN_SUBCATS = {
+  system: [
+    {emoji:'💻',name:'সিস্টেম ইনফো',key:'sys_info'},{emoji:'⚡',name:'পাওয়ার',key:'sys_power'},
+    {emoji:'🔧',name:'রেজিস্ট্রি',key:'sys_registry'},{emoji:'📦',name:'সফটওয়্যার',key:'sys_software'},
+    {emoji:'🖥️',name:'ডিসপ্লে',key:'sys_display'},{emoji:'💾',name:'মেমরি',key:'sys_memory'},
+    {emoji:'🔊',name:'অডিও',key:'sys_audio'},{emoji:'⌨️',name:'ইনপুট',key:'sys_input'},
+    {emoji:'🖨️',name:'প্রিন্টার',key:'sys_printer'},{emoji:'📀',name:'ড্রাইভার',key:'sys_driver'},
+    {emoji:'🔄',name:'আপডেট',key:'sys_update'},{emoji:'🗂️',name:'ফাইল সিস্টেম',key:'sys_filesystem'},
+    {emoji:'📊',name:'পারফরম্যান্স',key:'sys_performance'},{emoji:'🔋',name:'ব্যাটারি',key:'sys_battery'},
+    {emoji:'🌡️',name:'তাপমাত্রা',key:'sys_temp'},{emoji:'📝',name:'লগ',key:'sys_log'},
+    {emoji:'🔑',name:'লাইসেন্স',key:'sys_license'},{emoji:'🕐',name:'শিডিউল',key:'sys_schedule'},
+    {emoji:'🧹',name:'ক্লিনআপ',key:'sys_cleanup'},{emoji:'📋',name:'ক্লিপবোর্ড',key:'sys_clipboard'}
+  ],
+  network: [
+    {emoji:'🌍',name:'DNS',key:'net_dns'},{emoji:'📡',name:'WiFi',key:'net_wifi'},
+    {emoji:'🔌',name:'ইথারনেট',key:'net_ethernet'},{emoji:'🛡️',name:'ফায়ারওয়াল',key:'net_firewall'},
+    {emoji:'📊',name:'ব্যান্ডউইথ',key:'net_bandwidth'},{emoji:'🔍',name:'পোর্ট স্ক্যান',key:'net_port'},
+    {emoji:'📧',name:'ইমেইল',key:'net_email'},{emoji:'🌐',name:'VPN',key:'net_vpn'},
+    {emoji:'📶',name:'সিগন্যাল',key:'net_signal'},{emoji:'🔗',name:'প্রক্সি',key:'net_proxy'},
+    {emoji:'📤',name:'FTP',key:'net_ftp'},{emoji:'🖧',name:'শেয়ারিং',key:'net_sharing'},
+    {emoji:'🏠',name:'রাউটার',key:'net_router'},{emoji:'📱',name:'ব্লুটুথ',key:'net_bluetooth'},
+    {emoji:'🔐',name:'SSL',key:'net_ssl'},{emoji:'📈',name:'ট্রাফিক',key:'net_traffic'},
+    {emoji:'🌊',name:'পিং',key:'net_ping'},{emoji:'🗺️',name:'ট্রেসরাউট',key:'net_trace'},
+    {emoji:'📋',name:'ARP',key:'net_arp'},{emoji:'🔄',name:'DHCP',key:'net_dhcp'}
+  ],
+  security: [
+    {emoji:'🔒',name:'এনক্রিপশন',key:'sec_encrypt'},{emoji:'🛡️',name:'অ্যান্টিভাইরাস',key:'sec_antivirus'},
+    {emoji:'🔑',name:'পাসওয়ার্ড',key:'sec_password'},{emoji:'👁️',name:'অডিট',key:'sec_audit'},
+    {emoji:'🚫',name:'ব্লকিং',key:'sec_blocking'},{emoji:'📜',name:'পলিসি',key:'sec_policy'},
+    {emoji:'🔍',name:'স্ক্যানিং',key:'sec_scanning'},{emoji:'🧱',name:'ফায়ারওয়াল',key:'sec_firewall'},
+    {emoji:'📊',name:'লগ অ্যানালাইসিস',key:'sec_loganalysis'},{emoji:'🔐',name:'MFA',key:'sec_mfa'},
+    {emoji:'🗝️',name:'সার্টিফিকেট',key:'sec_cert'},{emoji:'🕵️',name:'ফরেনসিক',key:'sec_forensic'},
+    {emoji:'⚠️',name:'ভালনারেবিলিটি',key:'sec_vuln'},{emoji:'🦠',name:'ম্যালওয়্যার',key:'sec_malware'},
+    {emoji:'🔄',name:'প্যাচ',key:'sec_patch'},{emoji:'👤',name:'ইউজার অ্যাক্সেস',key:'sec_access'},
+    {emoji:'📡',name:'IDS/IPS',key:'sec_ids'},{emoji:'🔗',name:'SSO',key:'sec_sso'},
+    {emoji:'💿',name:'ব্যাকআপ সিকিউরিটি',key:'sec_backup'},{emoji:'📱',name:'ডিভাইস সিকিউরিটি',key:'sec_device'}
+  ],
+  backup: [
+    {emoji:'💾',name:'ফুল ব্যাকআপ',key:'bak_full'},{emoji:'📂',name:'ফাইল ব্যাকআপ',key:'bak_file'},
+    {emoji:'🗄️',name:'ডেটাবেস',key:'bak_database'},{emoji:'☁️',name:'ক্লাউড',key:'bak_cloud'},
+    {emoji:'📀',name:'ডিস্ক ইমেজ',key:'bak_disk'},{emoji:'🔄',name:'ইনক্রিমেন্টাল',key:'bak_incremental'},
+    {emoji:'📋',name:'রেজিস্ট্রি',key:'bak_registry'},{emoji:'📧',name:'ইমেইল',key:'bak_email'},
+    {emoji:'🔐',name:'এনক্রিপ্টেড',key:'bak_encrypted'},{emoji:'⏰',name:'শিডিউলড',key:'bak_scheduled'},
+    {emoji:'📊',name:'রিপোর্ট',key:'bak_report'},{emoji:'🔁',name:'রিস্টোর',key:'bak_restore'},
+    {emoji:'📡',name:'রিমোট',key:'bak_remote'},{emoji:'🗜️',name:'কমপ্রেশন',key:'bak_compress'},
+    {emoji:'✅',name:'ভেরিফিকেশন',key:'bak_verify'},{emoji:'📝',name:'লগ',key:'bak_log'},
+    {emoji:'🔗',name:'সিঙ্ক',key:'bak_sync'},{emoji:'🗑️',name:'রোটেশন',key:'bak_rotation'},
+    {emoji:'💽',name:'USB',key:'bak_usb'},{emoji:'📦',name:'আর্কাইভ',key:'bak_archive'}
+  ],
+  monitoring: [
+    {emoji:'📊',name:'CPU',key:'mon_cpu'},{emoji:'💾',name:'RAM',key:'mon_ram'},
+    {emoji:'💿',name:'ডিস্ক',key:'mon_disk'},{emoji:'🌐',name:'নেটওয়ার্ক',key:'mon_network'},
+    {emoji:'📈',name:'পারফরম্যান্স',key:'mon_performance'},{emoji:'🔔',name:'অ্যালার্ট',key:'mon_alert'},
+    {emoji:'📝',name:'ইভেন্ট লগ',key:'mon_eventlog'},{emoji:'🖥️',name:'সার্ভার',key:'mon_server'},
+    {emoji:'⏱️',name:'আপটাইম',key:'mon_uptime'},{emoji:'🌡️',name:'হার্ডওয়্যার',key:'mon_hardware'},
+    {emoji:'📡',name:'সার্ভিস',key:'mon_service'},{emoji:'🔍',name:'প্রসেস',key:'mon_process'},
+    {emoji:'📊',name:'রিপোর্ট',key:'mon_report'},{emoji:'📧',name:'ইমেইল অ্যালার্ট',key:'mon_emailalert'},
+    {emoji:'🕐',name:'রিয়েলটাইম',key:'mon_realtime'},{emoji:'📋',name:'ড্যাশবোর্ড',key:'mon_dashboard'},
+    {emoji:'🔄',name:'হেলথচেক',key:'mon_healthcheck'},{emoji:'📱',name:'মোবাইল',key:'mon_mobile'},
+    {emoji:'🗃️',name:'ডেটাবেস',key:'mon_database'},{emoji:'☁️',name:'ক্লাউড',key:'mon_cloud'}
+  ],
+  automation: [
+    {emoji:'🤖',name:'টাস্ক শিডিউলার',key:'auto_scheduler'},{emoji:'📜',name:'স্ক্রিপ্ট',key:'auto_script'},
+    {emoji:'🔄',name:'ওয়ার্কফ্লো',key:'auto_workflow'},{emoji:'📧',name:'ইমেইল',key:'auto_email'},
+    {emoji:'📂',name:'ফাইল',key:'auto_file'},{emoji:'🗄️',name:'ডেটাবেস',key:'auto_database'},
+    {emoji:'🌐',name:'ওয়েব',key:'auto_web'},{emoji:'📊',name:'রিপোর্ট',key:'auto_report'},
+    {emoji:'🔐',name:'সিকিউরিটি',key:'auto_security'},{emoji:'💾',name:'ব্যাকআপ',key:'auto_backup'},
+    {emoji:'📡',name:'ডিপ্লয়মেন্ট',key:'auto_deploy'},{emoji:'🧪',name:'টেস্টিং',key:'auto_testing'},
+    {emoji:'📋',name:'ইনভেন্টরি',key:'auto_inventory'},{emoji:'👤',name:'ইউজার',key:'auto_user'},
+    {emoji:'🔧',name:'মেইনটেন্যান্স',key:'auto_maintenance'},{emoji:'📈',name:'স্কেলিং',key:'auto_scaling'},
+    {emoji:'🔔',name:'নোটিফিকেশন',key:'auto_notification'},{emoji:'🗑️',name:'ক্লিনআপ',key:'auto_cleanup'},
+    {emoji:'📦',name:'প্যাকেজ',key:'auto_package'},{emoji:'🔗',name:'ইন্টিগ্রেশন',key:'auto_integration'}
+  ]
+};
+
+// Add sub-category select to tool form category dropdown
+(function addSubCatOptions() {
+  var sel = document.getElementById('toolCat');
+  if (!sel) return;
+  Object.keys(DEFAULT_ADMIN_SUBCATS).forEach(function(parentKey) {
+    DEFAULT_ADMIN_SUBCATS[parentKey].forEach(function(sub) {
+      if (sel.querySelector('option[value="' + sub.key + '"]')) return;
+      var o = document.createElement('option');
+      o.value = sub.key;
+      o.textContent = '  └ ' + sub.emoji + ' ' + sub.name;
+      // Insert after parent option
+      var parentOpt = sel.querySelector('option[value="' + parentKey + '"]');
+      if (parentOpt && parentOpt.nextSibling) {
+        sel.insertBefore(o, parentOpt.nextSibling);
+      } else {
+        sel.appendChild(o);
+      }
+    });
+  });
+})();
+
+</script>
 </body>
 </html>
 </body>
