@@ -1911,5 +1911,190 @@ service cloud.firestore {
   }
 }</pre><button onclick="(function(){var t=document.getElementById('rulesCode');var txt=t.innerText.replace(/&amp;/g,'&amp;').replace(/&lt;/g,'<').replace(/&gt;/g,'>');navigator.clipboard&&navigator.clipboard.writeText(txt).then(function(){document.getElementById('copyRulesBtn').innerHTML='<i class=\'fas fa-check\'></i> কপি হয়েছে!';document.getElementById('copyRulesBtn').style.background='rgba(0,230,118,.15)';document.getElementById('copyRulesBtn').style.color='#00e676';setTimeout(function(){document.getElementById('copyRulesBtn').innerHTML='<i class=\'fas fa-copy\'></i> কপি';document.getElementById('copyRulesBtn').style.background='rgba(255,215,0,.1)';document.getElementById('copyRulesBtn').style.color='#ffd700';},2500);})})()" id="copyRulesBtn" style="position:absolute;top:10px;right:10px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.25);color:#ffd700;padding:6px 14px;border-radius:8px;font-size:.76rem;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700"><i class="fas fa-copy"></i> কপি</button></div></div><div style="background:rgba(0,230,118,.06);border:1px solid rgba(0,230,118,.2);border-radius:12px;padding:14px 16px;font-size:.84rem;color:#80ffb0;line-height:1.65"><i class="fas fa-info-circle" style="color:#00e676;margin-right:6px"></i>Rules paste করে Firebase Console এ <strong>Publish</strong> বাটন চাপুন। তারপর এই পেজ রিফ্রেশ করুন — ডিলিট কাজ করবে।</div></div></div></div>
 <script defer src="/_vercel/insights/script.js"></script>
+  <!-- এই অংশটি ফাইলের একদম শেষে, </body> ট্যাগের আগে যোগ করুন -->
+<script>
+// ===== FIREBASE AUTH STATE LISTENER (FIX) =====
+(function waitAndRegisterAuthListener() {
+    if (typeof fbAuth !== 'undefined' && fbAuth) {
+        fbAuth.onAuthStateChanged(async (user) => {
+            if (!user) return;
+            const isAdminEmail = user.email === ADMIN_EMAIL_MASTER;
+            const isMasterUID = user.uid === ADMIN_UID_MASTER;
+            let adminData = null;
+            let hasAdminDoc = false;
+            try {
+                const doc = await Promise.race([
+                    fbDb.collection(FS.admins).doc(user.uid).get(),
+                    new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
+                ]);
+                if (doc.exists) {
+                    adminData = doc.data();
+                    hasAdminDoc = true;
+                } else if (user.email === ADMIN_EMAIL_MASTER || user.uid === ADMIN_UID_MASTER) {
+                    try {
+                        const _d = {
+                            name: user.displayName || user.email.split('@')[0],
+                            email: user.email,
+                            role: 'super_admin',
+                            uid: user.uid,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+                        await fbDb.collection(FS.admins).doc(user.uid).set(_d, { merge: true });
+                        adminData = _d;
+                        hasAdminDoc = true;
+                    } catch (_ce) {}
+                }
+            } catch (e) {
+                console.warn('[AuthState] Firestore read failed — using email/UID fallback');
+            }
+            const allowed = isAdminEmail || isMasterUID || hasAdminDoc;
+            if (!allowed) {
+                console.warn('[AuthState] User not admin — signing out');
+                fbAuth.signOut();
+                return;
+            }
+            currentUser = {
+                uid: user.uid,
+                email: user.email,
+                name: adminData?.name || user.displayName || user.email.split('@')[0],
+                role: adminData?.role || 'super_admin',
+                twoFactorEnabled: adminData?.twoFactorEnabled || false
+            };
+            currentUserRole = currentUser.role;
+            showApp();
+            loadDashboard();
+            loadTools();
+            loadUsers();
+            loadReqs();
+            loadCom();
+            loadAnalytics();
+            loadSettings();
+            loadTeam();
+            setTimeout(loadCategories, 1500);
+        });
+    } else {
+        setTimeout(waitAndRegisterAuthListener, 200);
+    }
+})();
+
+// ===== FIX: Ensure all global functions are exposed =====
+window.doLogin = doLogin;
+window.doLogout = doLogout;
+window.setup2FA = setup2FA;
+window.toggle2FA = toggle2FA;
+window.forgotPassword = forgotPassword;
+window.togglePasswordVisibility = togglePasswordVisibility;
+window.showP = showP;
+window.toggleSb = toggleSb;
+window.syncNow = syncNow;
+window.loadTools = loadTools;
+window.loadUsers = loadUsers;
+window.loadReqs = loadReqs;
+window.loadCom = loadCom;
+window.loadAnalytics = loadAnalytics;
+window.loadHeatmap = loadHeatmap;
+window.loadTeam = loadTeam;
+window.loadSettings = loadSettings;
+window.rstTool = rstTool;
+window.rstCom = rstCom;
+window.saveTool = saveTool;
+window.saveCom = saveCom;
+window.editTool = editTool;
+window.deleteTool = deleteTool;
+window.toggleToolField = toggleToolField;
+window.addCommandBlock = addCommandBlock;
+window.clearAllCommands = clearAllCommands;
+window.testCurrentTool = testCurrentTool;
+window.updateSeoPreview = updateSeoPreview;
+window.generateSlug = generateSlug;
+window.handleDragOver = handleDragOver;
+window.handleDrop = handleDrop;
+window.handleFileSelect = handleFileSelect;
+window.previewYT = previewYT;
+window.previewCustomThumb = previewCustomThumb;
+window.filtTools = filtTools;
+window.filtToolsCat = filtToolsCat;
+window.filtUsers = filtUsers;
+window.toggleAllTools = toggleAllTools;
+window.updateSelectedTools = updateSelectedTools;
+window.clearSelection = clearSelection;
+window.bulkPublish = bulkPublish;
+window.bulkUnpublish = bulkUnpublish;
+window.bulkFeature = bulkFeature;
+window.bulkDelete = bulkDelete;
+window.exportTools = exportTools;
+window.toggleUserBan = toggleUserBan;
+window.deleteUser = deleteUser;
+window.approveReq = approveReq;
+window.rejectReq = rejectReq;
+window.deleteReq = deleteReq;
+window.sendNotif = sendNotif;
+window.clearNotifs = clearNotifs;
+window.loadNotifHistory = loadNotifHistory;
+window.loadSubscriberStats = loadSubscriberStats;
+window.sendTestNotif = sendTestNotif;
+window.removeSubscriber = removeSubscriber;
+window.deleteNotif = deleteNotif;
+window.exportReport = exportReport;
+window.exportAllData = exportAllData;
+window.importData = importData;
+window.backupData = backupData;
+window.clearAllData = clearAllData;
+window.clearLog = clearLog;
+window.showImportWizard = showImportWizard;
+window.handleWizardFile = handleWizardFile;
+window.handleWizardDrop = handleWizardDrop;
+window.nextWizardStep = nextWizardStep;
+window.prevWizardStep = prevWizardStep;
+window.executeImport = executeImport;
+window.showAddAdminModal = showAddAdminModal;
+window.addAdmin = addAdmin;
+window.updateAdminRole = updateAdminRole;
+window.deleteAdmin = deleteAdmin;
+window.saveSettings = saveSettings;
+window.changePwd = changePwd;
+window.editCom = editCom;
+window.deleteCom = deleteCom;
+window.restoreVersion = restoreVersion;
+window.showVersionHistory = showVersionHistory;
+window.loadVersionHistory = loadVersionHistory;
+window.refreshCharts = refreshCharts;
+window.clearActivityLog = clearActivityLog;
+window.loadActivityLog = loadActivityLog;
+window.migrateLocalTools = migrateLocalTools;
+window.seedDefaultCats = seedDefaultCats;
+window.seedDefaultVideos = seedDefaultVideos;
+window.loadYoutubeVideos = loadYoutubeVideos;
+window.saveYtVideo = saveYtVideo;
+window.deleteYtVideo = deleteYtVideo;
+window.editYtVideo = editYtVideo;
+window.resetYtForm = resetYtForm;
+window.reorderYtVideo = reorderYtVideo;
+window.editDefaultVideo = editDefaultVideo;
+window.deleteDefaultVideo = deleteDefaultVideo;
+window.openBuiltinSubModal = openBuiltinSubModal;
+window.saveBuiltinSub = saveBuiltinSub;
+window.deleteBuiltinSub = deleteBuiltinSub;
+window.loadCategories = loadCategories;
+window.openCatModal = openCatModal;
+window.closeCatModal = closeCatModal;
+window.saveCat = saveCat;
+window.deleteCat = deleteCat;
+window.addSubRow = addSubRow;
+window.updateCatChip = updateCatChip;
+window.getSubRows = getSubRows;
+window.toggleMobileMenu = toggleMobileMenu;
+window.closeMobileMenu = closeMobileMenu;
+window.closeModal = closeModal;
+window.openModal = openModal;
+window.closeCfm = closeCfm;
+
+// ===== FIX: Ensure checkConnection is called after DOM ready =====
+setTimeout(function() {
+    if (typeof checkConnection === 'function') checkConnection();
+}, 1000);
+
+console.log('[Admin] All functions registered successfully');
+</script>
 </body>
 </html>
