@@ -93,63 +93,63 @@
 [ v12 SYMPHONY — GOLDEN ADMIN DASHBOARD ]
 -------------------------------------------------------------------*/
 
-/* ===== CSS VARIABLES — SYMPHONY GOLD ===== */
+/* ===== CSS VARIABLES — ENTERPRISE CLEAN LIGHT ===== */
 :root {
-    /* PRIMARY PALETTE — Golden Authority */
-    --primary: #FFD700;
-    --primary-dark: #E6B800;
-    --primary-light: #FFE44D;
-    --secondary: #FF6A00;
-    --secondary-dark: #CC5200;
-    --secondary-light: #FF8C33;
-    --accent: #00E676;
-    --accent-dark: #00B04F;
+    /* PRIMARY PALETTE — Indigo Professional */
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --primary-light: #a5b4fc;
+    --secondary: #8b5cf6;
+    --secondary-dark: #7c3aed;
+    --secondary-light: #c4b5fd;
+    --accent: #10b981;
+    --accent-dark: #059669;
 
     /* STATUS COLORS */
-    --success: #00E676;
-    --success-dark: #00B04F;
-    --danger: #FF3D57;
-    --danger-dark: #C0003A;
-    --warning: #FFB300;
-    --warning-dark: #E65100;
-    --info: #29B6F6;
-    --info-dark: #0080C0;
+    --success: #10b981;
+    --success-dark: #059669;
+    --danger: #ef4444;
+    --danger-dark: #dc2626;
+    --warning: #f59e0b;
+    --warning-dark: #d97706;
+    --info: #0ea5e9;
+    --info-dark: #0284c7;
 
-    /* DEEP SPACE BACKGROUND */
-    --bg: #080810;
-    --bg-2: #0D0D17;
-    --bg-gradient: radial-gradient(ellipse at 15% 20%, #14142a 0%, #080810 60%);
-    --card: rgba(14, 14, 26, 0.95);
-    --card2: rgba(20, 20, 34, 0.9);
-    --card3: rgba(28, 28, 44, 0.85);
-    --card-glass: rgba(255, 255, 255, 0.04);
-    --border: rgba(255, 215, 0, 0.12);
-    --border-light: rgba(255, 215, 0, 0.22);
-    --border-dim: rgba(255, 255, 255, 0.06);
+    /* CLEAN LIGHT BACKGROUND */
+    --bg: #f8f9fc;
+    --bg-2: #f1f5f9;
+    --bg-gradient: linear-gradient(135deg, #eef2ff 0%, #f8f9fc 100%);
+    --card: #ffffff;
+    --card2: #f8fafc;
+    --card3: #f1f5f9;
+    --card-glass: rgba(255, 255, 255, 0.8);
+    --border: #e2e8f0;
+    --border-light: #cbd5e1;
+    --border-dim: #f1f5f9;
 
     /* TEXT */
-    --text: #FFB3D9;
-    --text-muted: #9090B0;
-    --text-dim: #60607A;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
 
-    /* GOLD SCALE */
-    --gold-50:  #FFFDE7;
-    --gold-400: #FFD700;
-    --gold-500: #E6B800;
-    --gold-600: #CC9900;
+    /* INDIGO SCALE */
+    --gold-50:  #eef2ff;
+    --gold-400: #6366f1;
+    --gold-500: #4f46e5;
+    --gold-600: #4338ca;
 
     /* SHADOWS */
-    --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.5);
-    --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.6);
-    --shadow-gold-sm: 0 0 16px rgba(255, 215, 0, 0.15);
-    --shadow-gold-md: 0 0 32px rgba(255, 215, 0, 0.20);
-    --shadow-gold-lg: 0 0 60px rgba(255, 215, 0, 0.25);
-    --shadow-glow: 0 0 24px rgba(255, 215, 0, 0.3);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+    --shadow-gold-sm: 0 2px 8px rgba(99, 102, 241, 0.08);
+    --shadow-gold-md: 0 4px 16px rgba(99, 102, 241, 0.1);
+    --shadow-gold-lg: 0 8px 32px rgba(99, 102, 241, 0.12);
+    --shadow-glow: 0 4px 16px rgba(99, 102, 241, 0.15);
 
     /* GRADIENTS */
-    --grad-primary: linear-gradient(135deg, #FFD700, #FF6A00);
-    --grad-gold: linear-gradient(135deg, #FFE44D, #FFD700, #E6B800);
+    --grad-primary: linear-gradient(135deg, #6366f1, #8b5cf6);
+    --grad-gold: linear-gradient(135deg, #818cf8, #6366f1, #4f46e5);
     --grad-success: linear-gradient(135deg, #00E676, #00B04F);
     --grad-danger: linear-gradient(135deg, #FF3D57, #C0003A);
     --grad-warning: linear-gradient(135deg, #FFB300, #E65100);
@@ -3404,55 +3404,56 @@ body.offline-mode { padding-top: 44px !important; }
 
 
 /* ═══════════════════════════════════════════════════
-   AUTOSCRIP — VERCEL DARK THEME
-   Pure Dark, Minimal, Bright Text — Vercel.com style
+   AUTOSCRIP — ENTERPRISE CLEAN LIGHT THEME
+   Professional, Bright, Elegant
    ═══════════════════════════════════════════════════ */
 
 /* ── Body ── */
 body {
-  background: #000000 !important;
-  color: #ededed !important;
+  background: #f8f9fc !important;
+  color: #1a1a2e !important;
 }
 
 /* ── Navbar ── */
 .navbar, .nav-bar, header nav {
-  background: rgba(0,0,0,.85) !important;
+  background: rgba(255,255,255,.95) !important;
   backdrop-filter: blur(12px) !important;
-  border-bottom: 1px solid #333 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06) !important;
 }
-.nav-link { color: #888 !important; font-weight: 400 !important; }
-.nav-link:hover { color: #ededed !important; }
-.nav-link.active { color: #fff !important; font-weight: 600 !important; }
-.nav-brand, .nav-brand span, .nav-logo { color: #FFB3D9 !important; font-weight: 700 !important; }
+.nav-link { color: #64748b !important; font-weight: 500 !important; }
+.nav-link:hover { color: #1a1a2e !important; }
+.nav-link.active { color: #6366f1 !important; font-weight: 600 !important; }
+.nav-brand, .nav-brand span, .nav-logo { color: #6366f1 !important; font-weight: 700 !important; }
 
 /* ── Sidebar ── */
 .sidebar, .sb {
-  background: #0a0a0a !important;
-  border-right: 1px solid #1a1a1a !important;
+  background: #ffffff !important;
+  border-right: 1px solid #e2e8f0 !important;
 }
-.sb-lnk { color: #888 !important; font-weight: 400 !important; }
-.sb-lnk:hover { color: #ededed !important; background: #111 !important; }
+.sb-lnk { color: #64748b !important; font-weight: 500 !important; }
+.sb-lnk:hover { color: #1a1a2e !important; background: #f1f5f9 !important; }
 .sb-lnk.active {
-  color: #FF6EB4 !important;
-  background: #1a1a1a !important;
-  border-left: 2px solid #FF6EB4 !important;
+  color: #6366f1 !important;
+  background: #eef2ff !important;
+  border-left: 3px solid #6366f1 !important;
   font-weight: 600 !important;
 }
-.sb-logo, .sb-brand { color: #FF6EB4 !important; font-weight: 700 !important; }
+.sb-logo, .sb-brand { color: #6366f1 !important; font-weight: 700 !important; }
 
 /* ── Cards ── */
 .cd, .card, .feat-card, .view-filter-bar,
 .yt-card, .tool-card,
 [class*="card"]:not([class*="text-card"]) {
-  background: #111 !important;
-  border: 1px solid #2a2a2a !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
   border-radius: 12px !important;
-  box-shadow: none !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04) !important;
   transition: border-color .15s, box-shadow .15s !important;
 }
 .cd:hover, .feat-card:hover, .yt-card:hover, .tool-card:hover {
-  border-color: #444 !important;
-  box-shadow: 0 0 0 1px #444 !important;
+  border-color: #c7d2fe !important;
+  box-shadow: 0 4px 12px rgba(99,102,241,.08) !important;
 }
 
 /* ── Text ── */
@@ -3460,144 +3461,156 @@ h1, h2, h3, h4, h5, h6,
 .page-title, .sec-title, .pnl-tt, .cd-tt,
 .topbar-title, .feat-label, .cat-hl-name,
 .yt-title, .vid-title, .tw-tool-title {
-  color: #FFB3D9 !important;
+  color: #1e293b !important;
   text-shadow: none !important;
   font-weight: 700 !important;
-  letter-spacing: -.02em !important;
 }
 p, .page-desc, .feat-desc, .yt-author, .yt-stats,
 .cat-hl-count, .vid-desc-txt, .footer-desc,
-.text-muted, .muted, small { color: #888 !important; }
-span, li, label { color: #FFB3D9 !important; }
+.text-muted, .muted, small { color: #64748b !important; }
+span, li, label { color: #334155 !important; }
 
 /* ── Hero title ── */
 .hero-title {
-  background: linear-gradient(180deg, #fff 0%, #888 100%) !important;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   color: transparent !important;
   font-weight: 800 !important;
-  letter-spacing: -.04em !important;
 }
 .page-title {
-  color: #fff !important;
+  color: #1e293b !important;
   background: none !important;
   -webkit-background-clip: unset !important;
   background-clip: unset !important;
 }
-.hero-platform { color: #666 !important; letter-spacing: 3px !important; font-size: .75rem !important; }
 
 /* ── Chips ── */
 .chip {
-  background: #111 !important;
-  border: 1px solid #2a2a2a !important;
-  color: #888 !important;
-  border-radius: 6px !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #64748b !important;
+  border-radius: 8px !important;
   font-size: .8rem !important;
-  transition: all .15s !important;
 }
-.chip:hover { border-color: #555 !important; color: #ededed !important; }
+.chip:hover { border-color: #a5b4fc !important; color: #4f46e5 !important; background: #eef2ff !important; }
 .chip.active {
-  background: #fff !important;
-  border-color: #fff !important;
-  color: #000 !important;
+  background: #6366f1 !important;
+  border-color: #6366f1 !important;
+  color: #fff !important;
   font-weight: 600 !important;
 }
 
 /* ── Buttons ── */
 .btn-primary, .btn-pr {
-  background: #fff !important;
-  color: #000 !important;
-  border: 1px solid #fff !important;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+  color: #fff !important;
+  border: none !important;
   font-weight: 600 !important;
   border-radius: 8px !important;
-  box-shadow: none !important;
-  transition: background .15s, box-shadow .15s !important;
+  box-shadow: 0 2px 8px rgba(99,102,241,.25) !important;
 }
 .btn-primary:hover, .btn-pr:hover {
-  background: #ededed !important;
-  box-shadow: 0 0 0 3px rgba(255,255,255,.15) !important;
+  box-shadow: 0 4px 16px rgba(99,102,241,.35) !important;
+  transform: translateY(-1px) !important;
 }
 .btn-outline {
   background: transparent !important;
-  border: 1px solid #333 !important;
-  color: #ededed !important;
+  border: 1px solid #c7d2fe !important;
+  color: #6366f1 !important;
   border-radius: 8px !important;
 }
-.btn-outline:hover { border-color: #666 !important; background: #111 !important; }
-.btn-ghost { color: #888 !important; background: transparent !important; border-radius: 8px !important; }
-.btn-ghost:hover { color: #ededed !important; background: #111 !important; }
+.btn-outline:hover { border-color: #6366f1 !important; background: #eef2ff !important; }
+.btn-ghost { color: #64748b !important; background: transparent !important; border-radius: 8px !important; }
+.btn-ghost:hover { color: #1e293b !important; background: #f1f5f9 !important; }
 
 /* ── Forms ── */
 .fc, input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
 textarea, select, .form-control {
-  background: #0a0a0a !important;
-  border: 1px solid #333 !important;
-  color: #ededed !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #1e293b !important;
   border-radius: 8px !important;
   box-shadow: none !important;
 }
 .fc:focus, input:focus, textarea:focus, select:focus {
-  border-color: #666 !important;
-  box-shadow: 0 0 0 3px rgba(255,255,255,.08) !important;
+  border-color: #a5b4fc !important;
+  box-shadow: 0 0 0 3px rgba(99,102,241,.1) !important;
   outline: none !important;
 }
-input::placeholder, textarea::placeholder { color: #555 !important; }
-label, .fl { color: #888 !important; font-size: .82rem !important; font-weight: 500 !important; }
+input::placeholder, textarea::placeholder { color: #94a3b8 !important; }
+label, .fl { color: #475569 !important; font-size: .82rem !important; font-weight: 500 !important; }
 
 /* ── Badges ── */
 .bdg, .badge {
-  background: #1a1a1a !important;
-  color: #888 !important;
-  border: 1px solid #2a2a2a !important;
-  border-radius: 4px !important;
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 6px !important;
   font-size: .72rem !important;
 }
-.bdg-i { background: rgba(59,130,246,.1) !important; color: #60a5fa !important; border-color: rgba(59,130,246,.2) !important; }
-.bdg-g { background: rgba(34,197,94,.08) !important; color: #4ade80 !important; border-color: rgba(34,197,94,.2) !important; }
-.bdg-r { background: rgba(239,68,68,.08) !important; color: #f87171 !important; border-color: rgba(239,68,68,.2) !important; }
+.bdg-i { background: rgba(99,102,241,.08) !important; color: #6366f1 !important; border-color: rgba(99,102,241,.2) !important; }
+.bdg-g { background: rgba(34,197,94,.08) !important; color: #16a34a !important; border-color: rgba(34,197,94,.2) !important; }
+.bdg-r { background: rgba(239,68,68,.08) !important; color: #dc2626 !important; border-color: rgba(239,68,68,.2) !important; }
 
 /* ── Table ── */
-table { background: #111 !important; border: 1px solid #1a1a1a !important; border-radius: 12px !important; }
-thead { background: #0a0a0a !important; border-bottom: 1px solid #1a1a1a !important; }
-thead th { color: #888 !important; font-weight: 500 !important; font-size: .75rem !important; letter-spacing: .04em !important; text-transform: uppercase !important; }
-tbody tr:hover { background: rgba(255,255,255,.03) !important; }
-tbody td { color: #ededed !important; border-bottom: 1px solid #1a1a1a !important; }
+table { background: #fff !important; border: 1px solid #e2e8f0 !important; border-radius: 12px !important; }
+thead { background: #f8fafc !important; border-bottom: 1px solid #e2e8f0 !important; }
+thead th { color: #64748b !important; font-weight: 600 !important; font-size: .75rem !important; letter-spacing: .04em !important; text-transform: uppercase !important; }
+tbody tr:hover { background: #f8fafc !important; }
+tbody td { color: #334155 !important; border-bottom: 1px solid #f1f5f9 !important; }
 
 /* ── Topbar ── */
 .topbar, .cd-hd {
-  background: #0a0a0a !important;
-  border-bottom: 1px solid #1a1a1a !important;
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
 }
-.topbar-title { color: #FFB3D9 !important; font-weight: 600 !important; }
-.topbar-time { color: #666 !important; font-size: .78rem !important; }
+.topbar-title { color: #1e293b !important; font-weight: 600 !important; }
+.topbar-time { color: #94a3b8 !important; font-size: .78rem !important; }
 
 /* ── Code editor ── */
 .code-editor, .ce-area, pre, code {
-  background: #0a0a0a !important;
+  background: #1e293b !important;
   color: #a5b4fc !important;
-  border: 1px solid #1a1a1a !important;
+  border: 1px solid #334155 !important;
   border-radius: 8px !important;
 }
 
 /* ── Modals ── */
 [id*="Modal"] > div, [class*="modal"] > div {
-  background: #111 !important;
-  border: 1px solid #2a2a2a !important;
-  box-shadow: 0 0 0 1px #333, 0 24px 80px rgba(0,0,0,.9) !important;
+  background: #fff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,.12) !important;
 }
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #000 !important; }
-::-webkit-scrollbar-thumb { background: #333 !important; border-radius: 3px !important; }
-::-webkit-scrollbar-thumb:hover { background: #555 !important; }
+::-webkit-scrollbar-track { background: #f8fafc !important; }
+::-webkit-scrollbar-thumb { background: #cbd5e1 !important; border-radius: 3px !important; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8 !important; }
 
 /* ── Footer ── */
-footer, .footer { background: #000 !important; border-top: 1px solid #1a1a1a !important; }
-.footer-bottom { background: #000 !important; color: #666 !important; border-top: 1px solid #1a1a1a !important; }
-.footer-links a { color: #888 !important; }
-.footer-links a:hover { color: #FFB3D9 !important; }
+footer, .footer { background: #ffffff !important; border-top: 1px solid #e2e8f0 !important; }
+.footer-bottom { background: #f8fafc !important; color: #64748b !important; border-top: 1px solid #e2e8f0 !important; }
+.footer-links a { color: #64748b !important; }
+.footer-links a:hover { color: #6366f1 !important; }
+
+/* ── Toast ── */
+.tk { background: #fff !important; border: 1px solid #e2e8f0 !important; color: #334155 !important; box-shadow: 0 4px 12px rgba(0,0,0,.08) !important; }
+.tk-success { border-left: 3px solid #16a34a !important; }
+.tk-error { border-left: 3px solid #dc2626 !important; }
+.tk-warning { border-left: 3px solid #f59e0b !important; }
+.tk-info { border-left: 3px solid #6366f1 !important; }
+
+/* ── Login screen ── */
+#loginScreen { background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 50%, #faf5ff 100%) !important; }
+.login-box { background: #fff !important; border: 1px solid #e2e8f0 !important; box-shadow: 0 20px 60px rgba(0,0,0,.06) !important; }
+.login-title { color: #1e293b !important; }
+
+/* ── Misc overrides ── */
+.alert-success { background: rgba(34,197,94,.08) !important; color: #16a34a !important; border: 1px solid rgba(34,197,94,.2) !important; }
+.alert-danger { background: rgba(239,68,68,.08) !important; color: #dc2626 !important; border: 1px solid rgba(239,68,68,.2) !important; }
+.alert-warning { background: rgba(245,158,11,.08) !important; color: #d97706 !important; border: 1px solid rgba(245,158,11,.2) !important; }
 .footer-col-head { color: #FF6EB4 !important; font-weight: 600 !important; font-size: .8rem !important; }
 .footer-desc { color: #666 !important; }
 
@@ -9663,43 +9676,170 @@ async function seedDefaultCats() {
 
     const defaults = [
         {
-            emoji:'🎬', name:'ভিডিও টুলস', key:'video_tools', color:'#e53935', description:'ভিডিও ডাউনলোড, এডিট ও কনভার্ট টুলস',
+            emoji:'⚙️', name:'সিস্টেম টুলস', key:'system_tools', color:'#1565c0', description:'উইন্ডোজ সিস্টেম ম্যানেজমেন্ট টুলস',
             subCategories:[
-                {emoji:'📥', name:'ডাউনলোডার',  key:'video_downloader'},
-                {emoji:'✂️', name:'এডিটর',       key:'video_editor'},
-                {emoji:'🔄', name:'কনভার্টার',   key:'video_converter'}
+                {emoji:'💻', name:'হার্ডওয়্যার ইনফো', key:'sys_hardware'},
+                {emoji:'📋', name:'সিস্টেম রিপোর্ট', key:'sys_report'},
+                {emoji:'⚡', name:'পারফরম্যান্স', key:'sys_performance'},
+                {emoji:'🔧', name:'রেজিস্ট্রি', key:'sys_registry'},
+                {emoji:'📦', name:'সার্ভিস ম্যানেজ', key:'sys_services'},
+                {emoji:'👤', name:'ইউজার ম্যানেজ', key:'sys_users'},
+                {emoji:'📊', name:'ইভেন্ট লগ', key:'sys_eventlog'},
+                {emoji:'🔄', name:'আপডেট ম্যানেজ', key:'sys_updates'},
+                {emoji:'🗂️', name:'গ্রুপ পলিসি', key:'sys_gpo'},
+                {emoji:'🖥️', name:'রিমোট ম্যানেজ', key:'sys_remote'}
             ]
         },
         {
-            emoji:'📁', name:'ফাইল ম্যানেজমেন্ট', key:'file_tools', color:'#fb8c00', description:'ফাইল কপি, মুভ, সিঙ্ক ও ক্লিনআপ',
+            emoji:'🌐', name:'নেটওয়ার্ক টুলস', key:'network_tools', color:'#00838f', description:'নেটওয়ার্ক ডায়াগনস্টিক ও ম্যানেজমেন্ট',
+            subCategories:[
+                {emoji:'📡', name:'পিং ও ট্রেস', key:'net_ping'},
+                {emoji:'🔌', name:'পোর্ট স্ক্যান', key:'net_port'},
+                {emoji:'📶', name:'ওয়াইফাই', key:'net_wifi'},
+                {emoji:'🌍', name:'DNS টুলস', key:'net_dns'},
+                {emoji:'🔒', name:'ফায়ারওয়াল', key:'net_firewall'},
+                {emoji:'📈', name:'ব্যান্ডউইথ', key:'net_bandwidth'},
+                {emoji:'🖧', name:'IP ম্যানেজ', key:'net_ip'},
+                {emoji:'📊', name:'নেটওয়ার্ক মনিটর', key:'net_monitor'},
+                {emoji:'🔗', name:'VPN টুলস', key:'net_vpn'},
+                {emoji:'📧', name:'ইমেইল টুলস', key:'net_email'}
+            ]
+        },
+        {
+            emoji:'🔒', name:'সিকিউরিটি', key:'security_pro', color:'#7b1fa2', description:'নিরাপত্তা অডিট ও প্রাইভেসি টুলস',
+            subCategories:[
+                {emoji:'🛡️', name:'অ্যান্টিভাইরাস', key:'sec_antivirus'},
+                {emoji:'🔍', name:'ভালনারেবিলিটি স্ক্যান', key:'sec_vuln'},
+                {emoji:'🔑', name:'পাসওয়ার্ড ম্যানেজ', key:'sec_password'},
+                {emoji:'📜', name:'অডিট ও কমপ্লায়েন্স', key:'sec_audit'},
+                {emoji:'🔐', name:'এনক্রিপশন', key:'sec_encrypt'},
+                {emoji:'👁️', name:'ফরেনসিক', key:'sec_forensic'},
+                {emoji:'🚫', name:'ম্যালওয়্যার রিমুভ', key:'sec_malware'},
+                {emoji:'📋', name:'পলিসি চেক', key:'sec_policy'}
+            ]
+        },
+        {
+            emoji:'📁', name:'ফাইল ম্যানেজমেন্ট', key:'file_tools', color:'#f57c00', description:'ফাইল ও ফোল্ডার অপারেশন',
             subCategories:[
                 {emoji:'📦', name:'কম্প্রেস/আনজিপ', key:'file_compress'},
-                {emoji:'🔄', name:'সিঙ্ক ও ব্যাকআপ',  key:'file_sync'},
-                {emoji:'🗑️', name:'ক্লিনআপ',         key:'file_cleanup'}
+                {emoji:'🔄', name:'সিঙ্ক ও মিরর', key:'file_sync'},
+                {emoji:'🗑️', name:'ক্লিনআপ', key:'file_cleanup'},
+                {emoji:'🔍', name:'ফাইল সার্চ', key:'file_search'},
+                {emoji:'📋', name:'ফাইল রিনেম', key:'file_rename'},
+                {emoji:'📊', name:'ডিস্ক অ্যানালাইসিস', key:'file_disk'},
+                {emoji:'🔐', name:'ফাইল এনক্রিপশন', key:'file_encrypt'},
+                {emoji:'📝', name:'টেক্সট প্রসেসিং', key:'file_text'}
             ]
         },
         {
-            emoji:'🌐', name:'সোশ্যাল মিডিয়া', key:'social_media', color:'#1e88e5', description:'সোশ্যাল মিডিয়া অটোমেশন ও টুলস',
+            emoji:'💾', name:'ব্যাকআপ ও রিকভারি', key:'backup_tools', color:'#e53935', description:'ব্যাকআপ, রিস্টোর ও ডিজাস্টার রিকভারি',
             subCategories:[
-                {emoji:'📘', name:'ফেসবুক',   key:'social_facebook'},
-                {emoji:'▶️', name:'ইউটিউব',   key:'social_youtube'},
-                {emoji:'📸', name:'ইনস্টাগ্রাম', key:'social_instagram'}
+                {emoji:'📦', name:'ফুল ব্যাকআপ', key:'bak_full'},
+                {emoji:'🔄', name:'ইনক্রিমেন্টাল', key:'bak_incremental'},
+                {emoji:'☁️', name:'ক্লাউড ব্যাকআপ', key:'bak_cloud'},
+                {emoji:'🔧', name:'সিস্টেম রিস্টোর', key:'bak_restore'},
+                {emoji:'💿', name:'ইমেজ ব্যাকআপ', key:'bak_image'},
+                {emoji:'📋', name:'শিডিউল ব্যাকআপ', key:'bak_schedule'}
             ]
         },
         {
-            emoji:'🤖', name:'AI & স্ক্রিপ্টিং', key:'ai_tools', color:'#8e24aa', description:'AI ও অটোমেশন স্ক্রিপ্ট',
+            emoji:'🤖', name:'অটোমেশন', key:'automation_tools', color:'#c2185b', description:'টাস্ক অটোমেশন ও শিডিউলিং',
             subCategories:[
-                {emoji:'💬', name:'চ্যাটবট',     key:'ai_chatbot'},
-                {emoji:'🖼️', name:'ইমেজ AI',    key:'ai_image'},
-                {emoji:'📝', name:'টেক্সট টুলস', key:'ai_text'}
+                {emoji:'📅', name:'টাস্ক শিডিউলার', key:'auto_scheduler'},
+                {emoji:'🔁', name:'ব্যাচ প্রসেসিং', key:'auto_batch'},
+                {emoji:'📧', name:'ইমেইল অটোমেশন', key:'auto_email'},
+                {emoji:'📊', name:'রিপোর্ট জেনারেট', key:'auto_report'},
+                {emoji:'🔗', name:'API ইন্টিগ্রেশন', key:'auto_api'},
+                {emoji:'📝', name:'লগ অটোমেশন', key:'auto_log'}
             ]
         },
         {
-            emoji:'🔒', name:'সিকিউরিটি', key:'security_pro', color:'#43a047', description:'নিরাপত্তা ও প্রাইভেসি টুলস',
+            emoji:'📊', name:'মনিটরিং', key:'monitoring_tools', color:'#388e3c', description:'সিস্টেম ও সার্ভার মনিটরিং',
             subCategories:[
-                {emoji:'🛡️', name:'ফায়ারওয়াল',  key:'sec_firewall'},
-                {emoji:'🔍', name:'ভালনারেবিলিটি', key:'sec_scan'},
-                {emoji:'🔑', name:'পাসওয়ার্ড',    key:'sec_password'}
+                {emoji:'💓', name:'হেলথ চেক', key:'mon_health'},
+                {emoji:'📈', name:'পারফরম্যান্স', key:'mon_perf'},
+                {emoji:'💾', name:'ডিস্ক মনিটর', key:'mon_disk'},
+                {emoji:'🌡️', name:'টেম্পারেচার', key:'mon_temp'},
+                {emoji:'📊', name:'রিসোর্স মনিটর', key:'mon_resource'},
+                {emoji:'🔔', name:'অ্যালার্ট সিস্টেম', key:'mon_alert'}
+            ]
+        },
+        {
+            emoji:'🎬', name:'মিডিয়া টুলস', key:'media_tools', color:'#e53935', description:'অডিও, ভিডিও ও ইমেজ প্রসেসিং',
+            subCategories:[
+                {emoji:'📥', name:'ভিডিও ডাউনলোডার', key:'media_vdl'},
+                {emoji:'✂️', name:'ভিডিও এডিটর', key:'media_vedit'},
+                {emoji:'🔄', name:'ফরম্যাট কনভার্টার', key:'media_convert'},
+                {emoji:'🎵', name:'অডিও টুলস', key:'media_audio'},
+                {emoji:'🖼️', name:'ইমেজ প্রসেসিং', key:'media_image'},
+                {emoji:'📸', name:'স্ক্রিনশট টুলস', key:'media_screenshot'}
+            ]
+        },
+        {
+            emoji:'🌐', name:'সোশ্যাল মিডিয়া', key:'social_tools', color:'#1e88e5', description:'সোশ্যাল মিডিয়া ম্যানেজমেন্ট',
+            subCategories:[
+                {emoji:'📘', name:'ফেসবুক', key:'soc_facebook'},
+                {emoji:'▶️', name:'ইউটিউব', key:'soc_youtube'},
+                {emoji:'📸', name:'ইনস্টাগ্রাম', key:'soc_instagram'},
+                {emoji:'🐦', name:'টুইটার/X', key:'soc_twitter'},
+                {emoji:'💼', name:'লিংকডইন', key:'soc_linkedin'},
+                {emoji:'📱', name:'টিকটক', key:'soc_tiktok'},
+                {emoji:'💬', name:'টেলিগ্রাম', key:'soc_telegram'},
+                {emoji:'📲', name:'হোয়াটসঅ্যাপ', key:'soc_whatsapp'}
+            ]
+        },
+        {
+            emoji:'🤖', name:'AI ও মেশিন লার্নিং', key:'ai_tools', color:'#8e24aa', description:'AI ও স্মার্ট অটোমেশন টুলস',
+            subCategories:[
+                {emoji:'💬', name:'চ্যাটবট', key:'ai_chatbot'},
+                {emoji:'🖼️', name:'ইমেজ AI', key:'ai_image'},
+                {emoji:'📝', name:'টেক্সট জেনারেশন', key:'ai_text'},
+                {emoji:'🔊', name:'স্পিচ টুলস', key:'ai_speech'},
+                {emoji:'📊', name:'ডেটা অ্যানালাইসিস', key:'ai_data'},
+                {emoji:'🔍', name:'ওয়েব স্ক্র্যাপিং', key:'ai_scraping'}
+            ]
+        },
+        {
+            emoji:'🪟', name:'উইন্ডোজ ম্যানেজমেন্ট', key:'windows_tools', color:'#0078d4', description:'উইন্ডোজ কনফিগারেশন ও কাস্টমাইজেশন',
+            subCategories:[
+                {emoji:'🎨', name:'কাস্টমাইজেশন', key:'win_customize'},
+                {emoji:'⚡', name:'অপটিমাইজেশন', key:'win_optimize'},
+                {emoji:'🔧', name:'ট্রাবলশুট', key:'win_troubleshoot'},
+                {emoji:'📦', name:'সফটওয়্যার ম্যানেজ', key:'win_software'},
+                {emoji:'🖥️', name:'ডিসপ্লে সেটিংস', key:'win_display'},
+                {emoji:'🔊', name:'অডিও সেটিংস', key:'win_audio'},
+                {emoji:'🖨️', name:'প্রিন্টার ম্যানেজ', key:'win_printer'}
+            ]
+        },
+        {
+            emoji:'🗄️', name:'ডেটাবেস টুলস', key:'database_tools', color:'#00695c', description:'ডেটাবেস ম্যানেজমেন্ট ও কুয়েরি',
+            subCategories:[
+                {emoji:'📊', name:'SQL কুয়েরি', key:'db_sql'},
+                {emoji:'🔄', name:'মাইগ্রেশন', key:'db_migrate'},
+                {emoji:'💾', name:'ডেটাবেস ব্যাকআপ', key:'db_backup'},
+                {emoji:'📈', name:'পারফরম্যান্স', key:'db_perf'},
+                {emoji:'🔍', name:'ডেটা অ্যানালাইসিস', key:'db_analysis'}
+            ]
+        },
+        {
+            emoji:'☁️', name:'ক্লাউড ও DevOps', key:'cloud_tools', color:'#ff6f00', description:'ক্লাউড ম্যানেজমেন্ট ও CI/CD',
+            subCategories:[
+                {emoji:'🔵', name:'Azure', key:'cloud_azure'},
+                {emoji:'🟠', name:'AWS', key:'cloud_aws'},
+                {emoji:'🐳', name:'Docker', key:'cloud_docker'},
+                {emoji:'☸️', name:'Kubernetes', key:'cloud_k8s'},
+                {emoji:'🔄', name:'CI/CD', key:'cloud_cicd'},
+                {emoji:'📦', name:'IaC (Terraform)', key:'cloud_iac'}
+            ]
+        },
+        {
+            emoji:'⬇️', name:'ডাউনলোড টুলস', key:'download_tools', color:'#e65100', description:'ফাইল ও কন্টেন্ট ডাউনলোডার',
+            subCategories:[
+                {emoji:'🎬', name:'ভিডিও ডাউনলোড', key:'dl_video'},
+                {emoji:'🎵', name:'অডিও ডাউনলোড', key:'dl_audio'},
+                {emoji:'📄', name:'ডকুমেন্ট ডাউনলোড', key:'dl_doc'},
+                {emoji:'🖼️', name:'ইমেজ ডাউনলোড', key:'dl_image'},
+                {emoji:'📦', name:'বাল্ক ডাউনলোড', key:'dl_bulk'}
             ]
         }
     ];
