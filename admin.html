@@ -116,24 +116,24 @@
     --info-dark: #0284c7;
 
     /* CLEAN LIGHT BACKGROUND */
-    --bg: #f8f9fc;
-    --bg-2: #f1f5f9;
-    --bg-gradient: linear-gradient(135deg, #eef2ff 0%, #f8f9fc 100%);
-    --card: #ffd700;
-    --card2: #f8fafc;
-    --card3: #f1f5f9;
-    --card-glass: rgba(255, 215, 0, 0.8);
-    --border: #e2e8f0;
-    --border-light: #cbd5e1;
-    --border-dim: #f1f5f9;
+    --bg: #0c0e16;
+    --bg-2: #111422;
+    --bg-gradient: linear-gradient(135deg, #0c0e16 0%, #111422 100%);
+    --card: #161b2a;
+    --card2: #1b2135;
+    --card3: #212840;
+    --card-glass: rgba(22,27,42,0.92);
+    --border: #252d47;
+    --border-light: #2e3a58;
+    --border-dim: #1b2135;
 
     /* TEXT */
-    --text: #1e293b;
-    --text-muted: #64748b;
-    --text-dim: #94a3b8;
+    --text: #dde4f5;
+    --text-muted: #7080a0;
+    --text-dim: #4a5a7a;
 
     /* INDIGO SCALE */
-    --gold-50:  #eef2ff;
+    --gold-50:  #0c0e16;
     --gold-400: #6366f1;
     --gold-500: #4f46e5;
     --gold-600: #4338ca;
@@ -235,11 +235,11 @@ body::before {
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(255, 215, 0, 0.04);
+    background: #0c0e16;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #FFD700, #FF6A00);
+    background: linear-gradient(180deg, #4f46e5, #6366f1);
     border-radius: var(--r-full);
 }
 
@@ -316,7 +316,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .login-box {
     background: rgba(14, 14, 26, 0.92);
-    border: 1px solid rgba(255, 215, 0, 0.2);
+    border: 1px solid rgba(99,102,241,.2);
     border-radius: var(--r-xl);
     padding: 56px 48px;
     width: 480px;
@@ -574,7 +574,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .sb-lnk.active {
     color: #FFD700;
-    background: rgba(255, 215, 0, 0.08);
+    background: rgba(99,102,241,.08);
     border-left: 3px solid #FFD700;
     box-shadow: inset 0 0 20px rgba(255, 215, 0, 0.05);
 }
@@ -769,7 +769,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .sc:hover {
-    border-color: rgba(255, 215, 0, 0.3);
+    border-color: rgba(99,102,241,.3);
     transform: translateY(-5px);
     box-shadow: var(--shadow-md), var(--shadow-gold-sm);
 }
@@ -897,7 +897,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-ot:hover {
-    background: rgba(255, 215, 0, 0.08);
+    background: rgba(99,102,241,.08);
     border-color: #FFD700;
     box-shadow: 0 0 16px rgba(255, 215, 0, 0.2);
 }
@@ -910,7 +910,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-gh:hover {
     color: var(--text);
-    border-color: rgba(255, 215, 0, 0.3);
+    border-color: rgba(99,102,241,.3);
 }
 
 .btn-sm {
@@ -1261,7 +1261,7 @@ td {
 }
 
 .bdg-p {
-    background: rgba(255, 215, 0, 0.1);
+    background: rgba(99,102,241,.08);
     color: #FFD700;
     border: 1px solid rgba(255, 215, 0, 0.25);
 }
@@ -2603,7 +2603,7 @@ td {
 /* Sidebar gold badge */
 .sb-badge {
     display: inline-block;
-    background: rgba(255, 215, 0, 0.15);
+    background: rgba(99,102,241,.12);
     color: #FFD700;
     border: 1px solid rgba(255, 215, 0, 0.3);
     font-size: 0.6rem;
@@ -2619,7 +2619,7 @@ td {
 /* Sidebar collapse button */
 .sb-collapse:hover {
     color: #FFD700;
-    background: rgba(255, 215, 0, 0.08);
+    background: rgba(99,102,241,.08);
 }
 
 /* Sidebar section titles */
@@ -2801,7 +2801,7 @@ thead th {
 .wizard-step:last-child { border-right: none; }
 
 .wizard-step.active {
-    background: rgba(255, 215, 0, 0.1);
+    background: rgba(99,102,241,.08);
     color: #FFD700;
 }
 
@@ -2851,7 +2851,7 @@ thead th {
 
 /* Alert gold primary */
 .alert-primary {
-    background: rgba(255, 215, 0, 0.08);
+    background: rgba(99,102,241,.08);
     border: 1px solid rgba(255, 215, 0, 0.25);
     color: #FFD700;
 }
@@ -2922,7 +2922,7 @@ thead th {
     transition: var(--t-normal);
 }
 .topbar-notif-btn:hover {
-    background: rgba(255, 215, 0, 0.1);
+    background: rgba(99,102,241,.08);
     color: #FFD700;
     box-shadow: 0 0 12px rgba(255,215,0,0.15);
 }
@@ -2944,8 +2944,8 @@ thead th {
 
 /* Command badge gold */
 .cmd-badge {
-    background: rgba(255, 215, 0, 0.08);
-    border: 1px solid rgba(255, 215, 0, 0.2);
+    background: rgba(99,102,241,.08);
+    border: 1px solid rgba(99,102,241,.2);
     color: #FFD700;
 }
 
@@ -3086,7 +3086,7 @@ thead th {
 /* Upload area drag visual */
 .upload-area.drag-over {
     border-color: var(--primary) !important;
-    background: rgba(255, 215, 0, 0.08) !important;
+    background: rgba(99,102,241,.08) !important;
     transform: scale(1.01);
 }
 .upload-area {
@@ -3314,7 +3314,7 @@ body.offline-mode { padding-top: 44px !important; }
 .badge-danger  { background: rgba(255, 61, 87, 0.12);  border: 1px solid rgba(255, 61, 87, 0.25);  color: var(--danger);  }
 .badge-warning { background: rgba(255, 179, 0, 0.12);  border: 1px solid rgba(255, 179, 0, 0.25);  color: var(--warning); }
 .badge-info    { background: rgba(41, 182, 246, 0.12); border: 1px solid rgba(41, 182, 246, 0.25); color: var(--info);    }
-.badge-gold    { background: rgba(255, 215, 0, 0.12);  border: 1px solid rgba(255, 215, 0, 0.25);  color: var(--primary); }
+.badge-gold    { background: rgba(99,102,241,.10);  border: 1px solid rgba(255, 215, 0, 0.25);  color: var(--primary); }
 .badge-muted   { background: rgba(255, 215, 0,.06);    border: 1px solid var(--border-dim);        color: var(--text-muted); }
 
 /* ── TABLE ───────────────────────────────────────────────────── */
@@ -3361,9 +3361,9 @@ body.offline-mode { padding-top: 44px !important; }
 
 /* ── HEATMAP ─────────────────────────────────────────────────── */
 .heatmap-grid { display: grid; grid-template-columns: repeat(53, 1fr); gap: 3px; margin: 16px 0; }
-.hm-cell { aspect-ratio: 1; border-radius: 2px; background: rgba(255,215,0,.05); transition: transform var(--t-fast); cursor: pointer; }
+.hm-cell { aspect-ratio: 1; border-radius: 2px; background: rgba(99,102,241,.05); transition: transform var(--t-fast); cursor: pointer; }
 .hm-cell:hover { transform: scale(1.4); z-index: 1; }
-.hm-cell.l0 { background: rgba(255,215,0,.05); }
+.hm-cell.l0 { background: rgba(99,102,241,.05); }
 .hm-cell.l1 { background: rgba(255,215,0,.2); }
 .hm-cell.l2 { background: rgba(255,215,0,.4); }
 .hm-cell.l3 { background: rgba(255,215,0,.65); }
@@ -3373,7 +3373,7 @@ body.offline-mode { padding-top: 44px !important; }
 .notif-history { display: flex; flex-direction: column; gap: 8px; }
 .nh-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; background: rgba(255, 215, 0,.03); border: 1px solid var(--border); border-radius: var(--r-lg); font-size: 0.84rem; transition: background var(--t-fast); }
 .nh-item:hover { background: rgba(255,215,0,.04); }
-.nh-icon { font-size: 1.2rem; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(255,215,0,.08); border-radius: var(--r-md); }
+.nh-icon { font-size: 1.2rem; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(99,102,241,.08); border-radius: var(--r-md); }
 .nh-body { flex: 1; min-width: 0; }
 .nh-msg { color: var(--text); line-height: 1.5; }
 .nh-time { font-size: 0.72rem; color: var(--text-muted); margin-top: 3px; font-family: var(--font-code); }
@@ -3410,8 +3410,8 @@ body.offline-mode { padding-top: 44px !important; }
 
 /* ── Body ── */
 body {
-  background: #f8f9fc !important;
-  color: #1a1a2e !important;
+  background: #0c0e16 !important;
+  color: #dde4f5 !important;
 }
 
 /* ── Navbar ── */
@@ -3435,7 +3435,7 @@ body {
 .sb-lnk:hover { color: #1a1a2e !important; background: #f1f5f9 !important; }
 .sb-lnk.active {
   color: #6366f1 !important;
-  background: #eef2ff !important;
+  background: #0f1022 !important;
   border-left: 3px solid #6366f1 !important;
   font-weight: 600 !important;
 }
@@ -3493,7 +3493,7 @@ span, li, label { color: #334155 !important; }
   border-radius: 8px !important;
   font-size: .8rem !important;
 }
-.chip:hover { border-color: #a5b4fc !important; color: #4f46e5 !important; background: #eef2ff !important; }
+.chip:hover { border-color: #a5b4fc !important; color: #4f46e5 !important; background: #0f1022 !important; }
 .chip.active {
   background: #6366f1 !important;
   border-color: #6366f1 !important;
@@ -3520,7 +3520,7 @@ span, li, label { color: #334155 !important; }
   color: #6366f1 !important;
   border-radius: 8px !important;
 }
-.btn-outline:hover { border-color: #6366f1 !important; background: #eef2ff !important; }
+.btn-outline:hover { border-color: #6366f1 !important; background: #0f1022 !important; }
 .btn-ghost { color: #64748b !important; background: transparent !important; border-radius: 8px !important; }
 .btn-ghost:hover { color: #1e293b !important; background: #f1f5f9 !important; }
 
@@ -3585,8 +3585,8 @@ tbody td { color: #334155 !important; border-bottom: 1px solid #f1f5f9 !importan
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #f8fafc !important; }
-::-webkit-scrollbar-thumb { background: #cbd5e1 !important; border-radius: 3px !important; }
+::-webkit-scrollbar-track { background: #0c0e16 !important; }
+::-webkit-scrollbar-thumb { background: #2a3550 !important; border-radius: 3px !important; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8 !important; }
 
 /* ── Footer ── */
@@ -3955,6 +3955,26 @@ input:checked + .tg-sl { background: linear-gradient(135deg,#6366f1,#8b5cf6) !im
 .sb-badge { background: rgba(99,102,241,.15) !important; color: #a5b4fc !important; border-color: rgba(99,102,241,.3) !important; }
 .sb-av { background: linear-gradient(135deg,#6366f1,#8b5cf6) !important; box-shadow: 0 0 12px rgba(99,102,241,.25) !important; }
 .sb-rl { color: #a5b4fc !important; }
+
+
+/* ============================================================
+   DARK THEME OVERRIDES — No White Anywhere
+   ============================================================ */
+body { background: var(--bg) !important; color: var(--text) !important; }
+.card, .modal-box, .modal-content { background: var(--card) !important; }
+input, select, textarea { 
+  background: rgba(99,102,241,.05) !important; 
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+input::placeholder, textarea::placeholder { color: var(--text-muted) !important; }
+select option { background: var(--card2) !important; color: var(--text) !important; }
+.table { background: var(--card) !important; }
+.table th { background: var(--card2) !important; color: var(--text-muted) !important; }
+.table td { border-color: var(--border) !important; color: var(--text) !important; }
+.badge-light, .bg-light { background: var(--card2) !important; color: var(--text) !important; }
+.alert-light { background: rgba(99,102,241,.08) !important; border-color: rgba(99,102,241,.2) !important; }
+pre, code { background: #080a14 !important; color: #80deea !important; }
 
 </style>
 </head>
@@ -4339,6 +4359,9 @@ input:checked + .tg-sl { background: linear-gradient(135deg,#6366f1,#8b5cf6) !im
             <option value="monitoring">📊 মনিটরিং</option>
             <option value="automation">🤖 অটোমেশন</option>
             <option value="download">⬇️ ডাউনলোড</option>
+            <option value="devtools">💻 ডেভটুলস</option>
+            <option value="office">📝 অফিস</option>
+            <option value="gaming">🎮 গেমিং</option>
             <option value="files">📁 ফাইল</option>
             <option value="windows">🪟 উইন্ডোজ</option>
             <option value="other">📜 অন্যান্য</option>
@@ -4458,6 +4481,10 @@ input:checked + .tg-sl { background: linear-gradient(135deg,#6366f1,#8b5cf6) !im
               <option value="backup">💾 ব্যাকআপ</option>
               <option value="monitoring">📊 মনিটরিং</option>
               <option value="automation">🤖 অটোমেশন</option>
+              <option value="download">⬇️ ডাউনলোড</option>
+              <option value="devtools">💻 ডেভটুলস</option>
+              <option value="office">📝 অফিস</option>
+              <option value="gaming">🎮 গেমিং</option>
               <option value="download">⬇️ ডাউনলোড</option>
               <option value="files">📁 ফাইল ম্যানেজমেন্ট</option>
               <option value="windows">🪟 উইন্ডোজ</option>
@@ -5207,7 +5234,7 @@ input:checked + .tg-sl { background: linear-gradient(135deg,#6366f1,#8b5cf6) !im
 
   <!-- ══ Builtin Sub-Cat Modal ══ -->
   <div id="biSubModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(16px);z-index:9999;align-items:center;justify-content:center">
-    <div style="background:var(--card);border:1px solid rgba(255,215,0,.2);border-radius:16px;padding:26px;width:100%;max-width:500px;margin:16px;max-height:85vh;overflow-y:auto">
+    <div style="background:var(--card);border:1px solid rgba(99,102,241,.2);border-radius:16px;padding:26px;width:100%;max-width:500px;margin:16px;max-height:85vh;overflow-y:auto">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
         <h3 style="margin:0;font-size:1rem" id="biSubModalTitle">সাব-ক্যাটাগরি যোগ করুন</h3>
         <button onclick="document.getElementById('biSubModal').style.display='none'" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem"><i class="fas fa-times"></i></button>
@@ -5240,7 +5267,7 @@ input:checked + .tg-sl { background: linear-gradient(135deg,#6366f1,#8b5cf6) !im
 
   <!-- ══ Category Modal ══ -->
   <div id="catModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(16px);z-index:9999;align-items:center;justify-content:center">
-    <div style="background:var(--card);border:1px solid rgba(255,215,0,.2);border-radius:16px;padding:26px;width:100%;max-width:560px;margin:16px;max-height:90vh;overflow-y:auto">
+    <div style="background:var(--card);border:1px solid rgba(99,102,241,.2);border-radius:16px;padding:26px;width:100%;max-width:560px;margin:16px;max-height:90vh;overflow-y:auto">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
         <h3 style="margin:0;font-size:1.05rem" id="catModalTitle">✨ নতুন ক্যাটাগরি</h3>
         <button onclick="closeCatModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem"><i class="fas fa-times"></i></button>
@@ -5310,7 +5337,7 @@ input:checked + .tg-sl { background: linear-gradient(135deg,#6366f1,#8b5cf6) !im
         <div>
           <div class="yt-list-header">
             <div class="yt-list-title">📋 ভিডিও তালিকা <span class="yt-list-count" id="ytVidCount">লোড হচ্ছে...</span></div>
-            <button class="btn btn-sm" style="background:rgba(255,215,0,.1);color:var(--primary);border:1px solid rgba(255,215,0,.2)" onclick="loadYoutubeVideos()"><i class="fas fa-sync-alt"></i> রিফ্রেশ</button>
+            <button class="btn btn-sm" style="background:rgba(99,102,241,.08);color:var(--primary);border:1px solid rgba(99,102,241,.2)" onclick="loadYoutubeVideos()"><i class="fas fa-sync-alt"></i> রিফ্রেশ</button>
           </div>
           <div id="ytVideoList"><div class="em"><i class="fas fa-spinner fa-spin"></i><div class="em-t">লোড হচ্ছে...</div></div></div>
         </div>
@@ -6785,7 +6812,7 @@ function renderYoutubeList(vids, showSeedBanner=false) {
               ${isDefault
                 ? `<button class="btn btn-sm" style="background:var(--primary-dark);color:#000;font-size:.72rem;padding:5px 10px" onclick="editDefaultVideo('${vidId}',${i})" title="এডিট ও Seed করুন"><i class="fas fa-edit"></i></button>
                    <button class="btn btn-sm" style="background:rgba(244,67,54,.15);color:#f44336;border:1px solid rgba(244,67,54,.3);font-size:.72rem;padding:5px 10px" onclick="deleteDefaultVideo(${i})" title="সরান"><i class="fas fa-trash"></i></button>`
-                : `<button class="btn btn-sm" style="background:rgba(255,215,0,.1);color:var(--primary);border:1px solid rgba(255,215,0,.25);font-size:.72rem;padding:5px 10px" onclick="editYtVideo('${vidId}')" title="এডিট"><i class="fas fa-edit"></i></button>
+                : `<button class="btn btn-sm" style="background:rgba(99,102,241,.08);color:var(--primary);border:1px solid rgba(255,215,0,.25);font-size:.72rem;padding:5px 10px" onclick="editYtVideo('${vidId}')" title="এডিট"><i class="fas fa-edit"></i></button>
                    ${i>0?`<button class="btn btn-sm" style="background:rgba(255, 215, 0,.06);color:var(--muted);font-size:.72rem;padding:5px 8px" onclick="reorderYtVideo('${vidId}',-1)" title="উপরে"><i class="fas fa-arrow-up"></i></button>`:''}
                    <button class="btn btn-sm" style="background:rgba(244,67,54,.15);color:#f44336;border:1px solid rgba(244,67,54,.3);font-size:.72rem;padding:5px 10px" onclick="deleteYtVideo('${vidId}')" title="ডিলিট"><i class="fas fa-trash"></i></button>`
               }
@@ -7180,8 +7207,8 @@ async function doLogin() {
         currentUserRole = currentUser.role;
 
         // Save session reference
-        try { localStorage.setItem('adminToken', 'firebase_' + user.uid); } catch(e) {}
-        try { localStorage.setItem('adminEmail', user.email); } catch(e) {}
+        try { sessionStorage.setItem('adminToken', 'firebase_' + user.uid); } catch(e) {}
+        try { sessionStorage.setItem('adminEmail', user.email); } catch(e) {}
 
         // Step 4: Load dashboard
         showApp();
@@ -7220,7 +7247,7 @@ async function doLogin() {
 // ===== LOGOUT (Firebase) =====
 async function doLogout() {
     try { await fbAuth.signOut(); } catch(e) {}
-    try { localStorage.removeItem('adminToken'); } catch(e) {}
+    try { sessionStorage.removeItem('adminToken'); } catch(e) {}
     currentUser     = null;
     currentUserRole = null;
     document.getElementById('loginScreen').style.display = 'flex';
@@ -7422,7 +7449,7 @@ async function migrateLocalTools() {
     try {
         const keys = ['autoscrip_tools', 'as7_tools', 'tools', 'autoscrip_data_tools'];
         for (const key of keys) {
-            const raw = localStorage.getItem(key);
+            const raw = sessionStorage.getItem(key);
             if (raw) {
                 const parsed = JSON.parse(raw);
                 if (Array.isArray(parsed) && parsed.length > 0) {
@@ -7601,7 +7628,7 @@ function showFirestoreSetupGuide() {
         <div style="padding:14px 18px;background:rgba(255, 215, 0,.03);border:1px solid rgba(255, 215, 0,.08);border-radius:12px;font-size:.88rem;color:var(--muted)">
           <span style="font-size:1.2rem">3️⃣</span>
           Database তৈরির পর <strong style="color:var(--primary)">Rules</strong> tab-এ গিয়ে
-          <button onclick="openFirestoreRulesModal()" style="background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.3);color:#ffd700;padding:3px 12px;border-radius:6px;cursor:pointer;font-size:.82rem;font-family:var(--font-head);font-weight:700;margin-left:4px">
+          <button onclick="openFirestoreRulesModal()" style="background:rgba(99,102,241,.12);border:1px solid rgba(255,215,0,.3);color:#ffd700;padding:3px 12px;border-radius:6px;cursor:pointer;font-size:.82rem;font-family:var(--font-head);font-weight:700;margin-left:4px">
             <i class="fas fa-shield-alt"></i> Rules দেখুন
           </button>
         </div>
@@ -7754,7 +7781,7 @@ async function loadTools() {
                     <i class="fas fa-plus-circle" style="font-size:2.5rem;color:var(--primary);opacity:.5;margin-bottom:14px;display:block"></i>
                     <div style="font-family:var(--font-head);font-size:1.1rem;margin-bottom:8px;color:var(--text)">Firestore-এ কোনো টুল নেই</div>
                     ${lsTools.length ? `
-                    <div style="background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:12px;padding:16px 20px;margin:16px auto;max-width:420px;text-align:left">
+                    <div style="background:rgba(255,215,0,.08);border:1px solid rgba(99,102,241,.2);border-radius:12px;padding:16px 20px;margin:16px auto;max-width:420px;text-align:left">
                         <div style="font-family:var(--font-head);font-weight:700;color:var(--primary);margin-bottom:8px">
                             <i class="fas fa-database"></i> ${lsTools.length}টি পুরনো টুল পাওয়া গেছে!
                         </div>
@@ -10755,7 +10782,7 @@ window.showFirestoreRulesHelp = function() {
       </div>
       <div style="margin-bottom:16px">
         <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.82rem;color:#ffd700;letter-spacing:1px;margin-bottom:8px">&#128203; ধাপ ১ — Firebase Console খুলুন</div>
-        <a href="https://console.firebase.google.com/project/powerscript-pro-web/firestore/rules" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.25);border-radius:10px;color:#ffd700;text-decoration:none;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.88rem">
+        <a href="https://console.firebase.google.com/project/powerscript-pro-web/firestore/rules" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(99,102,241,.08);border:1px solid rgba(255,215,0,.25);border-radius:10px;color:#ffd700;text-decoration:none;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.88rem">
           <i class="fas fa-external-link-alt"></i> Firebase Console Firestore Rules খুলুন
         </a>
       </div>
@@ -10819,7 +10846,7 @@ service cloud.firestore {
     }
   }
 }</pre>
-          <button onclick="(function(){var t=document.getElementById('rulesCode');var txt=t.innerText.replace(/&amp;/g,'&amp;').replace(/&lt;/g,'<').replace(/&gt;/g,'>');navigator.clipboard&&navigator.clipboard.writeText(txt).then(function(){document.getElementById('copyRulesBtn').innerHTML='<i class=\'fas fa-check\'></i> কপি হয়েছে!';document.getElementById('copyRulesBtn').style.background='rgba(0,230,118,.15)';document.getElementById('copyRulesBtn').style.color='#00e676';setTimeout(function(){document.getElementById('copyRulesBtn').innerHTML='<i class=\'fas fa-copy\'></i> কপি';document.getElementById('copyRulesBtn').style.background='rgba(255,215,0,.1)';document.getElementById('copyRulesBtn').style.color='#ffd700';},2500);})})()" id="copyRulesBtn" style="position:absolute;top:10px;right:10px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.25);color:#ffd700;padding:6px 14px;border-radius:8px;font-size:.76rem;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700">
+          <button onclick="(function(){var t=document.getElementById('rulesCode');var txt=t.innerText.replace(/&amp;/g,'&amp;').replace(/&lt;/g,'<').replace(/&gt;/g,'>');navigator.clipboard&&navigator.clipboard.writeText(txt).then(function(){document.getElementById('copyRulesBtn').innerHTML='<i class=\'fas fa-check\'></i> কপি হয়েছে!';document.getElementById('copyRulesBtn').style.background='rgba(0,230,118,.15)';document.getElementById('copyRulesBtn').style.color='#00e676';setTimeout(function(){document.getElementById('copyRulesBtn').innerHTML='<i class=\'fas fa-copy\'></i> কপি';document.getElementById('copyRulesBtn').style.background='rgba(255,215,0,.1)';document.getElementById('copyRulesBtn').style.color='#ffd700';},2500);})})()" id="copyRulesBtn" style="position:absolute;top:10px;right:10px;background:rgba(99,102,241,.08);border:1px solid rgba(255,215,0,.25);color:#ffd700;padding:6px 14px;border-radius:8px;font-size:.76rem;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700">
             <i class="fas fa-copy"></i> কপি
           </button>
         </div>
@@ -10841,76 +10868,124 @@ window.va = window.va || function() { (window.va.q = window.va.q || []).push(arg
 // ═══ DEFAULT SUB-CATEGORIES FOR BUILT-IN CATEGORIES ═══
 var DEFAULT_ADMIN_SUBCATS = {
   system: [
-    {emoji:'💻',name:'সিস্টেম ইনফো',key:'sys_info'},{emoji:'⚡',name:'পাওয়ার',key:'sys_power'},
-    {emoji:'🔧',name:'রেজিস্ট্রি',key:'sys_registry'},{emoji:'📦',name:'সফটওয়্যার',key:'sys_software'},
-    {emoji:'🖥️',name:'ডিসপ্লে',key:'sys_display'},{emoji:'💾',name:'মেমরি',key:'sys_memory'},
-    {emoji:'🔊',name:'অডিও',key:'sys_audio'},{emoji:'⌨️',name:'ইনপুট',key:'sys_input'},
-    {emoji:'🖨️',name:'প্রিন্টার',key:'sys_printer'},{emoji:'📀',name:'ড্রাইভার',key:'sys_driver'},
-    {emoji:'🔄',name:'আপডেট',key:'sys_update'},{emoji:'🗂️',name:'ফাইল সিস্টেম',key:'sys_filesystem'},
-    {emoji:'📊',name:'পারফরম্যান্স',key:'sys_performance'},{emoji:'🔋',name:'ব্যাটারি',key:'sys_battery'},
-    {emoji:'🌡️',name:'তাপমাত্রা',key:'sys_temp'},{emoji:'📝',name:'লগ',key:'sys_log'},
-    {emoji:'🔑',name:'লাইসেন্স',key:'sys_license'},{emoji:'🕐',name:'শিডিউল',key:'sys_schedule'},
-    {emoji:'🧹',name:'ক্লিনআপ',key:'sys_cleanup'},{emoji:'📋',name:'ক্লিপবোর্ড',key:'sys_clipboard'}
+    {emoji:'💻',name:'সিস্টেম ইনফো',key:'sys_info'},
+    {emoji:'⚡',name:'পাওয়ার ম্যানেজ',key:'sys_power'},
+    {emoji:'🔧',name:'রেজিস্ট্রি',key:'sys_registry'},
+    {emoji:'📦',name:'সফটওয়্যার',key:'sys_software'},
+    {emoji:'🖥️',name:'ডিসপ্লে',key:'sys_display'},
+    {emoji:'💾',name:'মেমরি',key:'sys_memory'},
+    {emoji:'🔊',name:'অডিও',key:'sys_audio'},
+    {emoji:'🔋',name:'ব্যাটারি',key:'sys_battery'},
+    {emoji:'📝',name:'লগ ম্যানেজ',key:'sys_log'},
+    {emoji:'🧹',name:'ক্লিনআপ',key:'sys_cleanup'}
   ],
   network: [
-    {emoji:'🌍',name:'DNS',key:'net_dns'},{emoji:'📡',name:'WiFi',key:'net_wifi'},
-    {emoji:'🔌',name:'ইথারনেট',key:'net_ethernet'},{emoji:'🛡️',name:'ফায়ারওয়াল',key:'net_firewall'},
-    {emoji:'📊',name:'ব্যান্ডউইথ',key:'net_bandwidth'},{emoji:'🔍',name:'পোর্ট স্ক্যান',key:'net_port'},
-    {emoji:'📧',name:'ইমেইল',key:'net_email'},{emoji:'🌐',name:'VPN',key:'net_vpn'},
-    {emoji:'📶',name:'সিগন্যাল',key:'net_signal'},{emoji:'🔗',name:'প্রক্সি',key:'net_proxy'},
-    {emoji:'📤',name:'FTP',key:'net_ftp'},{emoji:'🖧',name:'শেয়ারিং',key:'net_sharing'},
-    {emoji:'🏠',name:'রাউটার',key:'net_router'},{emoji:'📱',name:'ব্লুটুথ',key:'net_bluetooth'},
-    {emoji:'🔐',name:'SSL',key:'net_ssl'},{emoji:'📈',name:'ট্রাফিক',key:'net_traffic'},
-    {emoji:'🌊',name:'পিং',key:'net_ping'},{emoji:'🗺️',name:'ট্রেসরাউট',key:'net_trace'},
-    {emoji:'📋',name:'ARP',key:'net_arp'},{emoji:'🔄',name:'DHCP',key:'net_dhcp'}
+    {emoji:'🌍',name:'DNS ম্যানেজ',key:'net_dns'},
+    {emoji:'📡',name:'WiFi কন্ট্রোল',key:'net_wifi'},
+    {emoji:'🔌',name:'ইথারনেট',key:'net_ethernet'},
+    {emoji:'🛡️',name:'ফায়ারওয়াল',key:'net_firewall'},
+    {emoji:'📊',name:'ব্যান্ডউইথ',key:'net_bandwidth'},
+    {emoji:'🔍',name:'পোর্ট স্ক্যান',key:'net_port'},
+    {emoji:'🌐',name:'VPN',key:'net_vpn'},
+    {emoji:'📶',name:'সিগন্যাল চেক',key:'net_signal'},
+    {emoji:'🌊',name:'পিং টেস্ট',key:'net_ping'},
+    {emoji:'🗺️',name:'ট্রেসরাউট',key:'net_trace'}
   ],
   security: [
-    {emoji:'🔒',name:'এনক্রিপশন',key:'sec_encrypt'},{emoji:'🛡️',name:'অ্যান্টিভাইরাস',key:'sec_antivirus'},
-    {emoji:'🔑',name:'পাসওয়ার্ড',key:'sec_password'},{emoji:'👁️',name:'অডিট',key:'sec_audit'},
-    {emoji:'🚫',name:'ব্লকিং',key:'sec_blocking'},{emoji:'📜',name:'পলিসি',key:'sec_policy'},
-    {emoji:'🔍',name:'স্ক্যানিং',key:'sec_scanning'},{emoji:'🧱',name:'ফায়ারওয়াল',key:'sec_firewall'},
-    {emoji:'📊',name:'লগ অ্যানালাইসিস',key:'sec_loganalysis'},{emoji:'🔐',name:'MFA',key:'sec_mfa'},
-    {emoji:'🗝️',name:'সার্টিফিকেট',key:'sec_cert'},{emoji:'🕵️',name:'ফরেনসিক',key:'sec_forensic'},
-    {emoji:'⚠️',name:'ভালনারেবিলিটি',key:'sec_vuln'},{emoji:'🦠',name:'ম্যালওয়্যার',key:'sec_malware'},
-    {emoji:'🔄',name:'প্যাচ',key:'sec_patch'},{emoji:'👤',name:'ইউজার অ্যাক্সেস',key:'sec_access'},
-    {emoji:'📡',name:'IDS/IPS',key:'sec_ids'},{emoji:'🔗',name:'SSO',key:'sec_sso'},
-    {emoji:'💿',name:'ব্যাকআপ সিকিউরিটি',key:'sec_backup'},{emoji:'📱',name:'ডিভাইস সিকিউরিটি',key:'sec_device'}
+    {emoji:'🔒',name:'এনক্রিপশন',key:'sec_encrypt'},
+    {emoji:'🛡️',name:'অ্যান্টিভাইরাস',key:'sec_antivirus'},
+    {emoji:'🔑',name:'পাসওয়ার্ড',key:'sec_password'},
+    {emoji:'👁️',name:'অডিট লগ',key:'sec_audit'},
+    {emoji:'🚫',name:'ব্লকিং',key:'sec_blocking'},
+    {emoji:'📜',name:'পলিসি',key:'sec_policy'},
+    {emoji:'🔍',name:'ভাইরাস স্ক্যান',key:'sec_scanning'},
+    {emoji:'📊',name:'লগ অ্যানালাইসিস',key:'sec_loganalysis'},
+    {emoji:'🔐',name:'MFA সেটআপ',key:'sec_mfa'},
+    {emoji:'⚠️',name:'ভালনারেবিলিটি',key:'sec_vuln'}
   ],
   backup: [
-    {emoji:'💾',name:'ফুল ব্যাকআপ',key:'bak_full'},{emoji:'📂',name:'ফাইল ব্যাকআপ',key:'bak_file'},
-    {emoji:'🗄️',name:'ডেটাবেস',key:'bak_database'},{emoji:'☁️',name:'ক্লাউড',key:'bak_cloud'},
-    {emoji:'📀',name:'ডিস্ক ইমেজ',key:'bak_disk'},{emoji:'🔄',name:'ইনক্রিমেন্টাল',key:'bak_incremental'},
-    {emoji:'📋',name:'রেজিস্ট্রি',key:'bak_registry'},{emoji:'📧',name:'ইমেইল',key:'bak_email'},
-    {emoji:'🔐',name:'এনক্রিপ্টেড',key:'bak_encrypted'},{emoji:'⏰',name:'শিডিউলড',key:'bak_scheduled'},
-    {emoji:'📊',name:'রিপোর্ট',key:'bak_report'},{emoji:'🔁',name:'রিস্টোর',key:'bak_restore'},
-    {emoji:'📡',name:'রিমোট',key:'bak_remote'},{emoji:'🗜️',name:'কমপ্রেশন',key:'bak_compress'},
-    {emoji:'✅',name:'ভেরিফিকেশন',key:'bak_verify'},{emoji:'📝',name:'লগ',key:'bak_log'},
-    {emoji:'🔗',name:'সিঙ্ক',key:'bak_sync'},{emoji:'🗑️',name:'রোটেশন',key:'bak_rotation'},
-    {emoji:'💽',name:'USB',key:'bak_usb'},{emoji:'📦',name:'আর্কাইভ',key:'bak_archive'}
+    {emoji:'💾',name:'ফুল ব্যাকআপ',key:'bak_full'},
+    {emoji:'📂',name:'ফাইল ব্যাকআপ',key:'bak_file'},
+    {emoji:'🗄️',name:'ডেটাবেস',key:'bak_database'},
+    {emoji:'☁️',name:'ক্লাউড ব্যাকআপ',key:'bak_cloud'},
+    {emoji:'📀',name:'ডিস্ক ইমেজ',key:'bak_disk'},
+    {emoji:'🔄',name:'ইনক্রিমেন্টাল',key:'bak_incremental'},
+    {emoji:'🔐',name:'এনক্রিপ্টেড',key:'bak_encrypted'},
+    {emoji:'⏰',name:'শিডিউলড',key:'bak_scheduled'},
+    {emoji:'🔁',name:'রিস্টোর',key:'bak_restore'},
+    {emoji:'🔗',name:'সিঙ্ক',key:'bak_sync'}
   ],
   monitoring: [
-    {emoji:'📊',name:'CPU',key:'mon_cpu'},{emoji:'💾',name:'RAM',key:'mon_ram'},
-    {emoji:'💿',name:'ডিস্ক',key:'mon_disk'},{emoji:'🌐',name:'নেটওয়ার্ক',key:'mon_network'},
-    {emoji:'📈',name:'পারফরম্যান্স',key:'mon_performance'},{emoji:'🔔',name:'অ্যালার্ট',key:'mon_alert'},
-    {emoji:'📝',name:'ইভেন্ট লগ',key:'mon_eventlog'},{emoji:'🖥️',name:'সার্ভার',key:'mon_server'},
-    {emoji:'⏱️',name:'আপটাইম',key:'mon_uptime'},{emoji:'🌡️',name:'হার্ডওয়্যার',key:'mon_hardware'},
-    {emoji:'📡',name:'সার্ভিস',key:'mon_service'},{emoji:'🔍',name:'প্রসেস',key:'mon_process'},
-    {emoji:'📊',name:'রিপোর্ট',key:'mon_report'},{emoji:'📧',name:'ইমেইল অ্যালার্ট',key:'mon_emailalert'},
-    {emoji:'🕐',name:'রিয়েলটাইম',key:'mon_realtime'},{emoji:'📋',name:'ড্যাশবোর্ড',key:'mon_dashboard'},
-    {emoji:'🔄',name:'হেলথচেক',key:'mon_healthcheck'},{emoji:'📱',name:'মোবাইল',key:'mon_mobile'},
-    {emoji:'🗃️',name:'ডেটাবেস',key:'mon_database'},{emoji:'☁️',name:'ক্লাউড',key:'mon_cloud'}
+    {emoji:'📊',name:'CPU মনিটর',key:'mon_cpu'},
+    {emoji:'💾',name:'RAM মনিটর',key:'mon_ram'},
+    {emoji:'💿',name:'ডিস্ক মনিটর',key:'mon_disk'},
+    {emoji:'🌐',name:'নেটওয়ার্ক',key:'mon_network'},
+    {emoji:'📈',name:'পারফরম্যান্স',key:'mon_performance'},
+    {emoji:'🔔',name:'অ্যালার্ট',key:'mon_alert'},
+    {emoji:'📝',name:'ইভেন্ট লগ',key:'mon_eventlog'},
+    {emoji:'🖥️',name:'সার্ভার স্ট্যাটাস',key:'mon_server'},
+    {emoji:'⏱️',name:'আপটাইম',key:'mon_uptime'},
+    {emoji:'🌡️',name:'হার্ডওয়্যার টেম্প',key:'mon_hardware'}
   ],
   automation: [
-    {emoji:'🤖',name:'টাস্ক শিডিউলার',key:'auto_scheduler'},{emoji:'📜',name:'স্ক্রিপ্ট',key:'auto_script'},
-    {emoji:'🔄',name:'ওয়ার্কফ্লো',key:'auto_workflow'},{emoji:'📧',name:'ইমেইল',key:'auto_email'},
-    {emoji:'📂',name:'ফাইল',key:'auto_file'},{emoji:'🗄️',name:'ডেটাবেস',key:'auto_database'},
-    {emoji:'🌐',name:'ওয়েব',key:'auto_web'},{emoji:'📊',name:'রিপোর্ট',key:'auto_report'},
-    {emoji:'🔐',name:'সিকিউরিটি',key:'auto_security'},{emoji:'💾',name:'ব্যাকআপ',key:'auto_backup'},
-    {emoji:'📡',name:'ডিপ্লয়মেন্ট',key:'auto_deploy'},{emoji:'🧪',name:'টেস্টিং',key:'auto_testing'},
-    {emoji:'📋',name:'ইনভেন্টরি',key:'auto_inventory'},{emoji:'👤',name:'ইউজার',key:'auto_user'},
-    {emoji:'🔧',name:'মেইনটেন্যান্স',key:'auto_maintenance'},{emoji:'📈',name:'স্কেলিং',key:'auto_scaling'},
-    {emoji:'🔔',name:'নোটিফিকেশন',key:'auto_notification'},{emoji:'🗑️',name:'ক্লিনআপ',key:'auto_cleanup'},
-    {emoji:'📦',name:'প্যাকেজ',key:'auto_package'},{emoji:'🔗',name:'ইন্টিগ্রেশন',key:'auto_integration'}
+    {emoji:'🤖',name:'টাস্ক শিডিউলার',key:'auto_scheduler'},
+    {emoji:'📜',name:'স্ক্রিপ্ট রান',key:'auto_script'},
+    {emoji:'🔄',name:'ওয়ার্কফ্লো',key:'auto_workflow'},
+    {emoji:'📧',name:'ইমেইল অটো',key:'auto_email'},
+    {emoji:'📂',name:'ফাইল অটো',key:'auto_file'},
+    {emoji:'🌐',name:'ওয়েব অটো',key:'auto_web'},
+    {emoji:'📊',name:'রিপোর্ট',key:'auto_report'},
+    {emoji:'🔐',name:'সিকিউরিটি অটো',key:'auto_security'},
+    {emoji:'🔔',name:'নোটিফিকেশন',key:'auto_notification'},
+    {emoji:'🗑️',name:'ক্লিনআপ অটো',key:'auto_cleanup'}
+  ],
+  download: [
+    {emoji:'⬇️',name:'সফটওয়্যার',key:'dl_software'},
+    {emoji:'🔄',name:'আপডেট',key:'dl_update'},
+    {emoji:'📦',name:'প্যাকেজ',key:'dl_package'},
+    {emoji:'🌐',name:'ওয়েব ফাইল',key:'dl_web'},
+    {emoji:'🐙',name:'GitHub',key:'dl_github'},
+    {emoji:'☁️',name:'ক্লাউড ফাইল',key:'dl_cloud'},
+    {emoji:'🎮',name:'গেম',key:'dl_game'},
+    {emoji:'🔧',name:'ড্রাইভার',key:'dl_driver'},
+    {emoji:'📄',name:'ডকুমেন্ট',key:'dl_doc'},
+    {emoji:'🎵',name:'মিডিয়া',key:'dl_media'}
+  ],
+  devtools: [
+    {emoji:'💻',name:'কোড এডিটর',key:'dev_editor'},
+    {emoji:'🐙',name:'Git/GitHub',key:'dev_git'},
+    {emoji:'🐳',name:'Docker',key:'dev_docker'},
+    {emoji:'🐍',name:'Python',key:'dev_python'},
+    {emoji:'⚙️',name:'Node.js',key:'dev_node'},
+    {emoji:'🔧',name:'বিল্ড টুলস',key:'dev_build'},
+    {emoji:'🧪',name:'টেস্টিং',key:'dev_testing'},
+    {emoji:'📊',name:'ডিবাগিং',key:'dev_debug'},
+    {emoji:'☁️',name:'ক্লাউড ডেপ্লয়',key:'dev_deploy'},
+    {emoji:'📡',name:'API টুলস',key:'dev_api'}
+  ],
+  office: [
+    {emoji:'📝',name:'Word অটো',key:'off_word'},
+    {emoji:'📊',name:'Excel অটো',key:'off_excel'},
+    {emoji:'📧',name:'Outlook',key:'off_outlook'},
+    {emoji:'👥',name:'Teams',key:'off_teams'},
+    {emoji:'💼',name:'SharePoint',key:'off_sharepoint'},
+    {emoji:'📂',name:'OneDrive',key:'off_onedrive'},
+    {emoji:'🖨️',name:'প্রিন্ট ম্যানেজ',key:'off_print'},
+    {emoji:'📅',name:'ক্যালেন্ডার',key:'off_calendar'},
+    {emoji:'🔑',name:'লাইসেন্স',key:'off_license'},
+    {emoji:'📋',name:'পলিসি',key:'off_policy'}
+  ],
+  gaming: [
+    {emoji:'🎮',name:'গেম অপটিমাইজ',key:'gam_optimize'},
+    {emoji:'🖥️',name:'GPU সেটিংস',key:'gam_gpu'},
+    {emoji:'📊',name:'FPS বুস্ট',key:'gam_fps'},
+    {emoji:'🎵',name:'অডিও',key:'gam_audio'},
+    {emoji:'🔌',name:'কন্ট্রোলার',key:'gam_controller'},
+    {emoji:'💾',name:'গেম ব্যাকআপ',key:'gam_backup'},
+    {emoji:'🌐',name:'নেটওয়ার্ক অপটি',key:'gam_network'},
+    {emoji:'🛡️',name:'অ্যান্টিচিট',key:'gam_anticheat'},
+    {emoji:'📦',name:'গেম ইনস্টল',key:'gam_install'},
+    {emoji:'🔧',name:'মড ম্যানেজ',key:'gam_mod'}
   ]
 };
 
