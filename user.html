@@ -17,6 +17,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Bangla&family=JetBrains+Mono:wght@400;500;600;700&family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <!-- DOMPurify — XSS Prevention -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js" crossorigin="anonymous"></script>
+  <!-- AutoScrip Shared Dark Theme CSS -->
+  <link rel="stylesheet" href="shared.css">
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -5435,6 +5439,21 @@ if (typeof _origApplyFilters === 'function') {
   };
 }
 
+</script>
+<!-- AutoScrip Core Modules (ES Modules) -->
+<script type="module">
+  // Root-level imports — all files in same GitHub repo root
+  import { initFirebase, Sanitizer, DOM, ToolModel, UserModel } from './firebase-config.js';
+  import { toast, VirtualList, ChartManager, DataIO, ToolService, Session, AuthService, Security, CAT_META, SUBCATEGORIES } from './core.js';
+
+  // Initialize Firebase with offline persistence
+  document.addEventListener('DOMContentLoaded', function() {
+    try {
+      initFirebase();
+    } catch(e) {
+      console.warn('[AutoScrip] Firebase module init:', e.message);
+    }
+  });
 </script>
 </body>
 </html>

@@ -15,6 +15,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Bangla&family=JetBrains+Mono:wght@400;500;600;700&family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <!-- DOMPurify — XSS Prevention -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js" crossorigin="anonymous"></script>
+  <!-- AutoScrip Shared Dark Theme CSS -->
+  <link rel="stylesheet" href="shared.css">
   <!-- Firebase SDK -->
   <script>
   (function() {
@@ -11011,7 +11015,19 @@ var DEFAULT_ADMIN_SUBCATS = {
 })();
 
 </script>
-</body>
-</html>
+<!-- AutoScrip Admin Modules (ES Modules) -->
+<script type="module">
+  import { initFirebase, isAdmin, AdminCache, Sanitizer, DOM, ToolModel, UserModel } from './firebase-config.js';
+  import { toast, ChartManager, DataIO, ToolService, Session, AuthService, Security, CAT_META, SUBCATEGORIES } from './core.js';
+  import './admin.js';
+
+  // Make key utilities available globally for legacy inline onclick handlers
+  window._AS_Sanitizer  = Sanitizer;
+  window._AS_DOM        = DOM;
+  window._AS_ChartMgr   = ChartManager;
+  window._AS_DataIO     = DataIO;
+  window._AS_ToolModel  = ToolModel;
+  window._AS_Security   = Security;
+</script>
 </body>
 </html>

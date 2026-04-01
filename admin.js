@@ -12,7 +12,7 @@
 import {
   initFirebase, isAdmin, AdminCache,
   Sanitizer, DOM
-} from '../shared/firebase-config.js';
+} from './firebase-config.js';
 
 import {
   toast, ChartManager, DataIO,

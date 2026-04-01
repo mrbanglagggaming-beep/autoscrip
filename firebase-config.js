@@ -297,4 +297,22 @@ const UserModel = {
 window.UserModel = UserModel;
 
 // ─── Export ──────────────────────────────────────────────────────────────────
-export { initFirebase, isAdmin, AdminCache, Sanitizer, DOM, ToolModel, UserModel };
+// Expose as globals for non-module HTML usage
+window.initFirebase  = initFirebase;
+window.isAdmin       = isAdmin;
+window.AdminCache    = AdminCache;
+window.Sanitizer     = Sanitizer;
+window.DOM           = DOM;
+window.ToolModel     = ToolModel;
+window.UserModel     = UserModel;
+
+// ES Module export (for import statements in core.js / admin.js)
+if (typeof exports !== 'undefined') {
+  exports.initFirebase = initFirebase;
+}
+try {
+  // Works in ES module context
+  Object.assign(window.__AS_FB_EXPORTS__ = window.__AS_FB_EXPORTS__ || {}, {
+    initFirebase, isAdmin, AdminCache, Sanitizer, DOM, ToolModel, UserModel
+  });
+} catch(_) {}
