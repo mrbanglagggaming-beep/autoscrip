@@ -12,11 +12,9 @@
 'use strict';
 
 // ─── Imports ──────────────────────────────────────────────────────────────────
-import { initFirebase, isAdmin, AdminCache, Sanitizer, DOM, ToolModel, UserModel }
-  from './firebase-config.js';
-
+// Uses window globals from firebase-config.js
 // ─── Constants ───────────────────────────────────────────────────────────────
-export const CAT_META = {
+const CAT_META = {
   system:     { label:'⚙️ সিস্টেম',   color:['#1565c0','#1a237e'] },
   network:    { label:'🌐 নেটওয়ার্ক', color:['#00838f','#004d40'] },
   security:   { label:'🔒 সিকিউরিটি', color:['#7b1fa2','#4a148c'] },
@@ -30,7 +28,7 @@ export const CAT_META = {
 };
 
 // 10 categories × 10 subcategories = 100 total
-export const SUBCATEGORIES = {
+const SUBCATEGORIES = {
   system:     [
     {e:'💻',n:'সিস্টেম ইনফো',k:'sys_info'},    {e:'⚡',n:'পাওয়ার ম্যানেজ',k:'sys_power'},
     {e:'🔧',n:'রেজিস্ট্রি',k:'sys_registry'},    {e:'📦',n:'সফটওয়্যার',k:'sys_software'},
@@ -104,7 +102,7 @@ export const SUBCATEGORIES = {
 };
 
 // ─── Toast Notification ───────────────────────────────────────────────────────
-export function toast(msg, type = 'info', dur = 3500) {
+function toast(msg, type = 'info', dur = 3500) {
   const icons = { success:'fa-check-circle', error:'fa-times-circle', warning:'fa-exclamation-triangle', info:'fa-bolt' };
   const container = document.getElementById('notifs') || document.body;
 
@@ -133,7 +131,7 @@ export function toast(msg, type = 'info', dur = 3500) {
 
 // ─── Virtual Scrolling ────────────────────────────────────────────────────────
 // ✅ Point 6: VirtualList — large datasets এর জন্য
-export class VirtualList {
+class VirtualList {
   /**
    * @param {HTMLElement} container
    * @param {Object} opts
@@ -242,7 +240,7 @@ export class VirtualList {
 
 // ─── Chart Lifecycle Manager ──────────────────────────────────────────────────
 // ✅ Point 6: Chart dispose নিশ্চিত করো
-export const ChartManager = {
+const ChartManager = {
   _charts: new Map(), // id → Chart instance
 
   /**
@@ -277,7 +275,7 @@ export const ChartManager = {
 // ─── Real CSV / JSON Import-Export ───────────────────────────────────────────
 // ✅ Point 8: বাস্তব parsing logic
 
-export const DataIO = {
+const DataIO = {
   // ── Export ──────────────────────────────────────────────────────────────────
 
   /** Tools → JSON file download */
@@ -486,7 +484,7 @@ export const DataIO = {
 // ─── Firestore Tool Service ───────────────────────────────────────────────────
 // ✅ Point 7: Client side শুধু read/query, write শুধু authenticated users
 
-export const ToolService = {
+const ToolService = {
   _cache:       [],
   _lastFetch:   0,
   _CACHE_TTL:   2 * 60 * 1000, // 2 minutes
@@ -553,7 +551,7 @@ export const ToolService = {
 // ─── Session (no localStorage) ───────────────────────────────────────────────
 // ✅ Point 4: Firebase built-in auth persistence — localStorage নয়
 
-export const Session = {
+const Session = {
   _user: null,
 
   get() { return this._user; },
@@ -598,7 +596,7 @@ export const Session = {
 };
 
 // ─── Auth Service ─────────────────────────────────────────────────────────────
-export const AuthService = {
+const AuthService = {
   async login(email, password) {
     const auth = window._fbAuth;
     if (!auth) throw new Error('Firebase auth not initialized');
@@ -646,7 +644,7 @@ export const AuthService = {
 
 // ─── Security Helpers ─────────────────────────────────────────────────────────
 // ✅ Point 5: XSS Prevention utilities
-export const Security = {
+const Security = {
   BLOCKED_PATTERNS: [
     /rm\s+-rf/i, /format\s+[a-z]:/i, /del\s+\/[sf]/i, /shutdown/i,
     /net\s+user\s+.*\/add/i, /reg\s+delete/i, /bcdedit/i, /diskpart/i,
