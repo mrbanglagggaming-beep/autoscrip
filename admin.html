@@ -4053,11 +4053,49 @@ pre, code { background: #080a14 !important; color: #80deea !important; }
                inputmode="numeric"
                pattern="[0-9]*"
                maxlength="6">
+<script>
+// Early proxy — doLogin will be available once main script loads
+window.doLogin = function() {
+  // Wait for main script to load then call real doLogin
+  var _try = function(n) {
+    if (typeof window._doLoginReal === 'function') {
+      window._doLoginReal();
+    } else if (n > 0) {
+      setTimeout(function(){ _try(n-1); }, 100);
+    } else {
+      // Last resort: trigger the real function if it loaded by now
+      var btn = document.getElementById('loginBtn');
+      if (btn) btn.disabled = true;
+      var email = document.getElementById('loginEmail');
+      var pass = document.getElementById('loginPass');
+      if (email && pass && window.fbAuth) {
+        window.fbAuth.signInWithEmailAndPassword(email.value.trim(), pass.value)
+          .then(function(cred) {
+            return window.AdminCache ? window.AdminCache.check(cred.user.uid) : Promise.resolve(true);
+          })
+          .then(function(ok) {
+            if (!ok) { alert('অ্যাডমিন অ্যাক্সেস নেই'); window.fbAuth.signOut(); return; }
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            if (window.loadDashboard) window.loadDashboard();
+          })
+          .catch(function(e) {
+            var err = document.getElementById('loginErr');
+            if (err) { err.textContent = e.message; err.style.display = 'block'; }
+            if (btn) btn.disabled = false;
+          });
+      }
+    }
+  };
+  _try(20);
+};
+</script>
+
       </div>
     </div>
     
     <!-- Login Button -->
-    <button class="btn btn-pr" style="width:100%; padding:14px;" onclick="doLogin()" id="loginBtn">
+    <button class="btn btn-pr" style="width:100%; padding:14px;" onclick="if(typeof doLogin==='function')doLogin();else if(window.doLogin)window.doLogin();" id="loginBtn">
       <i class="fas fa-shield-alt"></i> 
       <span>প্রবেশ করুন</span>
     </button>
@@ -10470,7 +10508,7 @@ window.addEventListener('online', () => {
 // ===== EXPOSE TO WINDOW =====
 window.showP = showP;
 window.toggleSb = toggleSb;
-window.doLogin = doLogin;
+window.doLogin = doLogin; window._doLoginReal = doLogin;
 window.doLogout = doLogout;
 window.setup2FA = setup2FA;
 window.toggle2FA = toggle2FA;
@@ -11048,6 +11086,9 @@ var DEFAULT_ADMIN_SUBCATS = {
 })();
 
 </script>
-<!-- Modules handled inline -->
+
+
+<!-- AutoScrip shared utilities -->
+<script src="firebase-config.js" defer></script>
 </body>
 </html>
