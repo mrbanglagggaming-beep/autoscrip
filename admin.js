@@ -7,14 +7,12 @@
  * ✅ Point 8:  CSV/JSON import Firestore batch write সহ
  */
 
-'use strict';
 
-import {
   initFirebase, isAdmin, AdminCache,
   Sanitizer, DOM
 } from './firebase-config.js';
 
-import {
+
   toast, ChartManager, DataIO,
   ToolService, Session, AuthService, Security, CAT_META, SUBCATEGORIES, ToolModel, UserModel
 } from './core.js';
