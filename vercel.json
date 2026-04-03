@@ -1,25 +1,11 @@
 {
   "version": 2,
   "name": "autoscrip",
-  "builds": [
-    {
-      "src": "*.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.rules",
-      "use": "@vercel/static"
-    }
-  ],
   "routes": [
+    {
+      "src": "/_vercel/(.*)",
+      "dest": "/_vercel/$1"
+    },
     {
       "src": "/admin",
       "dest": "/admin.html"
@@ -29,31 +15,39 @@
       "headers": {
         "X-Frame-Options": "DENY",
         "X-Content-Type-Options": "nosniff",
-        "Referrer-Policy": "strict-origin-when-cross-origin",
-        "Cache-Control": "no-store, no-cache, must-revalidate"
+        "Cache-Control": "no-store"
       },
       "dest": "/admin.html"
     },
     {
-      "src": "/shared.css",
-      "headers": {
-        "Content-Type": "text/css",
-        "Cache-Control": "public, max-age=86400"
-      },
+      "src": "/shared\\.css",
+      "headers": { "Content-Type": "text/css", "Cache-Control": "public, max-age=86400" },
       "dest": "/shared.css"
     },
     {
-      "src": "/(firebase-config|core|admin)\\.js",
-      "headers": {
-        "Content-Type": "application/javascript",
-        "Cache-Control": "public, max-age=3600"
-      },
+      "src": "/(firebase-config|core|admin|_middleware)\\.js",
+      "headers": { "Content-Type": "application/javascript", "Cache-Control": "public, max-age=3600" },
       "dest": "/$1.js"
     },
     {
-      "src": "/firestore.rules",
-      "status": 403,
+      "src": "/firestore\\.rules",
+      "status": 403
+    },
+    {
+      "src": "/user\\.html",
       "dest": "/user.html"
+    },
+    {
+      "src": "/(.*)\\.html",
+      "dest": "/$1.html"
+    },
+    {
+      "src": "/(.*)\\.js",
+      "dest": "/$1.js"
+    },
+    {
+      "src": "/(.*)\\.css",
+      "dest": "/$1.css"
     },
     {
       "src": "/(.*)",
@@ -64,22 +58,9 @@
     {
       "source": "/(.*)",
       "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        },
-        {
-          "key": "Permissions-Policy",
-          "value": "camera=(), microphone=(), geolocation=()"
-        }
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
       ]
     }
   ]
