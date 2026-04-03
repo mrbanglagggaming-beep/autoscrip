@@ -3637,12 +3637,43 @@ window.applyFilters=()=>{
   const sort=document.getElementById('toolsSort')?.value||'newest';
   let tools=getTools().filter(t=>t.status==='approved'||t.published!==false);
   if(curCat){
-    var _pc=window._customCatsCache&&window._customCatsCache.find(function(c){return c.key===curCat;});
-    if(_pc&&(_pc.subCategories||[]).length){
-      var _sk=_pc.subCategories.map(function(s){return s.key;});
-      tools=tools.filter(function(t){return t.category===curCat||_sk.indexOf(t.category)!==-1;});
+    // Check if curCat is a subcategory key (e.g. sys_info, net_dns)
+    var _isSubCat = false;
+    var _parentCat = '';
+    var _KNOWN_SUBCATS = {
+      sys_info:'system',sys_power:'system',sys_registry:'system',sys_software:'system',sys_display:'system',sys_memory:'system',sys_audio:'system',sys_battery:'system',sys_log:'system',sys_cleanup:'system',
+      net_dns:'network',net_wifi:'network',net_ethernet:'network',net_firewall:'network',net_bandwidth:'network',net_port:'network',net_vpn:'network',net_signal:'network',net_ping:'network',net_trace:'network',
+      sec_encrypt:'security',sec_antivirus:'security',sec_password:'security',sec_audit:'security',sec_blocking:'security',sec_policy:'security',sec_scanning:'security',sec_loganalysis:'security',sec_mfa:'security',sec_vuln:'security',
+      bak_full:'backup',bak_file:'backup',bak_database:'backup',bak_cloud:'backup',bak_disk:'backup',bak_incremental:'backup',bak_encrypted:'backup',bak_scheduled:'backup',bak_restore:'backup',bak_sync:'backup',
+      mon_cpu:'monitoring',mon_ram:'monitoring',mon_disk:'monitoring',mon_network:'monitoring',mon_performance:'monitoring',mon_alert:'monitoring',mon_eventlog:'monitoring',mon_server:'monitoring',mon_uptime:'monitoring',mon_hardware:'monitoring',
+      auto_scheduler:'automation',auto_script:'automation',auto_workflow:'automation',auto_email:'automation',auto_file:'automation',auto_web:'automation',auto_report:'automation',auto_security:'automation',auto_notification:'automation',auto_cleanup:'automation',
+      dl_software:'download',dl_update:'download',dl_package:'download',dl_web:'download',dl_github:'download',dl_cloud:'download',dl_game:'download',dl_driver:'download',dl_doc:'download',dl_media:'download',
+      dev_editor:'devtools',dev_git:'devtools',dev_docker:'devtools',dev_python:'devtools',dev_node:'devtools',dev_build:'devtools',dev_testing:'devtools',dev_debug:'devtools',dev_deploy:'devtools',dev_api:'devtools',
+      off_word:'office',off_excel:'office',off_outlook:'office',off_teams:'office',off_sharepoint:'office',off_onedrive:'office',off_print:'office',off_calendar:'office',off_license:'office',off_policy:'office',
+      gam_optimize:'gaming',gam_gpu:'gaming',gam_fps:'gaming',gam_audio:'gaming',gam_controller:'gaming',gam_backup:'gaming',gam_network:'gaming',gam_anticheat:'gaming',gam_install:'gaming',gam_mod:'gaming'
+    };
+    if(_KNOWN_SUBCATS[curCat]){
+      _isSubCat = true;
+      _parentCat = _KNOWN_SUBCATS[curCat];
+    }
+    if(_isSubCat){
+      // Subcategory filter: match tool.subcategory OR tool.category === subcatKey
+      tools=tools.filter(function(t){
+        return t.subcategory===curCat || t.category===curCat ||
+          // Fallback: if tool has parent category and no subcategory set, show in parent
+          (t.category===_parentCat && (!t.subcategory||t.subcategory===''));
+      });
     } else {
-      tools=tools.filter(function(t){return t.category===curCat;});
+      // Parent category filter: also include all tools with matching subcategories
+      var _sk = Object.keys(_KNOWN_SUBCATS).filter(function(k){ return _KNOWN_SUBCATS[k]===curCat; });
+      // Also check custom categories
+      var _pc=window._customCatsCache&&window._customCatsCache.find(function(c){return c.key===curCat;});
+      if(_pc&&(_pc.subCategories||[]).length){
+        _sk=_sk.concat(_pc.subCategories.map(function(s){return s.key;}));
+      }
+      tools=tools.filter(function(t){
+        return t.category===curCat || _sk.indexOf(t.subcategory)!==-1 || _sk.indexOf(t.category)!==-1;
+      });
     }
   }
   if(q)tools=tools.filter(t=>(t.name||t.title||'').toLowerCase().includes(q)||(t.description||'').toLowerCase().includes(q)||(t.tags||[]).some(tag=>tag.toLowerCase().includes(q)));
