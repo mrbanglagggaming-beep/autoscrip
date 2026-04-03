@@ -5471,20 +5471,10 @@ if (typeof _origApplyFilters === 'function') {
 }
 
 </script>
-<!-- AutoScrip Core Modules (ES Modules) -->
-<script type="module">
-  // Root-level imports — all files in same GitHub repo root
-  import { initFirebase, Sanitizer, DOM, ToolModel, UserModel } from './firebase-config.js';
-  import { toast, VirtualList, ChartManager, DataIO, ToolService, Session, AuthService, Security, CAT_META, SUBCATEGORIES } from './core.js';
+<!-- Modules handled by inline Firebase SDK -->
 
-  // Initialize Firebase with offline persistence
-  document.addEventListener('DOMContentLoaded', function() {
-    try {
-      initFirebase();
-    } catch(e) {
-      console.warn('[AutoScrip] Firebase module init:', e.message);
-    }
-  });
-</script>
+<!-- AutoScrip utilities (non-module, window globals) -->
+<script src="firebase-config.js" defer></script>
+<script src="core.js" defer></script>
 </body>
 </html>
