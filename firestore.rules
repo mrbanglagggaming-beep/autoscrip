@@ -1,232 +1,179 @@
-// ╔══════════════════════════════════════════════════════════════════════╗
-// ║  AutoScrip — Firebase Firestore Security Rules                       ║
-// ║  ✅ Point 1: isAdmin() সহ সম্পূর্ণ role-based access control         ║
-// ║                                                                      ║
-// ║  Firebase Console → Firestore → Rules তে paste করুন                 ║
-// ╚══════════════════════════════════════════════════════════════════════╝
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  AutoScrip — Firestore Security Rules (FIXED v2)            ║
+// ║  Project: powerscript-pro-web                               ║
+// ║  সমস্যা সমাধান:                                             ║
+// ║  ✅ Public read — সবাই tools দেখতে পারবে                  ║
+// ║  ✅ isAdmin() — autoscrip_admins থেকে role check           ║
+// ║  ✅ Quota বাঁচাতে get() call কমানো হয়েছে                  ║
+// ║  ✅ Tool CRUD — admin শুধু write করতে পারবে               ║
+// ╚══════════════════════════════════════════════════════════════╝
 
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ═══════════════════════════════════════════════════════════
-    //  Helper Functions
-    // ═══════════════════════════════════════════════════════════
+    // ── Helper functions ──────────────────────────────────────
+    function isAuth() { return request.auth != null; }
+    function uid()    { return request.auth.uid; }
 
-    // ✅ সঠিক isAdmin() — autoscrip_admins collection থেকে যাচাই
+    // ✅ FIXED: একটাই get() call — quota বাঁচে
+    function getAdminDoc() {
+      return get(/databases/$(database)/documents/autoscrip_admins/$(request.auth.uid));
+    }
+    function adminExists() {
+      return isAuth() && exists(/databases/$(database)/documents/autoscrip_admins/$(request.auth.uid));
+    }
     function isAdmin() {
-      return request.auth != null &&
-        exists(/databases/$(database)/documents/autoscrip_admins/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/autoscrip_admins/$(request.auth.uid)).data.role == 'admin' &&
-        get(/databases/$(database)/documents/autoscrip_admins/$(request.auth.uid)).data.active != false;
+      return adminExists() &&
+        getAdminDoc().data.role == 'admin' &&
+        getAdminDoc().data.active != false;
     }
-
-    // Moderator check
     function isModerator() {
-      return request.auth != null &&
-        exists(/databases/$(database)/documents/autoscrip_admins/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/autoscrip_admins/$(request.auth.uid)).data.role in ['admin', 'moderator'];
+      return adminExists() &&
+        getAdminDoc().data.role in ['admin','moderator'] &&
+        getAdminDoc().data.active != false;
+    }
+    function isOwner(docUid) {
+      return isAuth() && uid() == docUid;
     }
 
-    // Authenticated user check
-    function isAuth() {
-      return request.auth != null;
-    }
-
-    // নিজের document কিনা চেক
-    function isOwner(docId) {
-      return request.auth != null && request.auth.uid == docId;
-    }
-
-    // Tool owner check
-    function isToolOwner() {
-      return request.auth != null &&
-        resource.data.authorId == request.auth.uid;
-    }
-
-    // Data validation helpers
-    function validTool() {
-      return request.resource.data.keys().hasAll(['title', 'category', 'status']) &&
-        request.resource.data.title is string && request.resource.data.title.size() > 0 &&
-        request.resource.data.title.size() <= 200 &&
-        request.resource.data.category in ['system','network','security','backup',
-          'monitoring','automation','download','devtools','office','gaming','other'] &&
-        request.resource.data.status in ['pending', 'approved', 'rejected'];
-    }
-
-    function validComment() {
-      return request.resource.data.keys().hasAll(['text', 'authorId']) &&
-        request.resource.data.text is string &&
-        request.resource.data.text.size() > 0 &&
-        request.resource.data.text.size() <= 1000 &&
-        request.resource.data.authorId == request.auth.uid;
-    }
-
-    function validUser() {
-      return request.resource.data.keys().hasAll(['uid', 'email', 'displayName']) &&
-        !request.resource.data.keys().hasAny(['password', 'pass']) && // পাসওয়ার্ড store নিষেধ
-        request.resource.data.role in ['user', 'admin', 'moderator'];
-    }
-
-    // Rate: শুধু নিজের role নামাতে পারবে, বাড়াতে পারবে না
-    function canUpdateRole() {
-      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']);
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    //  autoscrip_tools
-    //  - Read: সবাই (approved + published)
-    //  - Write: admin/moderator only
-    //  - Create: authenticated user (status=pending)
-    // ═══════════════════════════════════════════════════════════
+    // ── autoscrip_tools ────────────────────────────────────────
+    // ✅ CRITICAL FIX: Public read — সবাই tools দেখতে পারবে
+    // ✅ Write — শুধু moderator/admin
+    // ✅ Stats (views/downloads/likes) — যেকোনো user update করতে পারবে
     match /autoscrip_tools/{toolId} {
-      allow read: if resource.data.status == 'approved' &&
-                     resource.data.get('published', true) == true;
-      allow read: if isAuth() && isToolOwner(); // নিজের pending tool দেখতে পারবে
-      allow read: if isModerator();             // moderator সব দেখতে পারবে
+      allow read: if true;  // সবাই পড়তে পারবে
 
-      allow create: if isAuth() &&
-        validTool() &&
-        request.resource.data.status == 'pending' && // শুধু pending দিয়ে তৈরি
-        request.resource.data.authorId == request.auth.uid;
+      // Admin/Moderator full write access
+      allow create: if isModerator();
+      allow delete: if isAdmin();
 
-      allow update: if isModerator() && validTool(); // approve/reject
-      allow update: if isToolOwner() &&              // নিজের pending tool edit
-        resource.data.status == 'pending' &&
-        request.resource.data.status == 'pending' &&
-        validTool();
-      // views/downloads increment — সবাই করতে পারবে (শুধু ওই fields)
-      allow update: if request.resource.data.diff(resource.data)
-                         .affectedKeys().hasOnly(['views', 'downloads', 'likes']);
-
-      allow delete: if isAdmin(); // শুধু admin delete করতে পারবে
+      // Update: 2 rules — admin can update anything, any user can increment stats
+      allow update: if isModerator();
+      allow update: if isAuth() &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['views','downloads','likes']);
+      // Unauthenticated views increment (anonymous users)
+      allow update: if !isAuth() &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['views']);
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  autoscrip_users
-    //  - Read: নিজে বা admin
-    //  - Write: নিজে (role ছাড়া) বা admin
-    // ═══════════════════════════════════════════════════════════
+    // ── autoscrip_users ────────────────────────────────────────
     match /autoscrip_users/{userId} {
-      allow read:   if isOwner(userId) || isAdmin();
-      allow create: if isOwner(userId) && validUser();
-      allow update: if isOwner(userId) && canUpdateRole() &&
-                       !request.resource.data.keys().hasAny(['password','pass']);
-      allow update: if isAdmin(); // admin যেকোনো update করতে পারবে
+      allow read:   if isOwner(userId) || isModerator();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isModerator();
       allow delete: if isAdmin();
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  autoscrip_admins — Admin roster
-    //  - Read: admin নিজে বা অন্য admin
-    //  - Write: শুধু admin (নিজেকে নিজে admin বানানো নিষেধ)
-    // ═══════════════════════════════════════════════════════════
+    // ── autoscrip_admins ────────────────────────────────────────
+    // নিজেকে নিজে admin বানানো নিষেধ
     match /autoscrip_admins/{adminId} {
-      allow read:   if isAuth() && isOwner(adminId);
-      allow read:   if isAdmin();
-      // নিজেকে নিজে admin collection এ add করা নিষেধ
-      allow create, update, delete: if isAdmin() && !isOwner(adminId);
+      allow read:   if isOwner(adminId) || isAdmin();
+      allow create: if isAdmin() && adminId != uid();
+      allow update: if isAdmin() && adminId != uid();
+      allow delete: if isAdmin() && adminId != uid();
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  autoscrip_requests — Tool/Script submit requests
-    //  - Create: authenticated user
-    //  - Read/Delete: admin/moderator
-    // ═══════════════════════════════════════════════════════════
+    // ── autoscrip_categories ────────────────────────────────────
+    match /autoscrip_categories/{catId} {
+      allow read:  if true;
+      allow write: if isModerator();
+    }
+
+    // ── autoscrip_requests ────────────────────────────────────
     match /autoscrip_requests/{reqId} {
-      allow create: if isAuth() &&
-        request.resource.data.submittedBy == request.auth.uid &&
-        request.resource.data.status == 'pending';
-      allow read:   if isAuth() && resource.data.submittedBy == request.auth.uid;
-      allow read, update, delete: if isModerator();
+      allow create: if isAuth() && request.resource.data.submittedBy == uid();
+      allow read:   if isAuth() && (resource.data.submittedBy == uid() || isModerator());
+      allow update, delete: if isModerator();
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  autoscrip_notifications
-    //  - Read: authenticated user (নিজের বা broadcast)
-    //  - Write: admin only
-    // ═══════════════════════════════════════════════════════════
+    // ── autoscrip_notifications ────────────────────────────────
     match /autoscrip_notifications/{notifId} {
-      allow read: if isAuth() && (
-        resource.data.get('targetUid', '') == '' ||  // broadcast
-        resource.data.targetUid == request.auth.uid  // specific user
-      );
-      allow write, delete: if isAdmin();
+      allow read:  if isModerator() ||
+        (isAuth() && (
+          !('targetUid' in resource.data) ||
+          resource.data.targetUid == '' ||
+          resource.data.targetUid == uid()
+        ));
+      allow write: if isModerator();
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  autoscrip_comments
-    //  - Read: সবাই
-    //  - Create: authenticated user
-    //  - Update/Delete: নিজে বা admin
-    // ═══════════════════════════════════════════════════════════
+    // ── autoscrip_comments ────────────────────────────────────
     match /autoscrip_comments/{commentId} {
       allow read: if true;
-      allow create: if isAuth() && validComment();
-      allow update: if isAuth() && resource.data.authorId == request.auth.uid &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text','updatedAt']);
-      allow delete: if isAuth() && resource.data.authorId == request.auth.uid;
-      allow update, delete: if isAdmin();
+      allow create: if isAuth() &&
+        request.resource.data.authorId == uid() &&
+        request.resource.data.text is string &&
+        request.resource.data.text.size() > 0 &&
+        request.resource.data.text.size() <= 1000;
+      allow update: if isAuth() && resource.data.authorId == uid() &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['text','updatedAt']);
+      allow delete: if isAuth() && resource.data.authorId == uid();
+      allow update, delete: if isModerator();
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  autoscrip_config — Site settings
-    //  - Read: সবাই
-    //  - Write: শুধু admin
-    // ═══════════════════════════════════════════════════════════
+    // ── autoscrip_config ────────────────────────────────────────
     match /autoscrip_config/{docId} {
       allow read:  if true;
       allow write: if isAdmin();
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  autoscrip_youtube — YouTube tutorials
-    //  - Read: সবাই
-    //  - Write: শুধু admin
-    // ═══════════════════════════════════════════════════════════
+    // ── autoscrip_youtube ────────────────────────────────────────
     match /autoscrip_youtube/{docId} {
       allow read:  if true;
-      allow write, delete: if isAdmin();
+      allow write: if isModerator();
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  autoscrip_subscribers
-    //  - Read/Write: নিজে বা admin
-    // ═══════════════════════════════════════════════════════════
+    // ── autoscrip_subscribers ────────────────────────────────────
     match /autoscrip_subscribers/{userId} {
       allow read, write: if isOwner(userId) || isAdmin();
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  autoscrip_activity — Admin audit log
-    //  - Read/Write: শুধু admin
-    // ═══════════════════════════════════════════════════════════
+    // ── autoscrip_activity ────────────────────────────────────────
     match /autoscrip_activity/{docId} {
       allow read, write: if isAdmin();
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  autoscrip_chat — Community chat messages
-    //  - Read: authenticated user
-    //  - Create: authenticated user
-    //  - Delete: নিজে (সাম্প্রতিক) বা admin
-    // ═══════════════════════════════════════════════════════════
+    // ── autoscrip_posts ────────────────────────────────────────────
+    match /autoscrip_posts/{postId} {
+      allow read: if true;
+      allow create: if isAuth() && request.resource.data.authorId == uid();
+      allow update, delete: if (isAuth() && resource.data.authorId == uid()) || isModerator();
+    }
+
+    // ── autoscrip_scripts ────────────────────────────────────────
+    match /autoscrip_scripts/{scriptId} {
+      allow read: if isModerator() ||
+        (isAuth() && resource.data.authorId == uid()) ||
+        resource.data.public == true;
+      allow create: if isAuth() && request.resource.data.authorId == uid();
+      allow update, delete: if (isAuth() && resource.data.authorId == uid()) || isModerator();
+    }
+
+    // ── autoscrip_versions ────────────────────────────────────────
+    match /autoscrip_versions/{verId} {
+      allow read, write: if isModerator();
+    }
+
+    // ── autoscrip_chat ────────────────────────────────────────────
     match /autoscrip_chat/{msgId} {
-      allow read:   if isAuth();
+      allow read: if isAuth();
       allow create: if isAuth() &&
-        request.resource.data.senderUid == request.auth.uid &&
+        request.resource.data.senderUid == uid() &&
         request.resource.data.text is string &&
         request.resource.data.text.size() > 0 &&
         request.resource.data.text.size() <= 500;
-      allow delete: if isAdmin() ||
-        (isAuth() && resource.data.senderUid == request.auth.uid);
+      allow delete: if isAdmin() || (isAuth() && resource.data.senderUid == uid());
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  Default Deny — অন্য সব collection deny
-    // ═══════════════════════════════════════════════════════════
+    // ── Default (catch-all) ────────────────────────────────────
+    // শুধু admin সব collection access করতে পারবে
     match /{collection}/{docId} {
-      allow read, write: if isAdmin();
+      allow read: if isAdmin();
+      allow write: if isAdmin();
     }
   }
 }

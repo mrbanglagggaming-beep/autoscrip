@@ -2,57 +2,49 @@
   "version": 2,
   "name": "autoscrip",
   "routes": [
-    {
-      "src": "/_vercel/(.*)",
-      "dest": "/_vercel/$1"
-    },
+    { "src": "/_vercel/(.*)", "dest": "/_vercel/$1" },
     {
       "src": "/admin",
-      "dest": "/admin.html"
-    },
-    {
-      "src": "/admin.html",
+      "dest": "/admin.html",
       "headers": {
         "X-Frame-Options": "DENY",
         "X-Content-Type-Options": "nosniff",
-        "Cache-Control": "no-store"
-      },
-      "dest": "/admin.html"
+        "Cache-Control": "no-store, no-cache"
+      }
+    },
+    {
+      "src": "/admin.html",
+      "dest": "/admin.html",
+      "headers": {
+        "X-Frame-Options": "DENY",
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "no-store, no-cache"
+      }
     },
     {
       "src": "/shared\\.css",
-      "headers": { "Content-Type": "text/css", "Cache-Control": "public, max-age=86400" },
-      "dest": "/shared.css"
+      "dest": "/shared.css",
+      "headers": { "Content-Type": "text/css", "Cache-Control": "public, max-age=86400" }
     },
     {
-      "src": "/(firebase-config|core|admin|_middleware)\\.js",
-      "headers": { "Content-Type": "application/javascript", "Cache-Control": "public, max-age=3600" },
-      "dest": "/$1.js"
+      "src": "/(firebase-config|core|admin|user)\\.js$",
+      "dest": "/$1.js",
+      "headers": { "Content-Type": "application/javascript", "Cache-Control": "public, max-age=3600" }
     },
-    {
-      "src": "/firestore\\.rules",
-      "status": 403
-    },
+    { "src": "/firestore\\.rules", "status": 403 },
     {
       "src": "/user\\.html",
-      "dest": "/user.html"
+      "dest": "/user.html",
+      "headers": { "Cache-Control": "public, max-age=300" }
     },
     {
-      "src": "/(.*)\\.html",
-      "dest": "/$1.html"
+      "src": "/(.*)\\.html$",
+      "dest": "/$1.html",
+      "headers": { "Cache-Control": "public, max-age=300" }
     },
-    {
-      "src": "/(.*)\\.js",
-      "dest": "/$1.js"
-    },
-    {
-      "src": "/(.*)\\.css",
-      "dest": "/$1.css"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/user.html"
-    }
+    { "src": "/(.*)\\.js$",  "dest": "/$1.js",  "headers": { "Content-Type": "application/javascript" } },
+    { "src": "/(.*)\\.css$", "dest": "/$1.css", "headers": { "Content-Type": "text/css" } },
+    { "src": "/(.*)", "dest": "/user.html" }
   ],
   "headers": [
     {
@@ -60,7 +52,8 @@
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-XSS-Protection", "value": "1; mode=block" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
       ]
     }
   ]

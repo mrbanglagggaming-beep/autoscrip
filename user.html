@@ -3494,6 +3494,11 @@ async function fetchToolsFromAPI(){
   }
   // Try Firebase Firestore first
   if(typeof firebase !== 'undefined' && window._fbDb){
+    // ✅ QUOTA CHECK: quota exhausted হলে Firestore skip করো
+    if(window._fbQuotaUntil && Date.now() < window._fbQuotaUntil){
+      console.warn('[Firestore] Quota throttle active — skipping Firestore read');
+      return _toolsCache || null;
+    }
     // Step 1: Simple .get() — no where/orderBy to avoid composite index requirement
     try{
       const snap = await window._fbDb.collection('autoscrip_tools').get();
@@ -3563,6 +3568,18 @@ async function fetchToolsFromAPI(){
       }
       return [];
     }catch(e){
+      // ✅ QUOTA FIX: 429 হলে retry বন্ধ করো, localStorage fallback ব্যবহার করো
+      if(e.code === 'resource-exhausted' || (e.message||'').includes('Quota') || (e.message||'').includes('429')){
+        console.warn('[Firestore] Quota exceeded — using localStorage fallback, retrying in 60s');
+        window._fbQuotaUntil = Date.now() + 60000; // 60s throttle
+        // Return localStorage tools immediately
+        var lsFallback = [];
+        ['autoscrip_tools','as7_tools','tools'].forEach(function(k){
+          try{var r=localStorage.getItem(k);if(r){var a=JSON.parse(r);if(Array.isArray(a))lsFallback=[...lsFallback,...a];}}catch(_){}
+        });
+        if(lsFallback.length){_toolsCache=lsFallback;_toolsCacheTs=Date.now()-_TOOLS_CACHE_TTL+30000;return lsFallback;}
+        return null;
+      }
       console.warn('[Firestore] read failed:', e.code, e.message);
     }
   }

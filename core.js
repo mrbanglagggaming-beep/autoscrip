@@ -688,3 +688,16 @@ window.AutoScrip = {
   ToolService, Session, AuthService, Security,
   CAT_META, SUBCATEGORIES, Sanitizer, DOM, ToolModel, UserModel
 };
+
+// ── Expose Security globally (fixes 'already declared' conflict) ──
+// Admin.html declares its own Security — we expose core's as window.CoreSecurity
+window.CoreSecurity = Security;
+// Also expose key utilities individually
+window.toast = toast;
+window.ChartManager = ChartManager;
+window.DataIO = DataIO;
+window.ToolService = ToolService;
+window.Session = Session;
+window.AuthService = AuthService;
+window.CAT_META = CAT_META;
+window.SUBCATEGORIES = SUBCATEGORIES;
