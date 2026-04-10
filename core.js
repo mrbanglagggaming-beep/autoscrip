@@ -11,6 +11,28 @@
 
 'use strict';
 
+// ── DOM Utilities ─────────────────────────────────────────────────────────────
+const DOM = {
+  el: (tag, attrs = {}) => {
+    const el = document.createElement(tag);
+    Object.entries(attrs).forEach(([k, v]) => {
+      if (k === 'class') el.className = v;
+      else if (k === 'text') el.textContent = v;
+      else if (k === 'html') el.innerHTML = v;
+      else el.setAttribute(k, v);
+    });
+    return el;
+  },
+  setHTML: (el, html) => { if (el) el.innerHTML = html; },
+  setText: (el, text) => { if (el) el.textContent = text; },
+  show: (el) => { if (el) el.style.display = ''; },
+  hide: (el) => { if (el) el.style.display = 'none'; },
+  query: (sel, ctx) => (ctx || document).querySelector(sel),
+  queryAll: (sel, ctx) => [...(ctx || document).querySelectorAll(sel)],
+};
+window.DOM = DOM;
+
+
 // ─── Imports ──────────────────────────────────────────────────────────────────
 // Uses window globals from firebase-config.js
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -643,8 +665,9 @@ const AuthService = {
 };
 
 // ─── Security Helpers ─────────────────────────────────────────────────────────
-// ✅ Point 5: XSS Prevention utilities
-const Security = {
+// ✅ Point 5: XSS Prevention utilities — window-scoped to avoid re-declaration
+if (!window._coreSecurityLoaded) {
+window.Security = window.Security || {
   BLOCKED_PATTERNS: [
     /rm\s+-rf/i, /format\s+[a-z]:/i, /del\s+\/[sf]/i, /shutdown/i,
     /net\s+user\s+.*\/add/i, /reg\s+delete/i, /bcdedit/i, /diskpart/i,
@@ -681,11 +704,13 @@ const Security = {
   },
   clearRateLimit(key) { this._attempts.delete(key); }
 };
+window._coreSecurityLoaded = true;
+} // end if(!window._coreSecurityLoaded)
 
 // Expose for HTML files
 window.AutoScrip = {
   toast, VirtualList, ChartManager, DataIO,
-  ToolService, Session, AuthService, Security,
+  ToolService, Session, AuthService, Security: window.Security,
   CAT_META, SUBCATEGORIES, Sanitizer, DOM, ToolModel, UserModel
 };
 

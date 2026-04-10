@@ -7056,9 +7056,9 @@ window.reorderYtVideo = reorderYtVideo;
         currentUserRole = currentUser.role;
 
         showApp();
-        // ✅ QUOTA FIX: শুধু dashboard প্রথমে, tools lazy load
+        // ✅ QUOTA FIX: auth এ শুধু dashboard লোড, tools lazy (showP এ হবে)
         loadDashboard();
-        setTimeout(() => loadTools(), 500); // slight delay to avoid burst
+        // loadTools() এখানে নয় — শুধু tools panel এ গেলেই হবে
         setTimeout(() => { if(typeof loadCategories==='function') loadCategories(); }, 3000);
     });
     } else {
@@ -7676,16 +7676,6 @@ function showFirestoreSetupGuide() {
 
 
 async function loadTools(forceRefresh = false) {
-    // ✅ 5-minute TTL cache — Firestore quota বাঁচাতে
-    const CACHE_TTL = 5 * 60 * 1000;
-    if (!forceRefresh && window._adminToolsCache && window._adminToolsCacheTs &&
-        (Date.now() - window._adminToolsCacheTs) < CACHE_TTL && allTools.length > 0) {
-        renderToolsTable(allTools);
-        const tcEl = document.getElementById('toolCount');
-        if (tcEl) tcEl.textContent = allTools.length;
-        renderRecentTools(allTools.slice(0, 5));
-        return;
-    }
     // ✅ CACHE: 3 মিনিটের মধ্যে দ্বিতীয়বার call করলে cached data দেখাবে
     const now = Date.now();
     if (!forceRefresh && window._toolsCacheTs && (now - window._toolsCacheTs) < 180000 && allTools.length > 0) {
@@ -7718,6 +7708,7 @@ async function loadTools(forceRefresh = false) {
         if (!snap.empty) {
             allTools = snap.docs.map(d => ({ id: d.id, _id: d.id, ...d.data() }))
                 .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
+            window._toolsCacheTs = Date.now(); // ✅ cache timestamp set
             console.log('[loadTools] Loaded', allTools.length, 'tools from Firestore');
         } else {
             allTools = [];
@@ -8190,8 +8181,7 @@ async function saveTool(preview = false) {
         try { new BroadcastChannel('autoscrip_sync').postMessage({ type: 'tools_updated' }); } catch(_) {}
         showP('tools');
         renderToolsTable(allTools);
-        // ✅ Cache invalidate — পরের loadTools() fresh Firestore read করবে
-        window._toolsCacheTs = 0; window._adminToolsCache = false; window._adminToolsCacheTs = 0;
+        window._toolsCacheTs = 0; // invalidate cache so next loadTools() refreshes
         loadDashboard();
     } catch (error) {
         console.error('[saveTool] Firestore error:', error.code, error.message);
@@ -8278,7 +8268,6 @@ async function deleteTool(id) {
         await fbDb.collection('autoscrip_tools').doc(id).delete();
         toast('🗑️ টুল ডিলিট হয়েছে!', 'success');
         allTools = allTools.filter(t => (t.id||t._id) !== id);
-        window._adminToolsCache = false; window._adminToolsCacheTs = 0;
         renderToolsTable(allTools);
         await loadDashboard();
     } catch (error) {
@@ -10546,29 +10535,6 @@ window.addEventListener('online', () => {
 window.showP = showP;
 window.toggleSb = toggleSb;
 window.doLogin = doLogin; window._doLoginReal = doLogin;
-
-// ── Tool Window Copy Helpers ──────────────────────────────
-window._twCopyBlock = function(blockId, btn) {
-  var el = document.getElementById(blockId);
-  var code = el ? (el.textContent || el.innerText || '') : '';
-  if (!code) return;
-  navigator.clipboard.writeText(code.trim()).then(function() {
-    var orig = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i> কপি!';
-    btn.style.color = 'var(--success,#22c55e)';
-    setTimeout(function(){ btn.innerHTML = orig; btn.style.color = ''; }, 1500);
-  });
-};
-window._twCopyAll = function(toolId, btn) {
-  var tool = (typeof allTools !== 'undefined' ? allTools : []).find(function(t){ return (t.id||t._id) === toolId; });
-  if (!tool) return;
-  var all = (tool.commands || []).map(function(c){ return (c.code||'').trim(); }).join('\n\n');
-  if (!all) return;
-  navigator.clipboard.writeText(all).then(function() {
-    var orig = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i> সব কপি!';
-    setTimeout(function(){ btn.innerHTML = orig; }, 2000);
-  });
-};
-
 window.doLogout = doLogout;
 window.setup2FA = setup2FA;
 window.toggle2FA = toggle2FA;
@@ -10678,23 +10644,13 @@ function closeMobileMenu() {
     overlay && overlay.classList.remove('active');
 }
 // Close menu on nav link click (mobile)
-// Mobile menu listeners — consolidated
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function _mobileInit() {
-        if (window.innerWidth <= 768) {
-            document.querySelectorAll('.sb-lnk').forEach(function(btn) {
-                btn.addEventListener('click', closeMobileMenu);
-            });
-        }
-        document.removeEventListener('DOMContentLoaded', _mobileInit);
-    });
-} else {
+document.addEventListener('DOMContentLoaded', () => {
     if (window.innerWidth <= 768) {
-        document.querySelectorAll('.sb-lnk').forEach(function(btn) {
+        document.querySelectorAll('.sb-lnk').forEach(btn => {
             btn.addEventListener('click', closeMobileMenu);
         });
     }
-}
+});
 
 
 
