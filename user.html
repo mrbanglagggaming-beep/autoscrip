@@ -2223,6 +2223,7 @@ const Security = {
   generateToken(){try{return btoa(Array.from(crypto.getRandomValues(new Uint8Array(24))).join(','));}catch(_e) {return Math.random().toString(36)+Date.now().toString(36);}}
 };
 
+if (typeof window !== "undefined") window.Security = Security;
 // ===== SEO MANAGER =====
 const SEOManager = {
   updateMeta(page,data={}){
@@ -3155,7 +3156,10 @@ function sendToAdmin(type,data){
     return true;
   }catch(_e) {toast('সাবমিট করতে সমস্যা!','error');return false;}
 }
-function syncFromAdmin(){ _toolsCache=null; // invalidate cache on sync
+function syncFromAdmin(){
+  if (window._syncRunning) return; window._syncRunning = true;
+  setTimeout(function(){ window._syncRunning = false; }, 10000);
+  _toolsCache=null; // invalidate cache on sync
   try{
     const adminTools=Store.getAdmin('tools')||[];
     let newCount=0;
@@ -3485,7 +3489,7 @@ async function loadDynamicCategories() {
 // Cache to prevent duplicate Firestore reads when loadHome + loadTools both call fetchToolsFromAPI
 let _toolsCache = null;
 let _toolsCacheTs = 0;
-const _TOOLS_CACHE_TTL = 10000; // 10 seconds - faster sync
+const _TOOLS_CACHE_TTL = 300000 // 5 minutes — Firestore quota বাঁচাতে; // 10 seconds - faster sync
 
 async function fetchToolsFromAPI(){
   // Return cached result if fresh
@@ -3863,6 +3867,7 @@ async function loadYouTube(){
         .catch(()=>window._fbDb.collection('autoscrip_youtube').get());
       if(!snap.empty){
         const vids=snap.docs.map(d=>({id:d.id,...d.data()}));
+        if(typeof _loadedYoutubeVids !== 'undefined') _loadedYoutubeVids = vids;
         renderVideos(vids);
         return;
       }
@@ -3871,6 +3876,7 @@ async function loadYouTube(){
   // Firestore empty or offline — show hardcoded defaults
   renderVideos(YOUTUBE_VIDEOS);
 }
+var _loadedYoutubeVids=[];
 window.searchYouTube=()=>{
   const q=document.getElementById('youtubeSearch')?.value?.toLowerCase()||'';
   const lvl=document.getElementById('videoLevel')?.value||'';
@@ -4747,11 +4753,12 @@ const NotifSystem = (function() {
   // ── Realtime listener (Firestore onSnapshot) ─────────────────
   function _startRealtimeListener() {
     if (!window._fbDb) return;
+    if (typeof firebase === 'undefined' || !firebase.firestore) return;
     if (_unsubscribeRealtime) _unsubscribeRealtime();
     try {
       _unsubscribeRealtime = window._fbDb
         .collection(FS_NOTIFS)
-        .where('createdAt', '>', new firebase.firestore.Timestamp(Math.floor(_lastChecked/1000), 0))
+        .where('createdAt', '>', new Date(_lastChecked - 60000))
         .orderBy('createdAt', 'desc')
         .limit(20)
         .onSnapshot(function(snap) {
