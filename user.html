@@ -2223,7 +2223,6 @@ const Security = {
   generateToken(){try{return btoa(Array.from(crypto.getRandomValues(new Uint8Array(24))).join(','));}catch(_e) {return Math.random().toString(36)+Date.now().toString(36);}}
 };
 
-if (typeof window !== "undefined") window.Security = Security;
 // ===== SEO MANAGER =====
 const SEOManager = {
   updateMeta(page,data={}){
@@ -3156,10 +3155,7 @@ function sendToAdmin(type,data){
     return true;
   }catch(_e) {toast('সাবমিট করতে সমস্যা!','error');return false;}
 }
-function syncFromAdmin(){
-  if (window._syncRunning) return; window._syncRunning = true;
-  setTimeout(function(){ window._syncRunning = false; }, 10000);
-  _toolsCache=null; // invalidate cache on sync
+function syncFromAdmin(){ _toolsCache=null; // invalidate cache on sync
   try{
     const adminTools=Store.getAdmin('tools')||[];
     let newCount=0;
@@ -3489,7 +3485,7 @@ async function loadDynamicCategories() {
 // Cache to prevent duplicate Firestore reads when loadHome + loadTools both call fetchToolsFromAPI
 let _toolsCache = null;
 let _toolsCacheTs = 0;
-const _TOOLS_CACHE_TTL = 300000 // 5 minutes — Firestore quota বাঁচাতে; // 10 seconds - faster sync
+const _TOOLS_CACHE_TTL = 300000; // 10 seconds - faster sync
 
 async function fetchToolsFromAPI(){
   // Return cached result if fresh
@@ -3876,12 +3872,13 @@ async function loadYouTube(){
   // Firestore empty or offline — show hardcoded defaults
   renderVideos(YOUTUBE_VIDEOS);
 }
-var _loadedYoutubeVids=[];
-window.searchYouTube=()=>{
-  const q=document.getElementById('youtubeSearch')?.value?.toLowerCase()||'';
+// ✅ FIX: search from loaded Firestore videos, not hardcoded
+var _loadedYoutubeVids = [];
+window.searchYouTube=function(){
+  const q=(document.getElementById('youtubeSearch')?.value||'').toLowerCase();
   const lvl=document.getElementById('videoLevel')?.value||'';
-  let vids=YOUTUBE_VIDEOS;
-  if(q)vids=vids.filter(v=>v.title.toLowerCase().includes(q)||v.desc.toLowerCase().includes(q));
+  let vids = _loadedYoutubeVids.length ? _loadedYoutubeVids : YOUTUBE_VIDEOS;
+  if(q)vids=vids.filter(v=>(v.title||'').toLowerCase().includes(q)||(v.desc||v.description||'').toLowerCase().includes(q));
   if(lvl)vids=vids.filter(v=>v.level===lvl);
   renderVideos(vids);if(!vids.length)toast('কোনো ভিডিও নেই','info');
 };
@@ -4753,12 +4750,11 @@ const NotifSystem = (function() {
   // ── Realtime listener (Firestore onSnapshot) ─────────────────
   function _startRealtimeListener() {
     if (!window._fbDb) return;
-    if (typeof firebase === 'undefined' || !firebase.firestore) return;
     if (_unsubscribeRealtime) _unsubscribeRealtime();
     try {
       _unsubscribeRealtime = window._fbDb
         .collection(FS_NOTIFS)
-        .where('createdAt', '>', new Date(_lastChecked - 60000))
+        .where('createdAt', '>', new firebase.firestore.Timestamp(Math.floor(_lastChecked/1000), 0))
         .orderBy('createdAt', 'desc')
         .limit(20)
         .onSnapshot(function(snap) {
@@ -5493,6 +5489,96 @@ if (typeof _origApplyFilters === 'function') {
     _origApplyFilters();
   };
 }
+
+
+// ============================================================
+// 🔧 FIX: Tool Window Copy Buttons — 2026-04-11
+// (functions referenced in HTML but not defined)
+// ============================================================
+
+window._twCopyBlock = function(blockId, btn) {
+    var block = document.getElementById(blockId);
+    if (!block) return;
+    var code = block.dataset.code || '';
+    if (!code) {
+        var body = block.querySelector('.tw-step-term-body');
+        if (body) code = body.innerText || body.textContent || '';
+    }
+    if (!code) {
+        if (typeof toast === 'function') toast('কপি করার মতো কোড নেই', 'warning');
+        return;
+    }
+    navigator.clipboard.writeText(code).then(function() {
+        if (btn) {
+            btn.innerHTML = '<i class="fas fa-check"></i> কপি!';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.innerHTML = '<i class="fas fa-copy"></i> কপি করুন';
+                btn.classList.remove('copied');
+            }, 1500);
+        }
+        if (typeof toast === 'function') toast('✅ কপি হয়েছে!', 'success');
+    }).catch(function() {
+        if (typeof toast === 'function') toast('❌ কপি ব্যর্থ', 'error');
+    });
+};
+
+window._twCopyAll = function(toolId, btn) {
+    var tools = (typeof getTools === 'function')
+        ? getTools()
+        : ((window.App && window.App.tools) || []);
+    var tool = tools.find(function(t) { return (t._id || t.id) === toolId; });
+    if (!tool) {
+        if (typeof toast === 'function') toast('টুল খুঁজে পাওয়া যায়নি', 'error');
+        return;
+    }
+    var allCode = (tool.commands || [])
+        .map(function(c) { return (c.code || '').trim(); })
+        .filter(Boolean)
+        .join('\n\n');
+    if (!allCode) allCode = tool.code || '';
+    if (!allCode) {
+        if (typeof toast === 'function') toast('কপি করার মতো কোড নেই', 'warning');
+        return;
+    }
+    navigator.clipboard.writeText(allCode).then(function() {
+        if (btn) {
+            btn.innerHTML = '<i class="fas fa-check"></i> সব কপি!';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.innerHTML = '<i class="fas fa-copy"></i> সব কপি';
+                btn.classList.remove('copied');
+            }, 1500);
+        }
+        if (typeof toast === 'function') toast('✅ সব কমান্ড কপি হয়েছে!', 'success');
+    }).catch(function() {
+        if (typeof toast === 'function') toast('❌ কপি ব্যর্থ', 'error');
+    });
+};
+
+window._twCopyCode = function(code, btn) {
+    if (!code) {
+        if (typeof toast === 'function') toast('কপি করার মতো কোড নেই', 'warning');
+        return;
+    }
+    navigator.clipboard.writeText(code).then(function() {
+        if (btn) {
+            btn.innerHTML = '<i class="fas fa-check"></i> কপি!';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.innerHTML = '<i class="fas fa-copy"></i> কপি করুন';
+                btn.classList.remove('copied');
+            }, 1500);
+        }
+        if (typeof toast === 'function') toast('✅ কপি হয়েছে!', 'success');
+    }).catch(function() {
+        if (typeof toast === 'function') toast('❌ কপি ব্যর্থ', 'error');
+    });
+};
+
+// ============================================================
+// ✅ COPY FUNCTIONS PATCH COMPLETE — 2026-04-11
+// ============================================================
 
 </script>
 <!-- Modules handled by inline Firebase SDK -->
