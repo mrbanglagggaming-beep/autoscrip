@@ -1,65 +1,6 @@
 <!DOCTYPE html>
 <html lang="bn" dir="ltr">
 <head>
-<script>
-// ═══════════════════════════════════════════════════════════
-// AUTOSCRIP KILL SWITCH v2 — Read test / pageSize=5 killer
-// setInterval + fetch + XHR + eval + new Function সব patch
-// ═══════════════════════════════════════════════════════════
-(function(){
-  'use strict';
-  var _si=window.setInterval;
-  window.setInterval=function(fn,d){
-    var s=(typeof fn==='function')?fn.toString():String(fn);
-    if(s.indexOf('Read test')>=0||s.indexOf('pageSize=5')>=0){
-      console.warn('[KS] setInterval blocked'); return 0;
-    }
-    return _si.apply(window,arguments);
-  };
-  var _ft=window.fetch;
-  window.fetch=function(url,opts){
-    var u=String(url||'');
-    if(u.indexOf('pageSize=5')>=0||u.indexOf('pageSize%3D5')>=0){
-      console.warn('[KS] fetch blocked: '+u.slice(0,80));
-      return Promise.resolve(new Response('{"documents":[]}',
-        {status:200,headers:{'Content-Type':'application/json'}}));
-    }
-    return _ft.apply(window,arguments);
-  };
-  var _xo=XMLHttpRequest.prototype.open;
-  XMLHttpRequest.prototype.open=function(m,url){
-    this.__ks=String(url||'').indexOf('pageSize=5')>=0;
-    if(this.__ks){console.warn('[KS] XHR blocked');return;}
-    return _xo.apply(this,arguments);
-  };
-  var _xs=XMLHttpRequest.prototype.send;
-  XMLHttpRequest.prototype.send=function(){if(this.__ks)return;return _xs.apply(this,arguments);};
-  var _ev=window.eval;
-  window.eval=function(code){
-    var s=String(code||'');
-    if(s.indexOf('Read test')>=0||s.indexOf('pageSize=5')>=0){
-      console.warn('[KS] eval blocked'); return undefined;
-    }
-    return _ev.call(window,code);
-  };
-  var _Fn=window.Function;
-  window.Function=function(){
-    var a=Array.prototype.slice.call(arguments);
-    var b=String(a[a.length-1]||'');
-    if(b.indexOf('Read test')>=0||b.indexOf('pageSize=5')>=0){
-      console.warn('[KS] Function blocked'); return function(){};
-    }
-    return _Fn.apply(this,a);
-  };
-  window.Function.prototype=_Fn.prototype;
-  window._fbQuotaUntil=Date.now()+(30*60*1000);
-  window._migrationDone=true;
-  window._readTestKilled=true;
-  var mx=setTimeout(function(){},0);
-  for(var i=1;i<=Math.min(mx,9999);i++){try{clearInterval(i);}catch(_){}}
-  console.log('[AutoScrip] Admin Kill switch v2 active ✓');
-})();
-</script>
   <meta charset="UTF-8">
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
@@ -80,6 +21,8 @@
   <link rel="stylesheet" href="shared.css">
   <!-- Firebase SDK -->
   <script>
+// ✅ ANTI-KILLSWITCH: native fetch restore
+(function(){if(window._originalFetch&&window.fetch!==window._originalFetch){window.fetch=window._originalFetch;console.log('[Admin] fetch restored');}})();
   (function() {
     var VER = '10.7.1';
     // CDN priority: jsdelivr first (most reliable globally), then gstatic, then unpkg
@@ -5867,6 +5810,7 @@ const ADMIN_EMAIL_MASTER = "mrbanglagggaming@gmail.com";
 // Firebase instances (loaded from CDN scripts in <head>)
 let fbApp, fbAuth, fbDb;
 (function initFirebase() {
+    if (fbApp) return; // ✅ double-init guard
     const maxWait = 10000;
     const start = Date.now();
     function tryInit() {
@@ -8248,7 +8192,6 @@ async function saveTool(preview = false) {
             name: title,        // user.html compatibility
             category,
             subcategory: subcategory || '',  // ✅ subcategory সেভ হবে
-            subCategory: subcategory || '',  // user.html camelCase compatibility
             description,
             author,
             tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : [],
@@ -11237,6 +11180,64 @@ if (typeof window.getCategoryLabel !== 'function') {
             gaming:'🎮 গেমিং', files:'📁 ফাইল', windows:'🪟 উইন্ডোজ', other:'📜 অন্যান্য'
         };
         return labels[cat] || cat || '📜 অন্যান্য';
+    };
+}
+
+
+// ✅ FIX: Tool Window Copy Functions (admin context — uses allTools)
+if (typeof window._twCopyAll !== 'function') {
+    window._twCopyAll = function(toolId, btn) {
+        var tool = (typeof allTools !== 'undefined' ? allTools : []).find(function(t){ return (t.id||t._id) === toolId; });
+        if (!tool) { typeof toast==='function' && toast('টুল পাওয়া যায়নি','error'); return; }
+        var allCode = (tool.commands||[]).map(function(c){ return (c.code||'').trim(); }).filter(Boolean).join('\n\n');
+        if (!allCode) allCode = tool.code || '';
+        if (!allCode) { typeof toast==='function' && toast('কপি করার মতো কোড নেই','warning'); return; }
+        navigator.clipboard.writeText(allCode).then(function() {
+            if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> সব কপি!';
+                btn.classList.add('copied');
+                setTimeout(function(){ btn.innerHTML=orig; btn.classList.remove('copied'); }, 1500);
+            }
+            typeof toast==='function' && toast('✅ সব কমান্ড কপি হয়েছে!','success');
+        }).catch(function(){ typeof toast==='function' && toast('❌ কপি ব্যর্থ','error'); });
+    };
+}
+
+if (typeof window._twCopyBlock !== 'function') {
+    window._twCopyBlock = function(blockId, btn) {
+        var block = document.getElementById(blockId);
+        if (!block) return;
+        var code = block.dataset.code || '';
+        if (!code) {
+            var body = block.querySelector('.tw-step-term-body');
+            if (body) code = body.innerText || body.textContent || '';
+        }
+        if (!code) { typeof toast==='function' && toast('কপি করার মতো কোড নেই','warning'); return; }
+        navigator.clipboard.writeText(code).then(function() {
+            if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> কপি!';
+                btn.classList.add('copied');
+                setTimeout(function(){ btn.innerHTML=orig; btn.classList.remove('copied'); }, 1500);
+            }
+            typeof toast==='function' && toast('✅ কপি হয়েছে!','success');
+        }).catch(function(){ typeof toast==='function' && toast('❌ কপি ব্যর্থ','error'); });
+    };
+}
+
+if (typeof window._twCopyCode !== 'function') {
+    window._twCopyCode = function(code, btn) {
+        if (!code) { typeof toast==='function' && toast('কপি করার মতো কোড নেই','warning'); return; }
+        navigator.clipboard.writeText(code).then(function() {
+            if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> কপি!';
+                btn.classList.add('copied');
+                setTimeout(function(){ btn.innerHTML=orig; btn.classList.remove('copied'); }, 1500);
+            }
+            typeof toast==='function' && toast('✅ কপি হয়েছে!','success');
+        }).catch(function(){ typeof toast==='function' && toast('❌ কপি ব্যর্থ','error'); });
     };
 }
 
