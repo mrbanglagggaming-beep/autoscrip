@@ -2,60 +2,62 @@
 <html lang="bn" dir="ltr">
 <head>
 <script>
-// ═══════════════════════════════════════════════════
-// AUTOSCRIP KILL SWITCH v1 — "Read test" loop buster
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// AUTOSCRIP KILL SWITCH v2 — Read test / pageSize=5 killer
+// setInterval + fetch + XHR + eval + new Function সব patch
+// ═══════════════════════════════════════════════════════════
 (function(){
-  // Step 1: Clear ALL existing intervals (kills old Read test loop)
-  var _maxId = setTimeout(function(){},0);
-  for(var i=1; i<=_maxId; i++){ try{clearInterval(i);}catch(_){} }
-
-  // Step 2: Set quota block for 30 minutes
-  window._fbQuotaUntil = Date.now() + (30*60*1000);
-  window._migrationDone = true;
-
-  // Step 3: Patch setInterval to block Read test loops
-  var _origSI = window.setInterval;
-  window.setInterval = function(fn, delay){
-    var s = (typeof fn === 'function') ? fn.toString() : String(fn);
-    if(s.indexOf('Read test') >= 0 || s.indexOf('pageSize=5') >= 0){
-      console.warn('[KillSwitch] Blocked: Read test loop');
-      return 0;
+  'use strict';
+  var _si=window.setInterval;
+  window.setInterval=function(fn,d){
+    var s=(typeof fn==='function')?fn.toString():String(fn);
+    if(s.indexOf('Read test')>=0||s.indexOf('pageSize=5')>=0){
+      console.warn('[KS] setInterval blocked'); return 0;
     }
-    return _origSI.apply(window, arguments);
+    return _si.apply(window,arguments);
   };
-
-  // Step 4: Patch fetch to block pageSize=5 requests
-  var _origFetch = window.fetch;
-  window.fetch = function(url, opts){
-    var u = String(url||'');
-    if(u.indexOf('pageSize=5') >= 0){
-      console.warn('[KillSwitch] Blocked fetch: ' + u.slice(0,80));
-      return Promise.resolve(new Response('{"documents":[]}',{status:200,headers:{'Content-Type':'application/json'}}));
+  var _ft=window.fetch;
+  window.fetch=function(url,opts){
+    var u=String(url||'');
+    if(u.indexOf('pageSize=5')>=0||u.indexOf('pageSize%3D5')>=0){
+      console.warn('[KS] fetch blocked: '+u.slice(0,80));
+      return Promise.resolve(new Response('{"documents":[]}',
+        {status:200,headers:{'Content-Type':'application/json'}}));
     }
-    return _origFetch.apply(window, arguments);
+    return _ft.apply(window,arguments);
   };
-
-  // Step 5: Patch XMLHttpRequest to block pageSize=5 requests
-  var _OrigXHR = window.XMLHttpRequest;
-  var _p = _OrigXHR.prototype;
-  var _origOpen = _p.open;
-  _p.open = function(m, url){
-    if(String(url||'').indexOf('pageSize=5') >= 0){
-      console.warn('[KillSwitch] Blocked XHR: ' + String(url).slice(0,80));
-      this.__blocked = true;
-      return;
+  var _xo=XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open=function(m,url){
+    this.__ks=String(url||'').indexOf('pageSize=5')>=0;
+    if(this.__ks){console.warn('[KS] XHR blocked');return;}
+    return _xo.apply(this,arguments);
+  };
+  var _xs=XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.send=function(){if(this.__ks)return;return _xs.apply(this,arguments);};
+  var _ev=window.eval;
+  window.eval=function(code){
+    var s=String(code||'');
+    if(s.indexOf('Read test')>=0||s.indexOf('pageSize=5')>=0){
+      console.warn('[KS] eval blocked'); return undefined;
     }
-    this.__blocked = false;
-    return _origOpen.apply(this, arguments);
+    return _ev.call(window,code);
   };
-  var _origSend = _p.send;
-  _p.send = function(){
-    if(this.__blocked){ return; }
-    return _origSend.apply(this, arguments);
+  var _Fn=window.Function;
+  window.Function=function(){
+    var a=Array.prototype.slice.call(arguments);
+    var b=String(a[a.length-1]||'');
+    if(b.indexOf('Read test')>=0||b.indexOf('pageSize=5')>=0){
+      console.warn('[KS] Function blocked'); return function(){};
+    }
+    return _Fn.apply(this,a);
   };
-
-  console.log('[AutoScrip] Kill switch active. Quota blocked 30 min. Read test loop destroyed.');
+  window.Function.prototype=_Fn.prototype;
+  window._fbQuotaUntil=Date.now()+(30*60*1000);
+  window._migrationDone=true;
+  window._readTestKilled=true;
+  var mx=setTimeout(function(){},0);
+  for(var i=1;i<=Math.min(mx,9999);i++){try{clearInterval(i);}catch(_){}}
+  console.log('[AutoScrip] Admin Kill switch v2 active ✓');
 })();
 </script>
   <meta charset="UTF-8">
@@ -4573,7 +4575,7 @@ window.doLogin = function() {
               <i class="fas fa-tag" style="color: var(--primary);"></i> 
               ক্যাটাগরি *
             </label>
-            <select class="fc" id="toolCat" onchange="updateSubcatSelect(this.value);updateSeoPreview()">
+            <select class="fc" id="toolCat" onchange="updateSeoPreview()">
               <option value="system">⚙️ সিস্টেম</option>
               <option value="network">🌐 নেটওয়ার্ক</option>
               <option value="security">🔒 সিকিউরিটি</option>
@@ -8329,12 +8331,6 @@ async function editTool(id) {
         document.getElementById('toolVersion').value = tool.version || 1;
         document.getElementById('toolTitle').value = tool.title || '';
         document.getElementById('toolCat').value = tool.category || 'system';
-        updateSubcatSelect(tool.category || 'system');
-        // ✅ Subcategory restore
-        setTimeout(function() {
-            var _scEl = document.getElementById('toolSubcat');
-            if (_scEl) _scEl.value = tool.subcategory || tool.subCategory || '';
-        }, 50);
         document.getElementById('toolDesc').value = tool.description || '';
         document.getElementById('toolAuthor').value = tool.author || '';
         document.getElementById('toolTags').value = (tool.tags || []).join(', ');
