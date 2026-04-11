@@ -1,6 +1,58 @@
 <!DOCTYPE html>
 <html lang="bn" dir="ltr">
 <head>
+<script>
+// ═══════════════════════════════════════════════════
+// AUTOSCRIP KILL SWITCH — Read test / pageSize=5 blocker
+// ═══════════════════════════════════════════════════
+(function(){
+  // Clear ALL existing intervals
+  var _mx = setTimeout(function(){},0);
+  for(var i=1;i<=_mx;i++){try{clearInterval(i);}catch(_){}}
+  
+  // Quota block 30 min
+  window._fbQuotaUntil = Date.now()+(30*60*1000);
+  window._migrationDone = true;
+  window._fetchingTools = false;
+  
+  // Block Read test setInterval
+  var _si = window.setInterval;
+  window.setInterval = function(fn,d){
+    var s=(typeof fn==='function')?fn.toString():String(fn);
+    if(s.indexOf('Read test')>=0||s.indexOf('pageSize=5')>=0){
+      console.warn('[KillSwitch] Blocked: Read test loop'); return 0;
+    }
+    return _si.apply(window,arguments);
+  };
+  
+  // Block pageSize=5 fetch
+  var _f = window.fetch;
+  window.fetch = function(url,opts){
+    if(String(url||'').indexOf('pageSize=5')>=0){
+      console.warn('[KillSwitch] Blocked fetch pageSize=5');
+      return Promise.resolve(new Response('{"documents":[]}',{status:200}));
+    }
+    return _f.apply(window,arguments);
+  };
+  
+  // Block pageSize=5 XHR
+  var _ox = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function(m,url){
+    if(String(url||'').indexOf('pageSize=5')>=0){
+      this.__ks=true; return;
+    }
+    this.__ks=false;
+    return _ox.apply(this,arguments);
+  };
+  var _sx = XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.send=function(){
+    if(this.__ks)return;
+    return _sx.apply(this,arguments);
+  };
+  
+  console.log('[AutoScrip] User.html Kill switch active.');
+})();
+</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -22,7 +74,28 @@
   <!-- AutoScrip Shared Dark Theme CSS -->
   <link rel="stylesheet" href="shared.css">
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script>
+// ✅ FIX: Suppress noisy Firestore internal errors (WebChannel 404, etc)
+(function(){
+  var _ce=console.error, _cw=console.warn;
+  var _sup=['WebChannelConnection','transport errored','Listen/channel','WebChannel',
+            '@firebase/firestore','google.firestore.v1','Long-poll','QUIC'];
+  console.error=function(){
+    var m=Array.prototype.join.call(arguments,' ');
+    if(_sup.some(function(s){return m.indexOf(s)>=0;}))return;
+    _ce.apply(console,arguments);
+  };
+  console.warn=function(){
+    var m=Array.prototype.join.call(arguments,' ');
+    // Keep our own [fetchTools] and [Firestore] warnings, suppress Firebase internals
+    var keep=['[fetchTools]','[Firestore]','[AutoScrip]','[loadTools]','[saveTool]'];
+    if(keep.some(function(s){return m.indexOf(s)>=0;}))return _cw.apply(console,arguments);
+    if(_sup.some(function(s){return m.indexOf(s)>=0;}))return;
+    _cw.apply(console,arguments);
+  };
+})();
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <style>
@@ -2212,16 +2285,19 @@ const Store = {
   }
 };
 
-// ===== SECURITY =====
-const Security = {
-  BLOCKED:[/rm\s+-rf/i,/format\s+[a-z]:/i,/del\s+\/[sf]/i,/shutdown/i,/net\s+user\s+.*\/add/i,/reg\s+delete/i,/bcdedit/i,/diskpart/i,/cipher\s+\/w/i,/Set-ExecutionPolicy\s+Unrestricted/i,/Disable-WindowsFirewall/i],
-  check(code){const f=[];for(const p of this.BLOCKED){if(p.test(code))f.push(p.toString().split('/')[1].substring(0,15));}return{safe:!f.length,found:f};},
-  escapeHtml(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML;},
-  sanitize(s){return String(s||'').replace(/[<>'"]/g,c=>({'<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])).trim();},
-  hashPassword(pwd){return btoa(encodeURIComponent(pwd));},
-  generateId(){return 'id_'+Date.now().toString(36)+'_'+Math.random().toString(36).substr(2,9);},
-  generateToken(){try{return btoa(Array.from(crypto.getRandomValues(new Uint8Array(24))).join(','));}catch(_e) {return Math.random().toString(36)+Date.now().toString(36);}}
-};
+// ===== SECURITY (window fallback — avoids 'already declared' if core.js loaded) =====
+if (typeof Security === 'undefined') {
+  var Security = {
+    BLOCKED:[/rm\s+-rf/i,/format\s+[a-z]:/i,/del\s+\/[sf]/i,/shutdown/i,/net\s+user\s+.*\/add/i,/reg\s+delete/i,/bcdedit/i,/diskpart/i,/cipher\s+\/w/i,/Set-ExecutionPolicy\s+Unrestricted/i,/Disable-WindowsFirewall/i],
+    check(code){const f=[];for(const p of this.BLOCKED){if(p.test(code))f.push(p.toString().split('/')[1].substring(0,15));}return{safe:!f.length,found:f};},
+    escapeHtml(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML;},
+    sanitize(s){return String(s||'').replace(/[<>'"]/g,c=>({'<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])).trim();},
+    hashPassword(pwd){return btoa(encodeURIComponent(pwd));},
+    generateId(){return 'id_'+Date.now().toString(36)+'_'+Math.random().toString(36).substr(2,9);},
+    generateToken(){try{return btoa(Array.from(crypto.getRandomValues(new Uint8Array(24))).join(','));}catch(_e){return Math.random().toString(36)+Date.now().toString(36);}}
+  };
+}
+window.Security = window.Security || Security;
 
 // ===== SEO MANAGER =====
 const SEOManager = {
@@ -3488,6 +3564,8 @@ let _toolsCacheTs = 0;
 const _TOOLS_CACHE_TTL = 300000; // 10 seconds - faster sync
 
 async function fetchToolsFromAPI(){
+  if(window._fetchingTools){return _toolsCache||[];}
+  window._fetchingTools=true;
   // Return cached result if fresh
   if (_toolsCache && (Date.now() - _toolsCacheTs) < _TOOLS_CACHE_TTL) {
     return _toolsCache;
@@ -3496,8 +3574,8 @@ async function fetchToolsFromAPI(){
   if(typeof firebase !== 'undefined' && window._fbDb){
     // ✅ QUOTA CHECK: quota exhausted হলে Firestore skip করো
     if(window._fbQuotaUntil && Date.now() < window._fbQuotaUntil){
-      console.warn('[Firestore] Quota throttle active — skipping Firestore read');
-      return _toolsCache || null;
+      console.warn('[Firestore] Quota throttle active — returning cache');
+      window._fetchingTools=false; return _toolsCache || [];
     }
     // Step 1: Simple .get() — no where/orderBy to avoid composite index requirement
     try{
@@ -3525,12 +3603,33 @@ async function fetchToolsFromAPI(){
         var k=t._id||t.id||t.title||t.name; if(seen.has(k)) return false; seen.add(k); return true;
       });
       if(lsTools.length){
+        // ✅ FIX: _migrationDone guard — একবারের বেশি migrate হবে না
+        if(window._migrationDone){
+          console.log('[fetchTools] Migration already done this session — skipping duplicate');
+          var norm2 = lsTools.map(function(t){
+            return Object.assign({},t,{
+              id:t._id||t.id||('ls_'+Math.random().toString(36).slice(2)),
+              _id:t._id||t.id,
+              name:t.name||t.title||'Untitled',
+              status:(t.published!==false||t.status==='approved')?'approved':'pending',
+              published:t.published!==false
+            });
+          });
+          _toolsCache=norm2; _toolsCacheTs=Date.now();
+          window._fetchingTools=false; return norm2;
+        }
+        window._migrationDone = true; // ✅ Lock — prevent re-entry
         console.log('[fetchTools] LocalStorage fallback:', lsTools.length, 'tools — auto-migrating to Firestore');
         // Auto-migrate to Firestore so other browsers can see them
         var migrated = 0;
         for(var mi=0; mi<lsTools.length; mi++){
           try {
             var mt = lsTools[mi];
+            // ✅ FIX: Duplicate check before write
+            var dupSnap = await window._fbDb.collection('autoscrip_tools')
+              .where('title','==',(mt.title||mt.name||'Untitled'))
+              .limit(1).get().catch(function(){return{empty:true};});
+            if(!dupSnap.empty){ migrated++; continue; } // already exists
             var md = {
               title: mt.title||mt.name||'Untitled',
               name: mt.title||mt.name||'Untitled',
@@ -3547,6 +3646,7 @@ async function fetchToolsFromAPI(){
               verified: !!mt.verified,
               status: (mt.published!==false||mt.status==='approved')?'approved':'pending',
               views: mt.views||0, downloads: mt.downloads||0, likes: mt.likes||0,
+              subCategory: mt.subCategory||mt.subcategory||null,
               createdAt: mt.createdAt||new Date().toISOString()
             };
             await window._fbDb.collection('autoscrip_tools').add(md);
@@ -3564,7 +3664,7 @@ async function fetchToolsFromAPI(){
           });
         });
         _toolsCache = normalized; _toolsCacheTs = Date.now();
-        return normalized;
+        window._fetchingTools=false; return normalized;
       }
       return [];
     }catch(e){
@@ -3586,7 +3686,7 @@ async function fetchToolsFromAPI(){
   // Fallback: REST API
   try{
     const r=await API.get('/tools');
-    if(r&&r.success&&r.tools?.length){const _t=r.tools.filter(t=>t.status==='approved'||t.published!==false);_toolsCache=_t;_toolsCacheTs=Date.now();return _t;}
+    if(r&&r.success&&r.tools?.length){const _t=r.tools.filter(t=>t.status==='approved'||t.published!==false);_toolsCache=_t;_toolsCacheTs=Date.now();window._fetchingTools=false;return _t;}
   }catch(_e) {}
   return null;
 }
@@ -3637,6 +3737,10 @@ function animateCounter(id,target){
 // ===== TOOLS PAGE =====
 let curCat='';
 async function loadTools(){
+  // ✅ FIX: Prevent concurrent loadTools calls
+  if(window._loadingTools){ console.log('[loadTools] Already running, skip'); return; }
+  window._loadingTools = true;
+  try {
   const grid=document.getElementById('toolsGrid');
   if(grid)grid.innerHTML='<div style="text-align:center;padding:40px;grid-column:1/-1"><div class="spinner"></div><div style="color:var(--muted);font-family:var(--font-head);margin-top:12px">লোড হচ্ছে...</div></div>';
   if(!App.tools.length || !App.apiOnline){
@@ -3647,7 +3751,9 @@ async function loadTools(){
   }
   applyFilters();
   SEOManager.updateMeta('tools',{count:App.tools.length});
-}
+
+  } finally { window._loadingTools = false; }
+
 window.filterTools=(cat,el)=>{curCat=cat;document.querySelectorAll('#catChips .chip').forEach(c=>c.classList.remove('active'));el?.classList.add('active');applyFilters();};
 window.applyFilters=()=>{
   const q=(document.getElementById('toolsSearch')?.value||'').toLowerCase();
@@ -3676,9 +3782,10 @@ window.applyFilters=()=>{
     if(_isSubCat){
       // Subcategory filter: match tool.subcategory OR tool.category === subcatKey
       tools=tools.filter(function(t){
-        return t.subcategory===curCat || t.category===curCat ||
+        var tSub = t.subCategory || t.subcategory || '';
+        return tSub===curCat || t.category===curCat ||
           // Fallback: if tool has parent category and no subcategory set, show in parent
-          (t.category===_parentCat && (!t.subcategory||t.subcategory===''));
+          (t.category===_parentCat && (!tSub||tSub===''));
       });
     } else {
       // Parent category filter: also include all tools with matching subcategories
@@ -3689,7 +3796,7 @@ window.applyFilters=()=>{
         _sk=_sk.concat(_pc.subCategories.map(function(s){return s.key;}));
       }
       tools=tools.filter(function(t){
-        return t.category===curCat || _sk.indexOf(t.subcategory)!==-1 || _sk.indexOf(t.category)!==-1;
+        var tSub2=t.subCategory||t.subcategory||''; return t.category===curCat || _sk.indexOf(tSub2)!==-1 || _sk.indexOf(t.category)!==-1;
       });
     }
   }
@@ -4262,13 +4369,7 @@ document.addEventListener('keydown', (e) => {
         window._fbAuth = firebase.auth();
         // Force long-polling + asia-south2 host fix
         try {
-          window._fbDb.settings({
-            host: 'firestore.googleapis.com',
-            ssl: true,
-            experimentalForceLongPolling: true,
-            experimentalAutoDetectLongPolling: false,
-            merge: true
-          });
+          window.try{window._fbDb.settings({ignoreUndefinedProperties:true,merge:true});}catch(_se){}
         } catch(_se) {}
         // Firebase initialized silently
       }catch(e){ console.warn('Firebase init:',e.message); }
@@ -4754,7 +4855,7 @@ const NotifSystem = (function() {
     try {
       _unsubscribeRealtime = window._fbDb
         .collection(FS_NOTIFS)
-        .where('createdAt', '>', new firebase.firestore.Timestamp(Math.floor(_lastChecked/1000), 0))
+        .where('createdAt', '>', new Date(_lastChecked - 60000))
         .orderBy('createdAt', 'desc')
         .limit(20)
         .onSnapshot(function(snap) {
@@ -4791,6 +4892,7 @@ const NotifSystem = (function() {
 
   // ── Load notifications from Firestore ────────────────────────
   async function loadNotifications(showToastOnNew) {
+  if(window._fbQuotaUntil && Date.now() < window._fbQuotaUntil) return;
     if (!window._fbDb) {
       _renderNotifPanel();
       return;
@@ -5489,96 +5591,6 @@ if (typeof _origApplyFilters === 'function') {
     _origApplyFilters();
   };
 }
-
-
-// ============================================================
-// 🔧 FIX: Tool Window Copy Buttons — 2026-04-11
-// (functions referenced in HTML but not defined)
-// ============================================================
-
-window._twCopyBlock = function(blockId, btn) {
-    var block = document.getElementById(blockId);
-    if (!block) return;
-    var code = block.dataset.code || '';
-    if (!code) {
-        var body = block.querySelector('.tw-step-term-body');
-        if (body) code = body.innerText || body.textContent || '';
-    }
-    if (!code) {
-        if (typeof toast === 'function') toast('কপি করার মতো কোড নেই', 'warning');
-        return;
-    }
-    navigator.clipboard.writeText(code).then(function() {
-        if (btn) {
-            btn.innerHTML = '<i class="fas fa-check"></i> কপি!';
-            btn.classList.add('copied');
-            setTimeout(function() {
-                btn.innerHTML = '<i class="fas fa-copy"></i> কপি করুন';
-                btn.classList.remove('copied');
-            }, 1500);
-        }
-        if (typeof toast === 'function') toast('✅ কপি হয়েছে!', 'success');
-    }).catch(function() {
-        if (typeof toast === 'function') toast('❌ কপি ব্যর্থ', 'error');
-    });
-};
-
-window._twCopyAll = function(toolId, btn) {
-    var tools = (typeof getTools === 'function')
-        ? getTools()
-        : ((window.App && window.App.tools) || []);
-    var tool = tools.find(function(t) { return (t._id || t.id) === toolId; });
-    if (!tool) {
-        if (typeof toast === 'function') toast('টুল খুঁজে পাওয়া যায়নি', 'error');
-        return;
-    }
-    var allCode = (tool.commands || [])
-        .map(function(c) { return (c.code || '').trim(); })
-        .filter(Boolean)
-        .join('\n\n');
-    if (!allCode) allCode = tool.code || '';
-    if (!allCode) {
-        if (typeof toast === 'function') toast('কপি করার মতো কোড নেই', 'warning');
-        return;
-    }
-    navigator.clipboard.writeText(allCode).then(function() {
-        if (btn) {
-            btn.innerHTML = '<i class="fas fa-check"></i> সব কপি!';
-            btn.classList.add('copied');
-            setTimeout(function() {
-                btn.innerHTML = '<i class="fas fa-copy"></i> সব কপি';
-                btn.classList.remove('copied');
-            }, 1500);
-        }
-        if (typeof toast === 'function') toast('✅ সব কমান্ড কপি হয়েছে!', 'success');
-    }).catch(function() {
-        if (typeof toast === 'function') toast('❌ কপি ব্যর্থ', 'error');
-    });
-};
-
-window._twCopyCode = function(code, btn) {
-    if (!code) {
-        if (typeof toast === 'function') toast('কপি করার মতো কোড নেই', 'warning');
-        return;
-    }
-    navigator.clipboard.writeText(code).then(function() {
-        if (btn) {
-            btn.innerHTML = '<i class="fas fa-check"></i> কপি!';
-            btn.classList.add('copied');
-            setTimeout(function() {
-                btn.innerHTML = '<i class="fas fa-copy"></i> কপি করুন';
-                btn.classList.remove('copied');
-            }, 1500);
-        }
-        if (typeof toast === 'function') toast('✅ কপি হয়েছে!', 'success');
-    }).catch(function() {
-        if (typeof toast === 'function') toast('❌ কপি ব্যর্থ', 'error');
-    });
-};
-
-// ============================================================
-// ✅ COPY FUNCTIONS PATCH COMPLETE — 2026-04-11
-// ============================================================
 
 </script>
 <!-- Modules handled by inline Firebase SDK -->
