@@ -4516,7 +4516,7 @@ window.doLogin = function() {
               <i class="fas fa-tag" style="color: var(--primary);"></i> 
               ক্যাটাগরি *
             </label>
-            <select class="fc" id="toolCat" onchange="updateSeoPreview()">
+            <select class="fc" id="toolCat" onchange="updateSubcatSelect(this.value);updateSeoPreview()">
               <option value="system">⚙️ সিস্টেম</option>
               <option value="network">🌐 নেটওয়ার্ক</option>
               <option value="security">🔒 সিকিউরিটি</option>
@@ -5783,6 +5783,26 @@ const FIREBASE_CONFIG = {
 };
 
 const ADMIN_UID_MASTER   = "E97OGEv5ZJFbHaoojCnFe25GSeY1";
+
+// ✅ FIX: Firestore WebChannel নয়েজি errors suppress করো
+// (404, WebChannel, Listen errors — এগুলো normal long-polling fallback behavior)
+(function suppressFirestoreNoise() {
+    var _ce = console.error, _cw = console.warn;
+    var SUPPRESS = [
+        'WebChannelConnection', 'transport errored', 'Listen/channel',
+        'WebChannel', '@firebase/firestore', '404 ()', '400 ()',
+        'google.firestore.v1', 'Could not reach Cloud Firestore',
+        'Failed to get document because the client is offline'
+    ];
+    function shouldSuppress(args) {
+        var msg = Array.prototype.slice.call(args).join(' ');
+        return SUPPRESS.some(function(s) { return msg.indexOf(s) >= 0; });
+    }
+    console.error = function() { if (!shouldSuppress(arguments)) _ce.apply(console, arguments); };
+    console.warn  = function() { if (!shouldSuppress(arguments)) _cw.apply(console, arguments); };
+    window._suppressFirestoreNoise = true;
+})();
+
 const ADMIN_EMAIL_MASTER = "mrbanglagggaming@gmail.com";
 
 // Firebase instances (loaded from CDN scripts in <head>)
@@ -5800,7 +5820,7 @@ let fbApp, fbAuth, fbDb;
                 fbApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
                 fbAuth = firebase.auth();
                 fbDb   = firebase.firestore();
-                try { fbDb.settings({ experimentalForceLongPolling: true, experimentalAutoDetectLongPolling: false, merge: true }); } catch(e) {}
+                try { fbDb.settings({ experimentalForceLongPolling: true, experimentalAutoDetectLongPolling: false, ignoreUndefinedProperties: true, merge: true }); } catch(e) {}
                 // Use long-polling to avoid WebChannel 404 errors on some networks
                 try {
                     fbDb.settings({
@@ -6692,6 +6712,8 @@ let cmdManager;
 document.addEventListener('DOMContentLoaded', async () => {
     // Initialize security module
     AdminSecurity.init();
+    // ✅ Security alias — Security.xxx calls সব কাজ করবে
+    if (typeof window.Security === 'undefined') window.Security = AdminSecurity;
 
     // Initialize command manager
     cmdManager = new CommandBlockManager();
@@ -7056,9 +7078,9 @@ window.reorderYtVideo = reorderYtVideo;
         currentUserRole = currentUser.role;
 
         showApp();
-        // ✅ QUOTA FIX: auth এ শুধু dashboard লোড, tools lazy (showP এ হবে)
+        // ✅ QUOTA FIX: শুধু dashboard প্রথমে, tools lazy load
         loadDashboard();
-        // loadTools() এখানে নয় — শুধু tools panel এ গেলেই হবে
+        // ✅ loadTools() এখানে নয় — tools panel এ গেলেই চলবে (quota বাঁচায়)
         setTimeout(() => { if(typeof loadCategories==='function') loadCategories(); }, 3000);
     });
     } else {
@@ -7676,12 +7698,20 @@ function showFirestoreSetupGuide() {
 
 
 async function loadTools(forceRefresh = false) {
+    // ✅ MUTEX: একসাথে দুটো loadTools() চলতে দেওয়া হবে না
+    if (window._loadingTools) {
+        console.log('[loadTools] Already in progress — skipping duplicate call');
+        return;
+    }
+    window._loadingTools = true;
+
     // ✅ CACHE: 3 মিনিটের মধ্যে দ্বিতীয়বার call করলে cached data দেখাবে
     const now = Date.now();
     if (!forceRefresh && window._toolsCacheTs && (now - window._toolsCacheTs) < 180000 && allTools.length > 0) {
         renderToolsTable(allTools);
         const tcEl = document.getElementById('toolCount');
         if (tcEl) tcEl.textContent = allTools.length;
+        window._loadingTools = false;
         return;
     }
     // Hide warning banner while loading
@@ -7708,7 +7738,6 @@ async function loadTools(forceRefresh = false) {
         if (!snap.empty) {
             allTools = snap.docs.map(d => ({ id: d.id, _id: d.id, ...d.data() }))
                 .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
-            window._toolsCacheTs = Date.now(); // ✅ cache timestamp set
             console.log('[loadTools] Loaded', allTools.length, 'tools from Firestore');
         } else {
             allTools = [];
@@ -7725,63 +7754,77 @@ async function loadTools(forceRefresh = false) {
         const recent = [...allTools].slice(0, 5);
         renderRecentTools(recent);
 
-        // AUTO-MIGRATE: disabled — tools already in Firestore
+        // AUTO-MIGRATE: localStorage → Firestore (একবারই চলে)
         if (snap.empty) {
-            const lsKeys = ['autoscrip_tools', 'as7_tools', 'tools'];
-            let lsAll = [];
-            for (const k of lsKeys) {
-                try { const r = localStorage.getItem(k); if(r){ const a=JSON.parse(r); if(Array.isArray(a)) lsAll=[...lsAll,...a]; } } catch(_){}
-            }
-            const seen = new Set();
-            lsAll = lsAll.filter(t=>{ const k=t._id||t.id||t.title||t.name; if(seen.has(k)) return false; seen.add(k); return true; });
-            
-            if (lsAll.length > 0) {
-                console.log('[loadTools] Auto-migrating', lsAll.length, 'tools to Firestore...');
-                toast('⬆️ ' + lsAll.length + 'টি টুল Firestore-এ আপলোড হচ্ছে...', 'info');
-                let ok = 0, fail = 0;
-                for (const tool of lsAll) {
-                    try {
-                        const d = {
-                            title:       tool.title || tool.name || 'Untitled',
-                            name:        tool.title || tool.name || 'Untitled',
-                            category:    tool.category || 'system',
-                            description: tool.description || '',
-                            author:      tool.author || 'AutoScrip Team',
-                            tags:        Array.isArray(tool.tags) ? tool.tags : [],
-                            commands:    tool.commands || (tool.code ? [{title:'Main',code:tool.code,language:'powershell'}] : []),
-                            youtube:     tool.youtube || null,
-                            thumbnail:   tool.thumbnail || null,
-                            slug:        tool.slug || (tool.title||'').toLowerCase().replace(/\s+/g,'-') || '',
-                            published:   tool.published !== false,
-                            featured:    !!tool.featured,
-                            verified:    !!tool.verified,
-                            status:      (tool.published !== false || tool.status === 'approved') ? 'approved' : 'pending',
-                            views:       tool.views || 0,
-                            downloads:   tool.downloads || 0,
-                            likes:       tool.likes || 0,
-                            createdAt:   tool.createdAt || firebase.firestore.FieldValue.serverTimestamp(),
-                        };
-                        await fbDb.collection('autoscrip_tools').add(d);
-                        ok++;
-                    } catch(e) {
-                        console.error('[auto-migrate] Failed:', tool.title, '|', e.code, e.message);
-                        fail++;
-                    }
+            // ✅ _migrationDone: session-level flag — একই session এ দ্বিতীয়বার চলবে না
+            if (window._migrationDone) {
+                console.log('[loadTools] Migration already done this session — skipping');
+            } else {
+                const lsKeys = ['autoscrip_tools', 'as7_tools', 'tools'];
+                let lsAll = [];
+                for (const k of lsKeys) {
+                    try { const r = localStorage.getItem(k); if(r){ const a=JSON.parse(r); if(Array.isArray(a)) lsAll=[...lsAll,...a]; } } catch(_){}
                 }
-                console.log('[auto-migrate] Done:', ok, 'success,', fail, 'failed');
-                if (ok > 0) {
-                    toast('✅ ' + ok + 'টি টুল Firestore-এ আপলোড হয়েছে!', 'success');
-                    // Reload from Firestore
-                    const snap2 = await fbDb.collection('autoscrip_tools').get();
-                    allTools = snap2.docs.map(d => ({ id: d.id, _id: d.id, ...d.data() }))
-                        .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
-                    renderToolsTable(allTools);
-                    if (tcEl) tcEl.textContent = allTools.length;
-                    renderRecentTools(allTools.slice(0,5));
-                    return; // done
-                } else {
-                    toast('❌ Firestore write ব্যর্থ — Rules চেক করুন', 'error');
-                    if (warnBanner) warnBanner.style.display = 'flex';
+                const seen = new Set();
+                lsAll = lsAll.filter(t=>{ const k=t._id||t.id||t.title||t.name; if(seen.has(k)) return false; seen.add(k); return true; });
+
+                if (lsAll.length > 0) {
+                    window._migrationDone = true; // ✅ set NOW — before async ops
+                    console.log('[loadTools] Auto-migrating', lsAll.length, 'tools to Firestore...');
+                    toast('⬆️ ' + lsAll.length + 'টি টুল Firestore-এ আপলোড হচ্ছে...', 'info');
+                    let ok = 0, fail = 0;
+                    for (const tool of lsAll) {
+                        try {
+                            // ✅ Duplicate check: same title already in Firestore?
+                            const titleCheck = await fbDb.collection('autoscrip_tools')
+                                .where('title', '==', tool.title || tool.name || 'Untitled')
+                                .limit(1).get();
+                            if (!titleCheck.empty) {
+                                console.log('[auto-migrate] Duplicate skipped:', tool.title);
+                                ok++; continue;
+                            }
+                            const d = {
+                                title:       tool.title || tool.name || 'Untitled',
+                                name:        tool.title || tool.name || 'Untitled',
+                                category:    tool.category || 'system',
+                                description: tool.description || '',
+                                author:      tool.author || 'AutoScrip Team',
+                                tags:        Array.isArray(tool.tags) ? tool.tags : [],
+                                commands:    tool.commands || (tool.code ? [{title:'Main',code:tool.code,language:'powershell'}] : []),
+                                youtube:     tool.youtube || null,
+                                thumbnail:   tool.thumbnail || null,
+                                slug:        tool.slug || (tool.title||'').toLowerCase().replace(/\s+/g,'-') || '',
+                                published:   tool.published !== false,
+                                featured:    !!tool.featured,
+                                verified:    !!tool.verified,
+                                status:      (tool.published !== false || tool.status === 'approved') ? 'approved' : 'pending',
+                                views:       tool.views || 0,
+                                downloads:   tool.downloads || 0,
+                                likes:       tool.likes || 0,
+                                createdAt:   tool.createdAt || firebase.firestore.FieldValue.serverTimestamp(),
+                            };
+                            await fbDb.collection('autoscrip_tools').add(d);
+                            ok++;
+                        } catch(e) {
+                            console.error('[auto-migrate] Failed:', tool.title, '|', e.code, e.message);
+                            fail++;
+                        }
+                    }
+                    console.log('[auto-migrate] Done:', ok, 'success,', fail, 'failed');
+                    if (ok > 0) {
+                        toast('✅ ' + ok + 'টি টুল Firestore-এ আপলোড হয়েছে!', 'success');
+                        const snap2 = await fbDb.collection('autoscrip_tools').get();
+                        allTools = snap2.docs.map(d => ({ id: d.id, _id: d.id, ...d.data() }))
+                            .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
+                        window._toolsCacheTs = Date.now();
+                        renderToolsTable(allTools);
+                        if (tcEl) tcEl.textContent = allTools.length;
+                        renderRecentTools(allTools.slice(0,5));
+                        return;
+                    } else {
+                        toast('❌ Firestore write ব্যর্থ — Rules চেক করুন', 'error');
+                        if (warnBanner) warnBanner.style.display = 'flex';
+                    }
                 }
             }
         }
@@ -7876,6 +7919,8 @@ async function loadTools(forceRefresh = false) {
         } catch(e) {
             showFirestoreSetupGuide();
         }
+    } finally {
+        window._loadingTools = false; // ✅ mutex release — সবসময়
     }
 }
 
@@ -8144,6 +8189,7 @@ async function saveTool(preview = false) {
             name: title,        // user.html compatibility
             category,
             subcategory: subcategory || '',  // ✅ subcategory সেভ হবে
+            subCategory: subcategory || '',  // user.html camelCase compatibility
             description,
             author,
             tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : [],
@@ -8226,6 +8272,12 @@ async function editTool(id) {
         document.getElementById('toolVersion').value = tool.version || 1;
         document.getElementById('toolTitle').value = tool.title || '';
         document.getElementById('toolCat').value = tool.category || 'system';
+        updateSubcatSelect(tool.category || 'system');
+        // ✅ Subcategory restore
+        setTimeout(function() {
+            var _scEl = document.getElementById('toolSubcat');
+            if (_scEl) _scEl.value = tool.subcategory || tool.subCategory || '';
+        }, 50);
         document.getElementById('toolDesc').value = tool.description || '';
         document.getElementById('toolAuthor').value = tool.author || '';
         document.getElementById('toolTags').value = (tool.tags || []).join(', ');
@@ -9247,7 +9299,7 @@ async function addAdmin() {
         return;
     }
     
-    const strength = Security.checkPasswordStrength(password);
+    const strength = AdminSecurity.checkPasswordStrength(password);
     if (strength.score < 3) {
         toast(`পাসওয়ার্ড খুব দুর্বল! (${strength.strength})`, 'error');
         return;
@@ -9570,7 +9622,7 @@ async function changePwd() {
         return;
     }
     
-    const strength = Security.checkPasswordStrength(np);
+    const strength = AdminSecurity.checkPasswordStrength(np);
     if (strength.score < 3) {
         toast(`পাসওয়ার্ড খুব দুর্বল! (${strength.strength})`, 'error');
         return;
@@ -9598,7 +9650,7 @@ async function changePwd() {
 
 // Monitor password strength
 document.getElementById('newPwd')?.addEventListener('input', function(e) {
-    const strength = Security.checkPasswordStrength(e.target.value);
+    const strength = AdminSecurity.checkPasswordStrength(e.target.value);
     const bar = document.getElementById('passwordStrength');
     if (bar) {
         bar.style.width = (strength.score * 20) + '%';
@@ -11109,6 +11161,44 @@ var DEFAULT_ADMIN_SUBCATS = {
     // Also update on page load if editing
     updateSubcatSelect(catSel.value);
   });
+
+
+// ✅ FIX: syncFromAdmin — user tab কে sync notify করে
+if (typeof window.syncFromAdmin !== 'function') {
+    window.syncFromAdmin = function(reason) {
+        try {
+            var ch = new BroadcastChannel('autoscrip_sync');
+            ch.postMessage({ type: 'tools_updated', reason: reason || 'admin_action', ts: Date.now() });
+            ch.close();
+        } catch(e) {}
+    };
+}
+
+// ✅ FIX: getCategoryLabel early guard
+if (typeof window.getCategoryLabel !== 'function') {
+    window.getCategoryLabel = function(cat) {
+        var labels = {
+            system:'⚙️ সিস্টেম', network:'🌐 নেটওয়ার্ক', security:'🔒 সিকিউরিটি',
+            backup:'💾 ব্যাকআপ', monitoring:'📊 মনিটরিং', automation:'🤖 অটোমেশন',
+            download:'⬇️ ডাউনলোড', devtools:'💻 ডেভটুলস', office:'📝 অফিস',
+            gaming:'🎮 গেমিং', files:'📁 ফাইল', windows:'🪟 উইন্ডোজ', other:'📜 অন্যান্য'
+        };
+        return labels[cat] || cat || '📜 অন্যান্য';
+    };
+}
+
+// ✅ FIX: getCategoryIcon early guard
+if (typeof window.getCategoryIcon !== 'function') {
+    window.getCategoryIcon = function(cat) {
+        var icons = {
+            system:'⚙️', network:'🌐', security:'🔒', backup:'💾',
+            monitoring:'📊', automation:'🤖', download:'⬇️', devtools:'💻',
+            office:'📝', gaming:'🎮', files:'📁', windows:'🪟', other:'📜'
+        };
+        return icons[cat] || '📜';
+    };
+}
+
 })();
 
 </script>
