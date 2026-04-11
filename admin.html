@@ -1,6 +1,63 @@
 <!DOCTYPE html>
 <html lang="bn" dir="ltr">
 <head>
+<script>
+// ═══════════════════════════════════════════════════
+// AUTOSCRIP KILL SWITCH v1 — "Read test" loop buster
+// ═══════════════════════════════════════════════════
+(function(){
+  // Step 1: Clear ALL existing intervals (kills old Read test loop)
+  var _maxId = setTimeout(function(){},0);
+  for(var i=1; i<=_maxId; i++){ try{clearInterval(i);}catch(_){} }
+
+  // Step 2: Set quota block for 30 minutes
+  window._fbQuotaUntil = Date.now() + (30*60*1000);
+  window._migrationDone = true;
+
+  // Step 3: Patch setInterval to block Read test loops
+  var _origSI = window.setInterval;
+  window.setInterval = function(fn, delay){
+    var s = (typeof fn === 'function') ? fn.toString() : String(fn);
+    if(s.indexOf('Read test') >= 0 || s.indexOf('pageSize=5') >= 0){
+      console.warn('[KillSwitch] Blocked: Read test loop');
+      return 0;
+    }
+    return _origSI.apply(window, arguments);
+  };
+
+  // Step 4: Patch fetch to block pageSize=5 requests
+  var _origFetch = window.fetch;
+  window.fetch = function(url, opts){
+    var u = String(url||'');
+    if(u.indexOf('pageSize=5') >= 0){
+      console.warn('[KillSwitch] Blocked fetch: ' + u.slice(0,80));
+      return Promise.resolve(new Response('{"documents":[]}',{status:200,headers:{'Content-Type':'application/json'}}));
+    }
+    return _origFetch.apply(window, arguments);
+  };
+
+  // Step 5: Patch XMLHttpRequest to block pageSize=5 requests
+  var _OrigXHR = window.XMLHttpRequest;
+  var _p = _OrigXHR.prototype;
+  var _origOpen = _p.open;
+  _p.open = function(m, url){
+    if(String(url||'').indexOf('pageSize=5') >= 0){
+      console.warn('[KillSwitch] Blocked XHR: ' + String(url).slice(0,80));
+      this.__blocked = true;
+      return;
+    }
+    this.__blocked = false;
+    return _origOpen.apply(this, arguments);
+  };
+  var _origSend = _p.send;
+  _p.send = function(){
+    if(this.__blocked){ return; }
+    return _origSend.apply(this, arguments);
+  };
+
+  console.log('[AutoScrip] Kill switch active. Quota blocked 30 min. Read test loop destroyed.');
+})();
+</script>
   <meta charset="UTF-8">
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
